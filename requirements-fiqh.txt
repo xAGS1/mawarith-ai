@@ -1,0 +1,2 @@
+# Optional local BGE-M3 runtime; Qdrant is accessed through its REST API.
+sentence-transformers>=3.4,<6

@@ -51,6 +51,8 @@ class PipelineOutput(BaseModel):
     parsed_relations: dict
     case_features: dict
     sources: List[dict]
+    fiqh_evidence: List[dict]
+    fiqh_retrieval: dict
     source_coverage: SourceCoverage
     decision_state: Literal["ready", "insufficient_sources"]
     result: Optional[InheritanceOutput]

@@ -6,6 +6,8 @@ MAWARITH AI is an Arabic-first intelligent Islamic inheritance reasoning system 
 ```text
 Question -> Qwen relation parser -> Shared factual case features
          -> Shared condition-aware local rule retriever -> Shared source coverage gate
+         -> Shared QuranEnc source enrichment (exact text, cached locally)
+         -> Shared Fiqh RAG evidence retrieval (support only)
          -> Qwen reasoner only when coverage is sufficient
          -> Shared Python fraction verifier -> Final JSON with sources
 ```
@@ -27,6 +29,18 @@ because the source library has no rule for the brother. Coverage measures distin
 relation names, not head counts, and checks availability rather than legal completeness.
 The model-independent modules under `backend/rules/`, `backend/rag/`,
 `backend/verifier/` and `backend/schemas/` do not import Qwen.
+
+The shared `backend/sources/` layer fetches Arabic Quran text independently from
+QuranEnc and preserves it exactly in `sources[].source.arabic_text`, alongside
+`provider`, `reference`, `immutable_text` and `retrieval_status`. Qwen receives
+the original structured rules and references without the fetched verse text.
+The final response attaches trusted text separately from the generated result.
+Missing text is never reconstructed by the model: failed retrieval leaves the
+rule and reference intact with `retrieval_status: "unavailable"`.
+
+Verses are cached as `data/sources/quran_cache/4_12.json` with retrieval timestamps
+and checksums. Runtime cache files are ignored by Git; only the folder README is
+tracked. No new rule selection or reasoning depends on remote text retrieval.
 
 `shares[].fraction` is the group share of the whole estate. The authoritative
 input is `post_tasil.distribution[].per_head_shares`, the share for one person.
@@ -52,7 +66,58 @@ debug streaming remains available. The reasoner module returns model JSON;
 verification runs separately in the pipeline. Its CLI still writes verified
 output to `qwen_output.json`.
 
-Run checks:
+## First Fiqh RAG layer
+
+The approved source is the Kuwaiti Fiqh Encyclopedia, published by Kuwait's
+Ministry of Awqaf and Islamic Affairs. **No approved excerpts are currently
+installed.** Place approved local files in
+`data/fiqh/kuwaiti_encyclopedia/raw/`; supported formats are UTF-8 TXT, Markdown
+and JSON. See [the corpus guide](data/fiqh/kuwaiti_encyclopedia/README.md) for
+required provenance and sidecar formats. Religious text is never fabricated,
+paraphrased or automatically downloaded by ingestion.
+
+Install the optional embedding runtime when a real corpus is ready:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-fiqh.txt
+```
+
+The local embedding model defaults to `BAAI/bge-m3` with 1024 dense dimensions.
+Its first load may download the model weights from Hugging Face; prepare the
+weights in advance for offline operation. The embedding model is independent
+of Qwen. Qdrant is accessed through its REST API using the existing `requests`
+dependency; no in-memory production store is substituted.
+
+Run a Qdrant server separately. Set these shell environment variables as needed
+(the project does not automatically read `.env`):
+
+```text
+QDRANT_HOST=http://localhost:6333
+FIQH_COLLECTION=mawarith_fiqh
+FIQH_EMBEDDING_MODEL=BAAI/bge-m3
+```
+
+Ingest, index, retrieve, and optionally check Qdrant connectivity:
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.loader
+.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.vector_store
+.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.retriever
+.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.vector_store --check-connection
+```
+
+Retrieval prompts `اكتب سؤال البحث الفقهي:`. Python callers can use
+`retrieve_fiqh(query, top_k=5, filters={"topic": "..."})`, with filters for
+topic, source_name, section and volume. Results preserve exact text and metadata.
+The main response separates `fiqh_evidence` from generated `result` and reports
+`fiqh_retrieval.status` as `available`, `empty`, or `unavailable`.
+
+Empty corpus retrieval is safe and returns no evidence without Qdrant or model
+initialization. A nonempty corpus requires a working Qdrant collection and
+embedding runtime; failures are explicit. RAG evidence **does not independently
+determine inheritance rulings** and never increases structured source coverage.
+
+## Checks
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q

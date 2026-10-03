@@ -93,7 +93,7 @@ def test_verifier_rejects_invalid_distribution(count, fraction):
 
 def test_shared_modules_do_not_import_qwen():
     root = Path(__file__).resolve().parents[1] / "backend"
-    for directory in ("rules", "rag", "verifier", "schemas"):
+    for directory in ("rules", "rag", "verifier", "schemas", "sources"):
         for path in (root / directory).rglob("*.py"):
             tree = ast.parse(path.read_text(encoding="utf-8"))
             for node in ast.walk(tree):

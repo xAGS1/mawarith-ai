@@ -16,6 +16,7 @@ def test_unsupported_brother_blocks_reasoner_and_verifier(through_api):
     ]}
     with (
         patch("backend.pipeline.qwen_pipeline.parse_relations", return_value=parsed),
+        patch("backend.pipeline.qwen_pipeline.enrich_sources", side_effect=lambda rules: rules),
         patch("backend.pipeline.qwen_pipeline.analyze_case") as reasoner,
         patch("backend.pipeline.qwen_pipeline.verify_and_normalize") as verifier,
     ):

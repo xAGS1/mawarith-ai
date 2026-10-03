@@ -13,3 +13,18 @@ Counts are factual and do not determine rulings. The configured `has_kalalah_con
 The parent records describe specified fractions only. The father's additional residue is not implemented. The mother's third text retains the verse's context of parental inheritance; its requested conditions are a simplified retrieval filter, not a complete treatment of compound cases. Coverage checks matched rule availability, not the completeness of a final inheritance ruling.
 
 Intentionally absent: father without child residue, full brother alone, maternal-sibling outcomes, extended-relative outcomes, blocking/precedence, awl and radd. Previously supported factual detection of extended descendant names remains available to avoid false kalalah classification; no inheritance rules for those relations are added.
+
+## Trusted Quran text integration
+
+`backend/sources/router.py` enriches retrieved rule records using QuranEnc's
+[single-ayah API](https://quranenc.com/en/home/api/). The adapter requests the
+`english_saheeh` endpoint but uses only its separate `arabic_text` field, never
+the translation or footnotes. Verse identity must match the requested reference.
+Arabic text is preserved without trimming or normalization and stored under
+`quran_cache/` with provider, timestamp and checksum metadata.
+
+The final pipeline sources contain the trusted text; the reasoner receives the
+unenriched rule records. Fetch failures preserve the reference and mark
+`retrieval_status: "unavailable"`, with no substitute Quran text. This status is
+separate from rule coverage: a provider outage does not change which structured
+inheritance rules are available locally.

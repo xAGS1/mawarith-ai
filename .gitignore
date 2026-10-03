@@ -12,3 +12,15 @@ parser_check_results.json
 # QIAS data not redistributed in the public repo.
 data/qias/*.json
 !data/qias/README.md
+
+# Trusted Quran text cached at runtime.
+data/sources/quran_cache/*
+!data/sources/quran_cache/README.md
+
+# Approved source files and generated fiqh artifacts stay local.
+data/fiqh/kuwaiti_encyclopedia/raw/*
+!data/fiqh/kuwaiti_encyclopedia/raw/README.md
+data/fiqh/kuwaiti_encyclopedia/processed/*
+!data/fiqh/kuwaiti_encyclopedia/processed/README.md
+
+qdrant_storage/

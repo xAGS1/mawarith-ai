@@ -1,0 +1,1 @@
+"""Trusted Quran source providers."""

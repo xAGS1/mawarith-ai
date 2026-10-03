@@ -87,6 +87,8 @@ def main():
                 "parsed_relations": pipeline_output["parsed_relations"],
                 "case_features": pipeline_output["case_features"],
                 "sources": pipeline_output["sources"],
+                "fiqh_evidence": pipeline_output["fiqh_evidence"],
+                "fiqh_retrieval": pipeline_output["fiqh_retrieval"],
                 "source_coverage": pipeline_output["source_coverage"],
                 "decision_state": pipeline_output["decision_state"],
                 "checks": checks,

@@ -57,7 +57,10 @@ def response_for(result):
 @pytest.mark.parametrize("through_api", [False, True])
 def test_full_pipeline_and_api_preserve_sources_and_verification(through_api):
     # Mock only model transport: the real parser, retriever, reasoner and verifier run.
-    with patch("requests.post", side_effect=[response_for(PARSED), response_for(model_result())]) as post:
+    with (
+        patch("requests.post", side_effect=[response_for(PARSED), response_for(model_result())]) as post,
+        patch("backend.pipeline.qwen_pipeline.enrich_sources", side_effect=lambda rules: rules),
+    ):
         if through_api:
             output = analyze_case_endpoint(CaseRequest(question=QUESTION)).model_dump()
         else:
