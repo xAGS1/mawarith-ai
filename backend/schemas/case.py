@@ -10,13 +10,13 @@ class HeirItem(BaseModel):
 class ShareItem(BaseModel):
     heir: str
     count: int = Field(ge=1)
-    fraction: str
+    fraction: str = Field(description="Group share of the whole estate, including all count individuals")
 
 
 class DistributionItem(BaseModel):
     heir: str
     count: int = Field(ge=1)
-    per_head_shares: str
+    per_head_shares: str = Field(description="Share of the whole estate for one individual")
     per_head_percent: Optional[float] = None
 
 
@@ -39,8 +39,18 @@ class InheritanceOutput(BaseModel):
     verification: Optional[FractionVerification] = None
 
 
+class SourceCoverage(BaseModel):
+    is_sufficient: bool
+    covered_relations: List[str]
+    unsupported_relations: List[str]
+    coverage_ratio: float = Field(ge=0, le=1)
+
+
 class PipelineOutput(BaseModel):
     question: str
     parsed_relations: dict
+    case_features: dict
     sources: List[dict]
-    result: InheritanceOutput
+    source_coverage: SourceCoverage
+    decision_state: Literal["ready", "insufficient_sources"]
+    result: Optional[InheritanceOutput]

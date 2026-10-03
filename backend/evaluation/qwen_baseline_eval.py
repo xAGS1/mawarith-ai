@@ -73,7 +73,7 @@ def main():
         try:
             pipeline_output = run_pipeline(question)
             pred = pipeline_output["result"]
-            checks = score_case(gold, pred)
+            checks = score_case(gold, pred) if pred is not None else {key: False for key in counts}
 
             for key, value in checks.items():
                 if value:
@@ -85,7 +85,10 @@ def main():
                 "gold": gold,
                 "prediction": pred,
                 "parsed_relations": pipeline_output["parsed_relations"],
+                "case_features": pipeline_output["case_features"],
                 "sources": pipeline_output["sources"],
+                "source_coverage": pipeline_output["source_coverage"],
+                "decision_state": pipeline_output["decision_state"],
                 "checks": checks,
             })
         except Exception as exc:

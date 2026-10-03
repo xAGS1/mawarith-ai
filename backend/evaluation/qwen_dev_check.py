@@ -36,9 +36,12 @@ def main():
                 "question": question,
                 "prediction": prediction,
                 "parsed_relations": pipeline_output["parsed_relations"],
+                "case_features": pipeline_output["case_features"],
                 "sources": pipeline_output["sources"],
+                "source_coverage": pipeline_output["source_coverage"],
+                "decision_state": pipeline_output["decision_state"],
                 "gold": item["output"],
-                "status": "completed",
+                "status": "completed" if prediction is not None else "insufficient_sources",
             }
 
             print("\nQWEN OUTPUT:")

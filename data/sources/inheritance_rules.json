@@ -1,29 +1,82 @@
 [
   {
     "rule_id": "wife_with_descendant",
-    "relations": ["زوجة"],
+    "applies_to": [
+      "زوجة"
+    ],
+    "conditions": {
+      "has_descendant": true
+    },
+    "result": {
+      "fraction": "1/8"
+    },
     "topic": "نصيب الزوجة مع وجود فرع وارث",
     "rule": "للزوجة الثمن (1/8) عند وجود فرع وارث.",
-    "source_type": "quran",
-    "source_name": "القرآن الكريم",
-    "reference": "4:12"
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:12"
+    }
+  },
+  {
+    "rule_id": "wife_without_descendant",
+    "applies_to": [
+      "زوجة"
+    ],
+    "conditions": {
+      "has_descendant": false
+    },
+    "result": {
+      "fraction": "1/4"
+    },
+    "topic": "نصيب الزوجة دون فرع وارث",
+    "rule": "للزوجة الربع (1/4) عند عدم وجود فرع وارث.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:12"
+    }
   },
   {
     "rule_id": "mother_with_child",
-    "relations": ["أم"],
+    "applies_to": [
+      "أم"
+    ],
+    "conditions": {
+      "has_child": true
+    },
+    "result": {
+      "fraction": "1/6"
+    },
     "topic": "نصيب الأم مع وجود ولد",
     "rule": "للأم السدس (1/6) عند وجود ولد.",
-    "source_type": "quran",
-    "source_name": "القرآن الكريم",
-    "reference": "4:11"
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:11"
+    }
   },
   {
     "rule_id": "sons_and_daughters_residue",
-    "relations": ["ابن", "بنت"],
+    "applies_to": [
+      "ابن",
+      "بنت"
+    ],
+    "conditions": {
+      "has_son": true,
+      "has_daughter": true
+    },
+    "result": {
+      "allocation": "residue",
+      "male_weight": 2,
+      "female_weight": 1
+    },
     "topic": "الباقي للأبناء والبنات",
     "rule": "عند اجتماع الأبناء والبنات، يتقاسمون الباقي بعد أصحاب الفروض، للذكر مثل حظ الأنثيين.",
-    "source_type": "quran",
-    "source_name": "القرآن الكريم",
-    "reference": "4:11"
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:11"
+    }
   }
 ]

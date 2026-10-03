@@ -2,8 +2,6 @@ import json
 import os
 import requests
 
-from backend.verifier.fractions import verify_distribution
-
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:8b")
@@ -93,9 +91,16 @@ SYSTEM_PROMPT = """
 لا تعِد استخراج الأقارب من السؤال، ولا تضف أو تغير الأقارب أو أعدادهم.
 السؤال الأصلي للسياق فقط، وليس لتجاوز المدخل المنظم.
 استخدم القواعد المسترجعة sources كسياق الاستدلال والتوثيق.
+القواعد المسترجعة هي المرجع الوحيد المعتمد للأحكام الشرعية والأنصبة.
+لا تستنتج الأنصبة من ذاكرة النموذج عند غياب قاعدة في المصادر المسترجعة.
+لا تنشئ أحكاما غير مدعومة بالمصادر المسترجعة ولا تختلق استشهادات.
+فحص التغطية البرمجي في Python هو البوابة المعتمدة قبل تشغيل الاستدلال.
 لا تخترع مصادر أو مراجع أو روابط، ولا تستخدم قواعد غير موجودة في sources.
 إذا كانت القواعد المسترجعة غير كافية لحل المسألة، فلا تخمن الأنصبة:
 أعد heirs وblocked وshares وpost_tasil.distribution فارغة، وawl_or_radd = "قواعد غير كافية".
+
+case_features تصف حقائق الحالة فقط ولا تمثل أحكاما شرعية.
+كسور shares التي يولدها النموذج مؤقتة، وستستبدلها Python من نصيب الفرد وعدده.
 
 قواعد الإخراج:
 
@@ -155,7 +160,7 @@ post_tasil.distribution: الزوجة count=1 وper_head_shares="1/8"،
 """
 
 
-def generate_raw(question: str, parsed_relations: dict, sources: list) -> str:
+def generate_raw(question: str, parsed_relations: dict, case_features: dict, sources: list) -> str:
     prompt = f"""{SYSTEM_PROMPT}
 
 المسألة:
@@ -164,7 +169,10 @@ def generate_raw(question: str, parsed_relations: dict, sources: list) -> str:
 parsed_relations (authoritative):
 {json.dumps(parsed_relations, ensure_ascii=False)}
 
-sources (retrieved rules and source metadata):
+case_features (shared factual features):
+{json.dumps(case_features, ensure_ascii=False)}
+
+sources (condition-matched rules and source metadata):
 {json.dumps(sources, ensure_ascii=False)}
 """
 
@@ -233,8 +241,9 @@ sources (retrieved rules and source metadata):
     return response.json()["response"]
 
 
-def analyze_case(question: str, parsed_relations: dict, sources: list) -> dict:
-    raw = generate_raw(question, parsed_relations, sources)
+def analyze_case(question: str, parsed_relations: dict, case_features: dict, sources: list) -> dict:
+    """Return model JSON; shared pipeline verification runs separately."""
+    raw = generate_raw(question, parsed_relations, case_features, sources)
 
     try:
         result = json.loads(raw)
@@ -244,38 +253,18 @@ def analyze_case(question: str, parsed_relations: dict, sources: list) -> dict:
             f"Model returned invalid JSON:\n{raw}"
         ) from exc
 
-    distribution = (
-        result
-        .get("post_tasil", {})
-        .get("distribution", [])
-    )
-
-    verification = verify_distribution(distribution)
-
-    result["post_tasil"] = {
-        "total_shares": verification["total_shares"],
-        "distribution": verification["distribution"],
-    }
-
-    result["verification"] = {
-        "total_fraction": verification["total_fraction"],
-        "is_consistent": verification["is_consistent"],
-    }
-
     return result
 
 
 if __name__ == "__main__":
-    from backend.parsing.qwen_relation_parser import parse_relations
-    from backend.rag.retriever import retrieve_rules
+    from backend.pipeline.qwen_pipeline import run_pipeline
 
     example = (
         "مات وترك زوجة وأما وابنين وبنت. "
         "ما هو نصيب كل وريث؟"
     )
 
-    parsed = parse_relations(example)
-    result = analyze_case(example, parsed, retrieve_rules(parsed))
+    result = run_pipeline(example)["result"]
 
     with open(
         "qwen_output.json",
