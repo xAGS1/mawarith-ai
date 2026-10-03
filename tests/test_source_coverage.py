@@ -41,13 +41,13 @@ def test_unsupported_brother_blocks_reasoner_and_verifier(through_api):
 
 
 @pytest.mark.parametrize("relations,rules,expected", [
-    (["زوجة", "ابن", "ابن", "بنت"], [{"applies_to": ["زوجة", "ابن", "بنت"]}],
+    (["زوجة", "ابن", "ابن", "بنت"], [{"conditions": {}, "applies_to": ["زوجة", "ابن", "بنت"]}],
      {"is_sufficient": True, "covered_relations": ["زوجة", "ابن", "بنت"], "unsupported_relations": [], "coverage_ratio": 1.0}),
-    (["بنت ابن"], [{"applies_to": ["بنت"]}],
+    (["بنت ابن"], [{"conditions": {}, "applies_to": ["بنت"]}],
      {"is_sufficient": False, "covered_relations": [], "unsupported_relations": ["بنت ابن"], "coverage_ratio": 0.0}),
     (["أم"], [],
      {"is_sufficient": False, "covered_relations": [], "unsupported_relations": ["أم"], "coverage_ratio": 0.0}),
-    ([], [{"applies_to": ["زوجة"]}],
+    ([], [{"conditions": {}, "applies_to": ["زوجة"]}],
      {"is_sufficient": False, "covered_relations": [], "unsupported_relations": [], "coverage_ratio": 0.0}),
     (["زوجة"], [{}],
      {"is_sufficient": False, "covered_relations": [], "unsupported_relations": ["زوجة"], "coverage_ratio": 0.0}),

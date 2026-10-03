@@ -6,6 +6,14 @@ SIBLING_RELATIONS = frozenset({
     "أخ", "أخت",
 })
 
+COUNT_RELATIONS = {
+    "husband_count": "زوج", "wife_count": "زوجة",
+    "son_count": "ابن", "daughter_count": "بنت",
+    "father_count": "أب", "mother_count": "أم",
+    "full_brother_count": "أخ شقيق", "full_sister_count": "أخت شقيقة",
+    "maternal_brother_count": "أخ لأم", "maternal_sister_count": "أخت لأم",
+}
+
 
 def build_case_features(parsed_relations: dict) -> dict:
     relations = {}
@@ -35,4 +43,6 @@ def build_case_features(parsed_relations: dict) -> dict:
         "has_father": "أب" in relations,
         "has_mother": "أم" in relations,
         "sibling_count": sum(relations.get(r, 0) for r in SIBLING_RELATIONS),
+        "has_kalalah_context": not descendants and "أب" not in relations,
+        **{feature: relations.get(relation, 0) for feature, relation in COUNT_RELATIONS.items()},
     }

@@ -3,21 +3,33 @@
 import json
 from pathlib import Path
 
+from backend.rag.source_validation import validate_rule_records
+
 
 RULES_PATH = Path(__file__).resolve().parents[2] / "data" / "sources" / "inheritance_rules.json"
 
 
 def conditions_satisfied(conditions: dict, case_features: dict) -> bool:
-    """Match bool/int equality or integer {eq, min, max} constraints.
+    """Match equality, *_gte/*_lte, or integer {eq, min, max} constraints.
 
     Missing facts, type mismatches and unsupported operators never match.
     Python's bool/int equivalence is deliberately excluded.
     """
     for feature, expected in conditions.items():
+        comparison = None
+        if feature.endswith(("_gte", "_lte")):
+            feature, comparison = feature.rsplit("_", 1)
         if feature not in case_features:
             return False
         actual = case_features[feature]
-        if isinstance(expected, dict):
+        if comparison is not None:
+            if type(actual) is not int or type(expected) is not int:
+                return False
+            if comparison == "gte" and actual < expected:
+                return False
+            if comparison == "lte" and actual > expected:
+                return False
+        elif isinstance(expected, dict):
             if not expected or type(actual) is not int:
                 return False
             for operator, limit in expected.items():
@@ -50,7 +62,7 @@ def retrieve_rules(parsed_relations: dict, case_features: dict) -> list:
         if item["count"] > 0
     }
     with RULES_PATH.open(encoding="utf-8") as source_file:
-        rules = json.load(source_file)
+        rules = validate_rule_records(json.load(source_file))
 
     return [
         rule for rule in rules

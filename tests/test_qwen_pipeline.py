@@ -73,7 +73,7 @@ def test_full_pipeline_and_api_preserve_sources_and_verification(through_api):
         "coverage_ratio": 1.0,
     }
     assert output["case_features"] == build_case_features(PARSED)
-    assert output["sources"] == [r for r in json.loads(RULES_PATH.read_text(encoding="utf-8")) if r["rule_id"] != "wife_without_descendant"]
+    assert output["sources"] == [r for r in json.loads(RULES_PATH.read_text(encoding="utf-8")) if r["rule_id"] in {"wife_with_descendant", "mother_with_child", "sons_and_daughters"}]
     assert output["result"]["shares"][2]["fraction"] == "17/30"
     assert output["result"]["verification"] == {"total_fraction": "1", "is_consistent": True}
     assert output["result"]["post_tasil"]["total_shares"] == 120

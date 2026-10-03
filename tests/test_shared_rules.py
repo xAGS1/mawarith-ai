@@ -24,7 +24,7 @@ def test_case_a_features_and_condition_matched_rules():
     assert features["has_father"] is False
     assert features["sibling_count"] == 0
     rules = retrieve_rules(case, features)
-    assert {r["rule_id"] for r in rules} == {"wife_with_descendant", "mother_with_child", "sons_and_daughters_residue"}
+    assert {r["rule_id"] for r in rules} == {"wife_with_descendant", "mother_with_child", "sons_and_daughters"}
     assert next(r for r in rules if r["rule_id"] == "wife_with_descendant")["result"]["fraction"] == "1/8"
 
 
@@ -72,7 +72,7 @@ def test_generic_condition_evaluator(conditions, features, expected):
 
 def test_single_daughter_does_not_retrieve_joint_children_rule():
     case = parsed(("بنت", 1))
-    assert retrieve_rules(case, build_case_features(case)) == []
+    assert [r["rule_id"] for r in retrieve_rules(case, build_case_features(case))] == ["one_daughter_without_son"]
 
 
 def test_verifier_rebuilds_group_shares_without_mutating_model_result():

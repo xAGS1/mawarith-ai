@@ -18,7 +18,7 @@ With Ollama running and `qwen3:8b` installed, run from the project root:
 
 Output includes `question`, `parsed_relations`, `case_features`, `sources`,
 `source_coverage`, `decision_state` and `result`. When any mentioned relation has
-no retrieved rule in `applies_to`, Python returns `insufficient_sources` with
+no retrieved rule with matching `applies_to` and satisfied conditions, Python returns `insufficient_sources` with
 `result: null` and skips both reasoning and verification. Otherwise the state is
 `ready` and reasoning runs followed by verification. An empty parsed case is blocked.
 
@@ -33,10 +33,19 @@ input is `post_tasil.distribution[].per_head_shares`, the share for one person.
 Python replaces model-generated group shares, normalizes fractions, calculates
 percentages, and checks that the count-weighted total equals one.
 
-The local source set contains four rules from Quran 4:11 and 4:12, including
-the wife's 1/8 with descendants and 1/4 without descendants. It does not cover
-general inheritance cases or a brother's share. Arithmetic consistency does
-not establish the legal correctness of a ruling.
+The local source set contains 14 structured records citing Quran 4:11, 4:12 and
+4:176: spouses, daughters, joint sons/daughters, parents' specified fractions,
+and full sisters or joint full siblings in the configured kalalah context.
+Records are validated at load time. Threshold conditions use generic `_gte`
+and `_lte` suffixes, alongside equality and integer comparison objects.
+
+Kalalah context is conservatively defined for this batch as no descendant and
+no father. This is a configured applicability feature, not a complete legal
+determination. Parent fractions are partial rules: no father's residue is
+encoded, and the mother's third record retains the verse's parental context
+in its text. These records are not a complete rule system for compound cases.
+No brother-alone, blocking, awl, radd, or extended-relative rules are added.
+Coverage and arithmetic consistency do not establish legal completeness.
 
 Normal model execution uses `think=False` and `temperature=0`. Optional reasoner
 debug streaming remains available. The reasoner module returns model JSON;

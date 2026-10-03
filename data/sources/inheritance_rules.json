@@ -1,5 +1,43 @@
 [
   {
+    "rule_id": "husband_with_descendant",
+    "applies_to": [
+      "زوج"
+    ],
+    "conditions": {
+      "has_descendant": true
+    },
+    "result": {
+      "fraction": "1/4"
+    },
+    "topic": "نصيب الزوج مع وجود ولد",
+    "rule": "للزوج الربع عند وجود ولد للمتوفاة.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:12"
+    }
+  },
+  {
+    "rule_id": "husband_without_descendant",
+    "applies_to": [
+      "زوج"
+    ],
+    "conditions": {
+      "has_descendant": false
+    },
+    "result": {
+      "fraction": "1/2"
+    },
+    "topic": "نصيب الزوج دون ولد",
+    "rule": "للزوج النصف عند عدم وجود ولد للمتوفاة.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:12"
+    }
+  },
+  {
     "rule_id": "wife_with_descendant",
     "applies_to": [
       "زوجة"
@@ -10,8 +48,8 @@
     "result": {
       "fraction": "1/8"
     },
-    "topic": "نصيب الزوجة مع وجود فرع وارث",
-    "rule": "للزوجة الثمن (1/8) عند وجود فرع وارث.",
+    "topic": "نصيب الزوجة مع وجود ولد",
+    "rule": "للزوجة أو الزوجات معا الثمن عند وجود ولد للمتوفى.",
     "source": {
       "source_type": "quran",
       "source_name": "القرآن الكريم",
@@ -29,8 +67,8 @@
     "result": {
       "fraction": "1/4"
     },
-    "topic": "نصيب الزوجة دون فرع وارث",
-    "rule": "للزوجة الربع (1/4) عند عدم وجود فرع وارث.",
+    "topic": "نصيب الزوجة دون ولد",
+    "rule": "للزوجة أو الزوجات معا الربع عند عدم وجود ولد للمتوفى.",
     "source": {
       "source_type": "quran",
       "source_name": "القرآن الكريم",
@@ -38,18 +76,20 @@
     }
   },
   {
-    "rule_id": "mother_with_child",
+    "rule_id": "one_daughter_without_son",
     "applies_to": [
-      "أم"
+      "بنت"
     ],
     "conditions": {
-      "has_child": true
+      "has_daughter": true,
+      "daughter_count": 1,
+      "has_son": false
     },
     "result": {
-      "fraction": "1/6"
+      "fraction": "1/2"
     },
-    "topic": "نصيب الأم مع وجود ولد",
-    "rule": "للأم السدس (1/6) عند وجود ولد.",
+    "topic": "نصيب البنت الواحدة دون ابن",
+    "rule": "للبنت الواحدة النصف عند عدم وجود ابن.",
     "source": {
       "source_type": "quran",
       "source_name": "القرآن الكريم",
@@ -57,7 +97,27 @@
     }
   },
   {
-    "rule_id": "sons_and_daughters_residue",
+    "rule_id": "multiple_daughters_without_son",
+    "applies_to": [
+      "بنت"
+    ],
+    "conditions": {
+      "daughter_count_gte": 2,
+      "has_son": false
+    },
+    "result": {
+      "fraction": "2/3"
+    },
+    "topic": "نصيب البنات دون ابن",
+    "rule": "للبنتين فأكثر الثلثان معا عند عدم وجود ابن.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:11"
+    }
+  },
+  {
+    "rule_id": "sons_and_daughters",
     "applies_to": [
       "ابن",
       "بنت"
@@ -71,12 +131,156 @@
       "male_weight": 2,
       "female_weight": 1
     },
-    "topic": "الباقي للأبناء والبنات",
-    "rule": "عند اجتماع الأبناء والبنات، يتقاسمون الباقي بعد أصحاب الفروض، للذكر مثل حظ الأنثيين.",
+    "topic": "تقاسم الأبناء والبنات",
+    "rule": "يتقاسم الأبناء والبنات الباقي بعد الفروض، للذكر مثل حظ الأنثيين.",
     "source": {
       "source_type": "quran",
       "source_name": "القرآن الكريم",
       "reference": "4:11"
+    }
+  },
+  {
+    "rule_id": "mother_with_child",
+    "applies_to": [
+      "أم"
+    ],
+    "conditions": {
+      "has_child": true
+    },
+    "result": {
+      "fraction": "1/6"
+    },
+    "topic": "نصيب الأم مع ولد",
+    "rule": "للأم السدس عند وجود ولد.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:11"
+    }
+  },
+  {
+    "rule_id": "mother_no_child_no_siblings",
+    "applies_to": [
+      "أم"
+    ],
+    "conditions": {
+      "has_child": false,
+      "sibling_count": 0
+    },
+    "result": {
+      "fraction": "1/3"
+    },
+    "topic": "نصيب الأم دون ولد أو إخوة",
+    "rule": "للأم الثلث في سياق عدم وجود ولد ووراثة الأبوين، دون إخوة. لا تعالج هذه القاعدة الحالات المركبة التي تحتاج أحكاما إضافية.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:11"
+    }
+  },
+  {
+    "rule_id": "mother_with_siblings",
+    "applies_to": [
+      "أم"
+    ],
+    "conditions": {
+      "has_child": false,
+      "sibling_count_gte": 2
+    },
+    "result": {
+      "fraction": "1/6"
+    },
+    "topic": "نصيب الأم مع إخوة دون ولد",
+    "rule": "للأم السدس عند وجود إخوة؛ حد التفعيل في هذه الدفعة أخوان أو أختان فأكثر، دون ولد.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:11"
+    }
+  },
+  {
+    "rule_id": "father_with_child",
+    "applies_to": [
+      "أب"
+    ],
+    "conditions": {
+      "has_child": true
+    },
+    "result": {
+      "fraction": "1/6"
+    },
+    "topic": "فرض الأب مع ولد",
+    "rule": "فرض الأب السدس عند وجود ولد. هذه القاعدة لا تعالج أي نصيب إضافي من الباقي.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:11"
+    }
+  },
+  {
+    "rule_id": "one_full_sister_kalalah",
+    "applies_to": [
+      "أخت شقيقة"
+    ],
+    "conditions": {
+      "has_kalalah_context": true,
+      "full_sister_count": 1,
+      "full_brother_count": 0
+    },
+    "result": {
+      "fraction": "1/2"
+    },
+    "topic": "أخت شقيقة واحدة في الكلالة",
+    "rule": "للأخت الشقيقة الواحدة النصف في سياق الكلالة دون أخ شقيق.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:176"
+    }
+  },
+  {
+    "rule_id": "multiple_full_sisters_kalalah",
+    "applies_to": [
+      "أخت شقيقة"
+    ],
+    "conditions": {
+      "has_kalalah_context": true,
+      "full_sister_count_gte": 2,
+      "full_brother_count": 0
+    },
+    "result": {
+      "fraction": "2/3"
+    },
+    "topic": "أختان شقيقتان فأكثر في الكلالة",
+    "rule": "للأختين الشقيقتين فأكثر الثلثان معا في سياق الكلالة دون أخ شقيق.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:176"
+    }
+  },
+  {
+    "rule_id": "full_brothers_and_sisters_kalalah",
+    "applies_to": [
+      "أخ شقيق",
+      "أخت شقيقة"
+    ],
+    "conditions": {
+      "has_kalalah_context": true,
+      "full_brother_count_gte": 1,
+      "full_sister_count_gte": 1
+    },
+    "result": {
+      "allocation": "residue",
+      "male_weight": 2,
+      "female_weight": 1
+    },
+    "topic": "إخوة وأخوات أشقاء في الكلالة",
+    "rule": "يتقاسم الإخوة والأخوات الأشقاء الباقي في سياق الكلالة، للذكر مثل حظ الأنثيين.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:176"
     }
   }
 ]
