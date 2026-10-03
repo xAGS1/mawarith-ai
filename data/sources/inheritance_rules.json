@@ -1,0 +1,29 @@
+[
+  {
+    "rule_id": "wife_with_descendant",
+    "relations": ["زوجة"],
+    "topic": "نصيب الزوجة مع وجود فرع وارث",
+    "rule": "للزوجة الثمن (1/8) عند وجود فرع وارث.",
+    "source_type": "quran",
+    "source_name": "القرآن الكريم",
+    "reference": "4:12"
+  },
+  {
+    "rule_id": "mother_with_child",
+    "relations": ["أم"],
+    "topic": "نصيب الأم مع وجود ولد",
+    "rule": "للأم السدس (1/6) عند وجود ولد.",
+    "source_type": "quran",
+    "source_name": "القرآن الكريم",
+    "reference": "4:11"
+  },
+  {
+    "rule_id": "sons_and_daughters_residue",
+    "relations": ["ابن", "بنت"],
+    "topic": "الباقي للأبناء والبنات",
+    "rule": "عند اجتماع الأبناء والبنات، يتقاسمون الباقي بعد أصحاب الفروض، للذكر مثل حظ الأنثيين.",
+    "source_type": "quran",
+    "source_name": "القرآن الكريم",
+    "reference": "4:11"
+  }
+]

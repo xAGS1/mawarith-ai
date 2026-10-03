@@ -1,0 +1,14 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+baseline_results.json
+qwen_output.json
+dev_check_results.json
+parser_check_results.json
+
+# QIAS data not redistributed in the public repo.
+data/qias/*.json
+!data/qias/README.md
