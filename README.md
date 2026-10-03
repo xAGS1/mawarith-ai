@@ -69,10 +69,8 @@ output to `qwen_output.json`.
 ## First Fiqh RAG layer
 
 The approved source is the Kuwaiti Fiqh Encyclopedia, published by Kuwait's
-Ministry of Awqaf and Islamic Affairs. **No approved excerpts are currently
-installed.** Place approved local files in
-`data/fiqh/kuwaiti_encyclopedia/raw/`; supported formats are UTF-8 TXT, Markdown
-and JSON. See [the corpus guide](data/fiqh/kuwaiti_encyclopedia/README.md) for
+Ministry of Awqaf and Islamic Affairs. Approved source files must be supplied locally. Place approved local files in
+`data/fiqh/kuwaiti_encyclopedia/raw/`; supported formats are UTF-8 TXT, Markdown, JSON and DOCX. See [the corpus guide](data/fiqh/kuwaiti_encyclopedia/README.md) for
 required provenance and sidecar formats. Religious text is never fabricated,
 paraphrased or automatically downloaded by ingestion.
 
@@ -106,9 +104,17 @@ Ingest, index, retrieve, and optionally check Qdrant connectivity:
 .\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.vector_store --check-connection
 ```
 
-Retrieval prompts `اكتب سؤال البحث الفقهي:`. Python callers can use
+Retrieval prompts once with `السؤال:`. Python callers can use
 `retrieve_fiqh(query, top_k=5, filters={"topic": "..."})`, with filters for
 topic, source_name, section and volume. Results preserve exact text and metadata.
+Results also return `previous_chunk` and `next_chunk` as exact source excerpts
+from the same document, or null at document boundaries. Tiny fragments are
+merged before indexing; actual DOCX article-title styles supply section metadata.
+No missing legal headings or page numbers are guessed.
+
+Run all three real quality queries with
+`python -X utf8 -m backend.rag.fiqh.quality_check`; exact main text, neighboring
+context and metadata are printed and saved in the ignored processed directory.
 The main response separates `fiqh_evidence` from generated `result` and reports
 `fiqh_retrieval.status` as `available`, `empty`, or `unavailable`.
 
@@ -123,3 +129,22 @@ determine inheritance rulings** and never increases structured source coverage.
 .\.venv\Scripts\python.exe -m pytest -q
 .\.venv\Scripts\python.exe -m compileall -q backend tests
 ```
+
+## DOCX ingestion
+
+Install `python-docx` from `requirements-fiqh.txt`. Place the Word document in
+`data/fiqh/kuwaiti_encyclopedia/raw/` with a sidecar named exactly
+`<filename>.docx.metadata.json`. Both the source URL and approved publisher
+metadata must pass validation; no missing provenance is guessed.
+
+```powershell
+.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.loader
+```
+
+This ingests supported files from the raw folder, including
+`kuwaiti_fiqh_encyclopedia_vol_03.docx`. Body paragraphs are extracted in order
+using python-docx. Only empty-string paragraphs are skipped. Whitespace,
+Arabic diacritics, tabs and extracted line breaks are retained, and paragraphs
+are joined with two newlines for conservative chunking. No source text is
+rewritten. Table-cell paragraphs, including nested tables and merged cells, are extracted
+once in document order. Headers and footnotes remain outside body extraction. Legacy `.doc` and PDF are not supported.

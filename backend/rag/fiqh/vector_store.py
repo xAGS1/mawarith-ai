@@ -8,7 +8,7 @@ from uuid import NAMESPACE_URL, uuid5
 
 import requests
 
-from backend.rag.fiqh.embeddings import DIMENSION, embed_texts, embedding_model_name, validate_vectors
+from backend.rag.fiqh.embeddings import DIMENSION, embed_texts, embedding_model_name, validate_vectors, embedding_batch_size
 from backend.rag.fiqh.loader import DATA_DIR
 from backend.rag.fiqh.schemas import FiqhChunk, PUBLISHER, SOURCE_NAME
 
@@ -30,6 +30,10 @@ def load_chunks(path: Path | None = None) -> list[dict]:
 def build_payload(chunk: dict, model_name: str | None = None) -> dict:
     payload = FiqhChunk.model_validate(chunk).model_dump(mode="json")
     return {**payload, "embedding_model": model_name or embedding_model_name()}
+
+
+def point_id(chunk_id: str) -> str:
+    return str(uuid5(NAMESPACE_URL, chunk_id))
 
 
 def build_filter(filters: dict | None = None) -> dict:
@@ -92,8 +96,10 @@ class QdrantFiqhStore:
             raise FiqhStoreError("Qdrant collection has incompatible vector dimensions or distance")
 
     def upsert(self, chunks: list[dict], vectors: list[list[float]]):
+        if any(len(chunk["text"]) < 100 for chunk in chunks):
+            raise FiqhStoreError("Standalone fiqh fragments below 100 characters cannot be indexed; merge with approved adjacent source text")
         vectors = validate_vectors(vectors, len(chunks))
-        points = [{"id": str(uuid5(NAMESPACE_URL, chunk["chunk_id"])), "vector": vector,
+        points = [{"id": point_id(chunk["chunk_id"]), "vector": vector,
                    "payload": build_payload(chunk)} for chunk, vector in zip(chunks, vectors)]
         if points:
             self._request("PUT", f"/collections/{self.collection}/points?wait=true", {"points": points})
@@ -105,18 +111,58 @@ class QdrantFiqhStore:
                                 "with_payload": True, "with_vector": False})
         return result["points"]
 
+    def points_count(self) -> int:
+        return self._request("POST", f"/collections/{self.collection}/points/count", {"exact": True})["count"]
 
-def index_chunks(path: Path | None = None, batch_size: int = 16) -> int:
-    if type(batch_size) is not int or batch_size < 1:
-        raise ValueError("Indexing batch size must be a positive integer")
+    def prune_stale_points(self, chunks: list[dict]):
+        current = {point_id(chunk["chunk_id"]) for chunk in chunks}
+        files = sorted({chunk["input_file"] for chunk in chunks})
+        query_filter = build_filter()
+        query_filter["must"].append({"key": "input_file", "match": {"any": files}})
+        offset = None
+        stale = []
+        while True:
+            body = {"limit": 256, "filter": query_filter, "with_payload": False, "with_vector": False}
+            if offset is not None:
+                body["offset"] = offset
+            result = self._request("POST", f"/collections/{self.collection}/points/scroll", body)
+            stale.extend(point["id"] for point in result["points"] if str(point["id"]) not in current)
+            offset = result.get("next_page_offset")
+            if offset is None:
+                break
+        for start in range(0, len(stale), 256):
+            self._request("POST", f"/collections/{self.collection}/points/delete?wait=true", {"points": stale[start:start + 256]})
+        print(f"Removed {len(stale)} obsolete points for the current source files; collection retained", flush=True)
+
+
+def index_chunks(path: Path | None = None, batch_size: int | None = None, prune_stale: bool = False) -> int:
+    batch_size = embedding_batch_size(batch_size)
     chunks = load_chunks(path)
+    unique = {}
+    for chunk in chunks:
+        if chunk["chunk_id"] in unique and unique[chunk["chunk_id"]] != chunk:
+            raise FiqhStoreError("Conflicting source chunks share the same chunk_id")
+        unique[chunk["chunk_id"]] = chunk
+    chunks = list(unique.values())
+    if any(len(chunk["text"]) < 100 for chunk in chunks):
+        raise FiqhStoreError("Processed corpus contains standalone fragments below 100 characters; merge source segments before indexing")
     if not chunks:
         return 0  # Empty approved corpus is explicit; no fake store or vectors.
     store = QdrantFiqhStore()
     store.ensure_collection(create=True)  # Check Qdrant before loading a large model.
+    print(f"Embedding batch size: {batch_size}; unique chunks: {len(chunks)}", flush=True)
+    total_batches = (len(chunks) + batch_size - 1) // batch_size
     for start in range(0, len(chunks), batch_size):
         batch = chunks[start:start + batch_size]
-        store.upsert(batch, embed_texts([chunk["text"] for chunk in batch]))
+        print(f"Embedding batch {start // batch_size + 1}/{total_batches}", flush=True)
+        store.upsert(batch, embed_texts([chunk["text"] for chunk in batch], batch_size=batch_size))
+        print(f"Upserted {start + len(batch)}/{len(chunks)}", flush=True)
+    if prune_stale:
+        store.prune_stale_points(chunks)
+    count = store.points_count()
+    print(f"Qdrant points_count: {count}; expected unique chunks: {len(chunks)}", flush=True)
+    if count != len(chunks):
+        raise FiqhStoreError(f"Qdrant contains {count} points, expected {len(chunks)}. Existing unrelated/stale points were not deleted; inspect the collection.")
     return len(chunks)
 
 
@@ -124,12 +170,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--chunks", type=Path, default=DATA_DIR / "processed" / "chunks.json")
     parser.add_argument("--check-connection", action="store_true")
+    parser.add_argument("--batch-size", type=int, help="Override FIQH_EMBEDDING_BATCH_SIZE (default 32)")
+    parser.add_argument("--sync-processed", action="store_true", help="After successful upserts, remove obsolete points for the same source files")
     args = parser.parse_args()
     try:
         if args.check_connection:
             print("Qdrant connected; collections:", QdrantFiqhStore().connect())
         else:
-            count = index_chunks(args.chunks)
+            count = index_chunks(args.chunks, batch_size=args.batch_size, prune_stale=args.sync_processed)
             print(f"Indexed {count} approved chunks" if count else "Empty approved corpus: no chunks indexed; Qdrant was not contacted")
     except (RuntimeError, ValueError, OSError) as exc:
         raise SystemExit(str(exc)) from exc

@@ -18,7 +18,7 @@ from backend.rag.fiqh.schemas import FiqhSourceRecord, PUBLISHER, SOURCE_NAME
 from backend.rag.fiqh.vector_store import FiqhStoreError, QdrantFiqhStore, build_filter, build_payload, index_chunks
 
 
-TEXT = "هذا نص تجريبي محايد عن ترتيب الكتب وألوان الرفوف.\r\n\r\nوهذه فقرة اختبار ثانية.\u00a0\n"
+TEXT = "هذا نص تجريبي محايد عن ترتيب الكتب وألوان الرفوف.\r\n\r\nوهذه فقرة اختبار ثانية عن ترتيب المساحات والألوان واختيار مكان الكتب.\u00a0\n"
 
 
 def record(text=TEXT):
@@ -32,7 +32,7 @@ def chunk():
     return chunk_record(record(), "synthetic.json")[0]
 
 
-@pytest.mark.parametrize("missing", ["source_name", "publisher", "topic", "volume", "page", "section", "source_url", "verified_source"])
+@pytest.mark.parametrize("missing", ["source_name", "publisher", "topic", "volume", "source_url", "verified_source"])
 def test_source_metadata_required(missing):
     source = record()
     del source[missing]
@@ -118,6 +118,16 @@ def test_chunking_is_exact_with_overlap_and_full_coverage():
 
 def test_short_paragraphs_are_not_mutated():
     assert chunk_record(record(), "synthetic.txt")[0]["text"] == TEXT
+
+
+def test_large_document_chunking_preserves_exact_slices_and_progress():
+    text = ("هذه فقرة اصطناعية عن ترتيب الكتب وألوان الرفوف. " * 20 + "\n\n") * 100
+    parts = chunk_record(record(text), "large-synthetic.txt")
+    assert len(parts) > 50
+    assert parts[0]["char_start"] == 0 and parts[-1]["char_end"] == len(text)
+    for part in parts:
+        assert part["text"] == text[part["char_start"]:part["char_end"]]
+        assert estimate_tokens(part["text"]) <= 700
 
 
 def test_embedding_dimension_and_counts():
@@ -218,7 +228,7 @@ def test_retrieval_returns_exact_approved_text_or_empty(hits):
         patch("backend.rag.fiqh.retriever.embed_texts", return_value=[[1.0] * DIMENSION]),
     ):
         evidence = retrieve_fiqh("اختبار", filters={"topic": "اختبار"})
-    assert evidence == ([{"score": 0.82, "text": TEXT, "source": {k: v for k, v in part.items() if k != "text"}}] if hits else [])
+    assert evidence == ([{"score": 0.82, "text": TEXT, "source": {k: v for k, v in part.items() if k != "text"}, "previous_chunk": None, "next_chunk": None}] if hits else [])
 
 
 def test_tampered_qdrant_text_rejected():

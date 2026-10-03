@@ -17,6 +17,15 @@ def retrieve_fiqh(query: str, top_k: int = 5, filters: dict | None = None) -> li
     if not chunks:
         return []
     approved = {chunk["chunk_id"]: chunk for chunk in chunks}
+    documents = {}
+    for chunk in chunks:
+        documents.setdefault((chunk["input_file"], chunk["document_sha256"]), []).append(chunk)
+    neighbors = {}
+    for document in documents.values():
+        document.sort(key=lambda c: (c["char_start"], c["char_end"], c["chunk_id"]))
+        for index, chunk in enumerate(document):
+            neighbors[chunk["chunk_id"]] = (document[index - 1] if index else None,
+                                           document[index + 1] if index + 1 < len(document) else None)
     store = QdrantFiqhStore()
     store.ensure_collection()
     hits = store.query(embed_texts([query])[0], top_k, filters)
@@ -30,13 +39,16 @@ def retrieve_fiqh(query: str, top_k: int = 5, filters: dict | None = None) -> li
             raise FiqhStoreError("Retrieved payload has invalid approved-source provenance") from exc
         if model_name != embedding_model_name() or approved.get(chunk["chunk_id"]) != chunk:
             raise FiqhStoreError("Retrieved payload does not match the locally approved source corpus/model")
-        evidence.append({"score": float(hit["score"]), "text": chunk["text"],
-                         "source": {k: v for k, v in chunk.items() if k != "text"}})
+        def excerpt(part):
+            return {"text": part["text"], "source": {k: v for k, v in part.items() if k != "text"}} if part else None
+        previous, following = neighbors[chunk["chunk_id"]]
+        evidence.append({"score": float(hit["score"]), **excerpt(chunk),
+                         "previous_chunk": excerpt(previous), "next_chunk": excerpt(following)})
     return evidence
 
 
 def main():
-    query = input("اكتب سؤال البحث الفقهي: ").strip()
+    query = input("السؤال: ").strip()
     try:
         results = retrieve_fiqh(query)
     except (RuntimeError, ValueError, OSError) as exc:

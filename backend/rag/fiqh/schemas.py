@@ -17,8 +17,8 @@ class FiqhSourceRecord(BaseModel):
     publisher: Literal["وزارة الأوقاف والشؤون الإسلامية - الكويت"]
     topic: str
     volume: StrictInt | None = Field(ge=1)
-    page: StrictInt | None = Field(ge=1)
-    section: str | None
+    page: StrictInt | None = Field(default=None, ge=1)
+    section: str | None = None
     text: str
     source_url: HttpUrl
     verified_source: StrictBool
