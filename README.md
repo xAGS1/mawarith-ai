@@ -243,3 +243,61 @@ short explanations of retrieved rules remain available when found.
 `insufficient_sources` state is now `specialist_referral`. Supported cases still
 use the existing reasoner and Python fraction verifier. The clarification checks
 recognize common explicit ambiguities; they are not a complete family intake.
+
+## Advisory AI understanding and explanations
+
+`POST /ask` retains its explicit `learn` / `case` mode. A strict Qwen classifier
+now enriches the request with intent, language, explanation depth, question kind,
+explicit deceased gender, an attached educational question, and proposed ambiguities.
+Connection failures, timeouts or invalid classifier JSON use deterministic fallback.
+Classification never overrides the supplied mode or deterministic case readiness.
+
+Learn explanations receive backend-owned passage/claim associations and requested
+depth; the existing citation and concept-scope checks remain in force. Verified
+curated definitions and comparisons still bypass generated redefinition.
+For a ready mixed case, Qwen selects/orders relevant confirmed rule claims. Python
+renders their factual wording unchanged, so this layer cannot edit distributions
+or introduce rulings. English mixed-case explanations currently retain the original
+Arabic rule wording with an English label, rather than invent a rule translation.
+Unsupported attached questions receive a limitation, without changing case readiness.
+
+For internal demos, call `run_request(question, mode, debug_trace=trace)` with an
+empty dict. It receives intent, entities from the existing relation parser,
+ambiguity proposals, deterministic readiness confirmation, selected rule/source
+IDs and evidence plans. No chain-of-thought is requested or stored. This argument
+is not exposed by the HTTP schema and traces do not enter normal API responses.
+Trace dictionaries include case/source data; store them only if needed for debugging.
+
+The existing calculation path is unchanged: Qwen proposes a rule-backed
+distribution, and Python verifies its fraction arithmetic. This change does not
+introduce a deterministic allocation engine or claim that arithmetic consistency
+alone proves a distribution's religious correctness.
+
+## Source-traceable curated learning content
+
+The curated learning schema separates `definition` (`text`, `status`, `source_id`,
+`reviewer`, `reviewed_at`), `properties` (the same metadata with `value`), and
+`source_records` (approved provenance and unchanged `exact_text`). Content statuses
+are `source_verbatim`, `reviewed_summary`, or `draft`. Verbatim values must be exact
+substrings of their approved passage; reviewed summaries require a reviewer and
+review date. Draft values cannot enter verified definition or comparison output.
+
+Only `fixed_share` and `residuary_heirs` are migrated. Their existing bilingual
+summary drafts are preserved internally in `educational_summaries`; no reviewer
+identity/date was available and none was invented. Verified definitions/properties
+currently use the approved Arabic passage. English output labels those passages
+in English while retaining their exact Arabic wording, pending reviewed translations.
+
+Populated properties are `share_type`, `has_fixed_fraction`, `examples_of_fraction`
+for fixed shares, and `share_type`, `may_receive_whole_estate`,
+`may_receive_remainder`, `may_receive_nothing` for residuary heirs. Verbatim
+properties hold exact passage text (or exact fraction terms), not inferred Boolean
+flags. Residuary outcome properties retain the complete conditional passage.
+No eligibility rules, additional recipient categories or opposite outcomes were
+inferred. Other curated concepts remain unverified and empty.
+
+The generic comparison renderer intersects verified property keys and preserves
+each property's source mapping. It renders source text and reviewed summaries
+with distinct labels, never uses a draft, and falls back to the existing grounded
+flow when either concept or shared properties lack support. Source excerpts always
+contain source wording, never reviewed summaries or generated AI explanation.

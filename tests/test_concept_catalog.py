@@ -33,15 +33,17 @@ def test_existing_verified_definition_and_exact_excerpt(monkeypatch):
     monkeypatch.setattr(catalog, "list_concepts", lambda: [{"concept_id": "fixed_share", "availability": "available", "short_definition": {"ar": "تعريف محايد للاختبار.", "en": "Neutral test definition."}, "sources": [source]}])
     monkeypatch.setattr(catalog, "load_chunks", lambda: [{**source, "text": excerpt}])
     record = catalog.get_curated_concept("fixed_share")
-    assert record["verified"] is True
-    assert catalog.is_verified_concept("fixed_share")
+    assert record["verified"] is False
+    assert not catalog.is_verified_concept("fixed_share")
     assert record["exact_excerpt"] == excerpt
-    assert record["definition_en"] == "Neutral test definition."
-    rag, model = Mock(), Mock()
+    assert record["definition_en"] == ""
+    assert record["educational_summaries"]["en"]["text"] == "Neutral test definition."
+    assert record["educational_summaries"]["en"]["status"] == "draft"
+    rag, model = Mock(return_value=[]), Mock()
     monkeypatch.setattr(learn, "retrieve_educational_evidence", rag)
     monkeypatch.setattr(learn.provider, "explain", model)
-    assert learn.run_learn("What is a fixed share?")["answer"] == record["definition_en"]
-    rag.assert_not_called()
+    assert learn.run_learn("What is a fixed share?")["evidence_status"] == "insufficient"
+    rag.assert_called_once()
     model.assert_not_called()
     monkeypatch.setattr(catalog, "load_chunks", lambda: [])
     assert catalog.is_verified_concept("fixed_share") is False

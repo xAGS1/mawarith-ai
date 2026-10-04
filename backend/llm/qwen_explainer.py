@@ -13,6 +13,11 @@ def explain(question: str, language: str, evidence: list[dict]) -> dict:
 Explain the requested concept by summarizing the supplied passages for a beginner.
 
 Answer in the requested language.
+Follow explanation_preferences when supplied: simple means beginner wording,
+standard means concise normal detail, and detailed means more supported detail.
+Adapt wording only; preferences never authorize additional factual claims.
+The backend claim_plan associates each passage with its source. Keep those
+associations separate; one passage cannot support another passage's claims.
 Define terms clearly and explain concepts before technical details.
 
 Avoid argumentative or apologetic language.

@@ -14,6 +14,7 @@ def verified_pair(monkeypatch):
         # Neutral synthetic evidence; factual definitions reuse repository metadata.
         records[id] = {
             "id": id, "verified": True,
+            "title_ar": metadata["ar"]["term"], "title_en": metadata["en"]["term"],
             "definition_ar": metadata["ar"]["explanation"],
             "definition_en": metadata["en"]["explanation"],
             "exact_excerpt": f"Neutral fixture evidence for {id}.",
@@ -22,7 +23,15 @@ def verified_pair(monkeypatch):
             "source": {"chunk_id": id, "source_name": "Neutral test source",
                        "source_url": "https://example.invalid", "verified_source": True},
         }
+        records[id]["definition"] = {"text": records[id]["exact_excerpt"], "status": "source_verbatim",
+            "source_id": id, "reviewer": None, "reviewed_at": None}
+        records[id]["source_records"] = {id: {**records[id]["source"], "exact_text": records[id]["exact_excerpt"]}}
+        records[id]["properties"] = {"share_type": {"value": {lang: metadata[lang]["explanation"] for lang in ("ar", "en")},
+            "status": "reviewed_summary", "source_id": id, "reviewer": "Synthetic fixture reviewer", "reviewed_at": "2026-01-01"}}
     monkeypatch.setattr(comparisons, "get_curated_concept", records.get)
+    aliases = {term: "fixed_share" for term in ("الفرض", "الفروض", "fixed share", "fixed shares")}
+    aliases.update({term: "residuary_heirs" for term in ("العصبة", "residuary heirs")})
+    monkeypatch.setattr(comparisons, "find_curated_concept_by_query", lambda term: records.get(aliases.get(term)))
     return records
 
 
@@ -38,7 +47,8 @@ def test_verified_comparison_preserves_definitions_and_separate_evidence(monkeyp
     assert result["decision_state"] == "ready"
     assert result["evidence_status"] == "supported"
     assert result["answer"] == "\n\n".join(
-        verified_pair[id][f"definition_{language}"] + f" [E{i}]"
+        verified_pair[id][f"title_{language}"] + "\n" + ("ملخص تعليمي مُراجع" if language == "ar" else "Reviewed educational summary")
+        + ": " + verified_pair[id][f"definition_{language}"] + f" [E{i}]"
         for i, id in enumerate(("fixed_share", "residuary_heirs"), 1))
     for i, id in enumerate(("fixed_share", "residuary_heirs"), 1):
         excerpt = result["source_excerpts"][i - 1]
@@ -51,6 +61,10 @@ def test_verified_comparison_preserves_definitions_and_separate_evidence(monkeyp
     # Equality above disallows every added/recombined condition, including this bug.
     assert "الباقي إذا لم يوجد صاحب فرض" not in result["answer"]
     assert "remainder if there is no fixed-share heir" not in result["answer"]
+    if language == "en":
+        assert "what remains after fixed shares are allocated" in result["answer"]
+        assert "whole estate when there is no fixed-share heir" in result["answer"]
+        assert "receives nothing if nothing remains" in result["answer"]
 
 
 def test_one_unverified_concept_uses_existing_safe_fallback(monkeypatch, verified_pair):
@@ -78,7 +92,7 @@ def test_reverse_comparison_keeps_evidence_order(verified_pair):
     result = comparisons.curated_comparison("ما الفرق بين التعصيب والفرض؟", "ar")
     assert result["sources"][0]["concept_id"] == "residuary_heirs"
     assert result["sources"][1]["concept_id"] == "fixed_share"
-    assert result["answer"].split("\n\n")[0] == verified_pair["residuary_heirs"]["definition_ar"] + " [E1]"
+    assert verified_pair["residuary_heirs"]["definition_ar"] + " [E1]" in result["answer"].split("\n\n")[0]
 
 
 def test_case_dispatch_never_calls_educational_comparison(monkeypatch):

@@ -14,6 +14,8 @@ from backend.rules.educational_concepts import supported_concepts, minimal_answe
 from backend.pipeline.educational_grounding import check_concept_scope, relevant_public_excerpts
 from backend.learning.curated import curated_concept
 from backend.learning.comparisons import curated_comparison
+from backend.pipeline.understanding import CURRENT_UNDERSTANDING, CURRENT_TRACE
+from backend.pipeline.evidence_plan import build_evidence_plan
 
 
 def detect_language(question: str) -> str:
@@ -196,11 +198,23 @@ def run_learn(question: str) -> dict:
     # never sent to the explainer, and is attached only after reasoning.
     evidence = [{k: e[k] for k in ("evidence_id", "text", "source_name", "section", "source_url")}
                 for e in response.source_excerpts]
+    understanding = CURRENT_UNDERSTANDING.get()
+    if understanding is not None:
+        evidence[0]["explanation_preferences"] = {"depth": understanding.depth,
+            "question_kind": understanding.question_kind, "intent": understanding.intent}
     concept_metadata = supported_concepts(question, language, evidence)
     try:
         check_concept_scope(question, minimal_answer(concept_metadata), response.source_excerpts)
     except ValueError:
         concept_metadata = []
+    plan = build_evidence_plan(excerpts=response.source_excerpts, concepts=concept_metadata)
+    for record in evidence:
+        record["claim_plan"] = [{"claim_id": c["claim_id"], "source_id": c["source_id"],
+                                 "support": c["support"], "statement": c["statement"]}
+                                for c in plan if c["source_id"] == record["evidence_id"]]
+    trace = CURRENT_TRACE.get()
+    if trace is not None:
+        trace["planned_claims"] = plan
     try:
         generated = provider.explain(question, language, evidence)
         answer, concepts, ids = validate_citations(generated, response.source_excerpts)

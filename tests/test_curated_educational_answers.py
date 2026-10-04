@@ -6,14 +6,18 @@ from backend.pipeline.educational_grounding import relevant_public_excerpts
 
 def test_fixed_share_heirs_uses_verified_catalogue_without_rag_or_model(monkeypatch):
     source = {"source_name": "Neutral catalogue fixture", "source_url": "https://example.invalid", "verified_source": True}
-    monkeypatch.setattr(curated, "find_curated_concept_by_query", lambda _: {"verified": True, "definition_ar": "تعريف محايد مخصص للاختبار.", "source": source, "exact_excerpt": "فقرة اختبار محايدة.", "source_title": source["source_name"], "source_entry": "Fixture", "reference": "Fixture reference"})
+    monkeypatch.setattr(curated, "find_curated_concept_by_query", lambda _: {"verified": True,
+        "definition": {"text": "تعريف محايد مخصص للاختبار.", "status": "reviewed_summary", "source_id": "fixture",
+                       "reviewer": "Synthetic fixture reviewer", "reviewed_at": "2026-01-01"},
+        "source_records": {"fixture": {**source, "exact_text": "فقرة اختبار محايدة."}},
+        "source": source, "exact_excerpt": "فقرة اختبار محايدة.", "source_title": source["source_name"], "source_entry": "Fixture", "reference": "Fixture reference"})
     retrieve, model = Mock(), Mock()
     monkeypatch.setattr(learn, "retrieve_educational_evidence", retrieve)
     monkeypatch.setattr(learn.provider, "explain", model)
     out = learn.run_learn("ما معنى أصحاب الفروض؟")
     assert out["decision_state"] == "ready"
     assert out["answer"] == "تعريف محايد مخصص للاختبار."
-    assert out["sources"] == [source]
+    assert out["sources"] == [{**source, "content_kind": "reviewed_summary"}]
     retrieve.assert_not_called()
     model.assert_not_called()
 

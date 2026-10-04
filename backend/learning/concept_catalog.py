@@ -8,6 +8,64 @@ import re
 from backend.learning.catalogs import list_concepts
 from backend.rag.fiqh.vector_store import load_chunks
 from backend.rules.educational_concepts import matching_text
+from backend.rules.educational_concepts import CONCEPTS
+from backend.learning.knowledge import verified_definition
+
+
+def _exact_match(text: str, needle: str) -> str | None:
+    """Match diacritics-insensitively but return an untouched original slice."""
+    import unicodedata
+    normalized, positions = [], []
+    for index, char in enumerate(text):
+        for decomposed in unicodedata.normalize("NFD", char):
+            if not unicodedata.combining(decomposed):
+                normalized.append(decomposed)
+                positions.append(index)
+    match = re.search(re.escape(matching_text(needle)).replace(r"\ ", r"\s+"), "".join(normalized))
+    if not match:
+        return None
+    end = positions[match.end() - 1] + 1
+    while end < len(text) and unicodedata.combining(text[end]):
+        end += 1
+    return text[positions[match.start()]:end]
+
+
+def _migrate_content(record: dict, definition: dict, text: str, source: dict):
+    source_id = source["chunk_id"]
+    record["source_records"] = {source_id: {**source, "exact_text": text}}
+    metadata = CONCEPTS[1] if record["id"] == "fixed_share" else CONCEPTS[0]
+    paragraphs = re.findall(r"[^\n]+(?:\n(?!\s*\n)[^\n]+)*", text)
+    supporting = [p for p in paragraphs if all(matching_text(a) in matching_text(p) for a in metadata["anchors"])]
+    # No review identity/date is fabricated during migration.
+    record["educational_summaries"] = {lang: {"text": value, "status": "draft", "source_id": source_id,
+        "reviewer": None, "reviewed_at": None} for lang, value in definition.items()}
+    if not supporting:
+        return
+    passage = min(supporting, key=len)
+
+    def verbatim(value):
+        return {"value": value, "status": "source_verbatim", "source_id": source_id,
+                "reviewer": None, "reviewed_at": None}
+
+    record["definition"] = {"text": passage, "status": "source_verbatim", "source_id": source_id,
+                            "reviewer": None, "reviewed_at": None}
+    properties = {"share_type": verbatim(passage)}
+    if record["id"] == "fixed_share":
+        properties["has_fixed_fraction"] = verbatim(passage)
+        fractions = [_exact_match(passage, token) for token in metadata["anchors"][1:]]
+        if all(fractions):
+            properties["examples_of_fraction"] = verbatim(fractions)
+    else:
+        for name, anchor in zip(("may_receive_whole_estate", "may_receive_remainder", "may_receive_nothing"), metadata["anchors"]):
+            exact = _exact_match(passage, anchor)
+            if exact:
+                # Keep the antecedent and all outcomes together: "if found"
+                # must never lose its reference to the fixed-share heir.
+                properties[name] = verbatim(passage)
+    record["properties"] = properties
+    record["verified"] = verified_definition(record)
+    # Compatibility fields never promote draft summaries into verified content.
+    record["definition_ar"] = passage
 
 _ENTRIES = (
     ("fixed_share", "الفرض", "Fixed share", ("الفروض", "fixed shares")),
@@ -32,6 +90,9 @@ def get_curated_concept(id: str) -> dict | None:
     record = {"id": id, "title_ar": entry[1], "title_en": entry[2],
               "definition_ar": "", "definition_en": "", "source_title": "",
               "source_entry": "", "reference": "", "exact_excerpt": "", "verified": False}
+    record.update(definition={"text": "", "status": "draft", "source_id": None,
+                              "reviewer": None, "reviewed_at": None},
+                  properties={}, source_records={}, educational_summaries={})
     if id not in {"fixed_share", "residuary_heirs"}:
         return record
     card = next((c for c in list_concepts() if c["concept_id"] == id), None)
@@ -52,10 +113,10 @@ def get_curated_concept(id: str) -> dict | None:
                   and c.get("source_url") == source["source_url"]), None)
     if not chunk or not isinstance(chunk.get("text"), str) or not chunk["text"].strip():
         return record
-    record.update(definition_ar=definition["ar"], definition_en=definition["en"],
-                  source_title=source["source_name"], source_entry=source.get("section") or "",
+    record.update(source_title=source["source_name"], source_entry=source.get("section") or "",
                   reference={"volume": source.get("volume"), "page": source.get("page")},
-                  exact_excerpt=chunk["text"], verified=True, source=dict(source))
+                  exact_excerpt=chunk["text"], source=dict(source))
+    _migrate_content(record, definition, chunk["text"], source)
     return record
 
 
@@ -77,4 +138,4 @@ def find_curated_concept_by_query(text: str) -> dict | None:
 
 def is_verified_concept(id: str) -> bool:
     record = get_curated_concept(id)
-    return bool(record and record["verified"])
+    return bool(record and record["verified"] and verified_definition(record))

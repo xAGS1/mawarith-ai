@@ -2,9 +2,50 @@
 from backend.pipeline.learn_pipeline import run_learn, detect_language, collect_excerpts
 from backend.pipeline.qwen_pipeline import run_pipeline
 from backend.schemas.response import EducationalResponse, Concept
+from backend.pipeline.understanding import understand, CURRENT_UNDERSTANDING, CURRENT_TRACE
+from backend.pipeline.evidence_plan import build_evidence_plan, record_trace
+from backend.pipeline.case_explanation import explain_case_question
 
 
-def run_request(question: str, mode: str = "learn") -> dict:
+def run_request(question: str, mode: str = "learn", *, debug_trace: dict | None = None) -> dict:
+    if mode not in {"learn", "case"}:
+        raise ValueError("mode must be learn or case")
+    understanding, origin = understand(question)
+    token = CURRENT_UNDERSTANDING.set(understanding)
+    trace_token = CURRENT_TRACE.set(debug_trace)
+    try:
+        # The explicit API mode remains authoritative; intent is advisory.
+        response = _run_request(question, mode)
+        details = response.get("case_details") or {}
+        plan = build_evidence_plan(details.get("sources", []) if mode == "case" else [],
+                                   response.get("source_excerpts", []) if mode == "learn" else [])
+        parsed = details.get("parsed_relations", {})
+        record_trace(debug_trace, understanding, origin, plan, parsed)
+        if debug_trace is not None:
+            if mode == "learn" and response.get("evidence_status") == "supported":
+                cited = {e.get("evidence_id") for e in response.get("source_excerpts", [])}
+                debug_trace["explanation_claims"] = [c for c in debug_trace.get("planned_claims", plan)
+                                                     if c["source_id"] in cited]
+            debug_trace["deceased_gender"] = understanding.deceased_gender
+            debug_trace["educational_question"] = understanding.educational_question
+            debug_trace["readiness_confirmation"] = details.get("case_readiness", {})
+        if (mode == "case" and understanding.intent == "mixed_case_and_question"
+                and response.get("decision_state") == "ready"):
+            explanation, claims, explanation_origin = explain_case_question(
+                understanding.educational_question, understanding, plan)
+            if explanation:
+                response["answer"] += "\n\n" + explanation
+            else:
+                response["limitations"].append("No confirmed rule supports the attached educational question.")
+            if debug_trace is not None:
+                debug_trace.update(explanation_claims=claims, explanation_origin=explanation_origin)
+        return response
+    finally:
+        CURRENT_UNDERSTANDING.reset(token)
+        CURRENT_TRACE.reset(trace_token)
+
+
+def _run_request(question: str, mode: str = "learn") -> dict:
     if mode == "learn":
         return run_learn(question)
     if mode != "case":
