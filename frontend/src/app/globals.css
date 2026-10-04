@@ -123,8 +123,10 @@ svg {
   flex-shrink: 0;
 }
 .brand-mark {
-  width: 40px;
-  height: 53px;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 .brand-name {
   display: block;
@@ -909,8 +911,8 @@ svg {
   font-size: 14px;
 }
 .brand-small .brand-mark {
-  width: 32px;
-  height: 45px;
+  width: 40px;
+  height: 40px;
 }
 .brand-small .brand-caption {
   font-size: 9px;
@@ -1245,8 +1247,8 @@ svg {
     gap: 15px;
   }
   .brand-mark {
-    width: 31px;
-    height: 44px;
+    width: 38px;
+    height: 38px;
   }
   .brand-name {
     font-size: 18px;
