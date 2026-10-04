@@ -60,6 +60,10 @@ Do not list heirs, eligibility conditions, or examples unless they are explicitl
 supported by the supplied evidence and directly relevant to the question.
 
 Before answering, verify that the cited passage actually supports the requested definition.
+Keep the claim at the exact scope of the evidence. A subtype is not the whole category.
+For example, evidence about أصحاب الفروض النسبية does not define all أصحاب الفروض.
+Do not generalize a subtype definition. Return insufficient_evidence when broader support is missing.
+Do not repeat the answer verbatim in key_concepts; omit duplicate concept explanations.
 Merely mentioning the term is not enough.
 If the passage does not define or clearly explain the requested concept, abstain.
 

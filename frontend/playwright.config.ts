@@ -23,9 +23,17 @@ export default defineConfig({
       use: { ...devices["iPhone 13"], defaultBrowserType: "chromium" },
     },
   ],
-  webServer: {
-    command: "npm run start -- --port 3100",
-    url: "http://127.0.0.1:3100",
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      command: "node tests/fixtures/ask-backend.cjs",
+      url: "http://127.0.0.1:3101",
+      reuseExistingServer: false,
+    },
+    {
+      command: "npm run start -- --port 3100",
+      url: "http://127.0.0.1:3100",
+      reuseExistingServer: !process.env.CI,
+      env: { BACKEND_API_URL: "http://127.0.0.1:3101" },
+    },
+  ],
 });

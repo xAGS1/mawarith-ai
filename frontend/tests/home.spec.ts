@@ -5,6 +5,17 @@ test("RTL homepage, question selection and previews", async ({
 }, testInfo) => {
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  await page.route("**/api/ask", (route) =>
+    route.fulfill({
+      json: {
+        mode: "learn",
+        decision_state: "ready",
+        language: "ar",
+        answer: "Mock answer",
+        source_excerpts: [],
+      },
+    }),
+  );
   await page.goto("/");
   await expect(page.locator(".hero-background")).toHaveCount(1);
   await expect(page.locator(".hero-background")).toHaveJSProperty(
@@ -83,9 +94,7 @@ test("RTL homepage, question selection and previews", async ({
     .click();
   await expect(page.getByRole("textbox")).toHaveValue("ما معنى العصبة؟");
   await page.getByRole("button", { name: "استكشف السؤال" }).click();
-  await expect(page.locator(".question-preview")).toContainText(
-    "ما معنى العصبة؟",
-  );
+  await expect(page.locator(".ask-result")).toContainText("ما معنى العصبة؟");
   await expect(page.locator(".mode-selector")).toHaveCount(0);
   await page.locator(".concept-card").first().click();
   await expect(page.getByRole("dialog")).toBeVisible();

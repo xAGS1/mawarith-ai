@@ -1,19 +1,62 @@
 "use client";
 import { useLocale } from "@/i18n/locale-context";
-import { useState } from "react";
-import { ArrowLeft, Send, Sparkles } from "lucide-react";
+import { useRef, useState } from "react";
+import { Send, Sparkles } from "lucide-react";
+import { ask, AskError } from "@/lib/ask/client";
+import type { AskResponse } from "@/lib/ask/types";
+import { AskResult } from "@/components/ask/ask-result";
 import { exampleQuestions } from "@/data/home";
 export function AskPanel() {
   const [question, setQuestion] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState(false);
+  const inFlight = useRef(false);
+  const [result, setResult] = useState<AskResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [submittedQuestion, setSubmittedQuestion] = useState("");
   const { t } = useLocale();
+  async function submit(value = question) {
+    if (inFlight.current) return;
+    const trimmed = value.trim();
+    if (!trimmed) {
+      setError("empty");
+      return;
+    }
+    inFlight.current = true;
+    setPending(true);
+    setError(null);
+    setResult(null);
+    setSubmittedQuestion(trimmed);
+    try {
+      setResult(await ask(trimmed));
+    } catch (error) {
+      setError(error instanceof AskError ? error.code : "request_error");
+    } finally {
+      inFlight.current = false;
+      setPending(false);
+    }
+  }
+  const errorMessages = {
+    empty: { ar: "اكتب سؤالًا أولًا.", en: "Please enter a question." },
+    timeout: {
+      ar: "استغرق الطلب وقتًا أطول من المتوقع. حاول مجددًا.",
+      en: "The request timed out. Please retry.",
+    },
+    backend_unavailable: {
+      ar: "الخدمة غير متاحة حاليًا. حاول مجددًا.",
+      en: "The backend is currently unavailable. Please retry.",
+    },
+    request_error: {
+      ar: "تعذر إكمال الطلب. حاول مجددًا.",
+      en: "The request could not be completed. Please retry.",
+    },
+  };
   return (
     <div className="ask-area">
       <form
         className="ask-panel"
         onSubmit={(e) => {
           e.preventDefault();
-          if (question.trim()) setSubmitted(true);
+          void submit();
         }}
       >
         <div className="question-field">
@@ -26,15 +69,16 @@ export function AskPanel() {
             value={question}
             onChange={(e) => {
               setQuestion(e.target.value);
-              setSubmitted(false);
+              setError(null);
             }}
             placeholder={t("اسأل عن مفهوم أو اكتب حالة مواريث...")}
-            required
+            disabled={pending}
             maxLength={600}
           />
           <button
             type="submit"
             className="ask-submit"
+            disabled={pending}
             aria-label={t("استكشف السؤال")}
           >
             <Send size={22} aria-hidden="true" />
@@ -46,9 +90,10 @@ export function AskPanel() {
             <button
               type="button"
               key={q.ar}
+              disabled={pending}
               onClick={() => {
                 setQuestion(t(q));
-                setSubmitted(false);
+                setError(null);
               }}
             >
               {t(q)}
@@ -56,18 +101,30 @@ export function AskPanel() {
           ))}
         </div>
       </form>
-      {submitted && (
-        <div className="question-preview" role="status">
-          <strong>
-            {t("سؤالك:")} {question}
-          </strong>
-          <p>{t("استكشف المفاهيم والأمثلة التعليمية في هذه المعاينة.")}</p>
-          <a href="#concepts">
-            {t("متابعة الاستكشاف")}
-            <ArrowLeft size={15} />
-          </a>
+      {pending && (
+        <div className="ask-feedback" role="status">
+          {t({ ar: "جارٍ إعداد الإجابة…", en: "Preparing your answer…" })}
         </div>
       )}
+      {error && (
+        <div className="ask-feedback" role="alert">
+          <p>
+            {t(
+              errorMessages[error as keyof typeof errorMessages] ||
+                errorMessages.request_error,
+            )}
+          </p>
+          {error !== "empty" && (
+            <button
+              type="button"
+              onClick={() => void submit(submittedQuestion)}
+            >
+              {t({ ar: "حاول مجددًا", en: "Retry" })}
+            </button>
+          )}
+        </div>
+      )}
+      {result && <AskResult result={result} question={submittedQuestion} />}
     </div>
   );
 }

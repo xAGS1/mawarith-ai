@@ -1,0 +1,55 @@
+import { isRecord, type AskResponse } from "./types";
+import { inferMode } from "./infer-mode";
+export class AskError extends Error {
+  constructor(
+    public code: "timeout" | "backend_unavailable" | "request_error",
+    public status?: number,
+  ) {
+    super(code);
+  }
+}
+export async function ask(question: string): Promise<AskResponse> {
+  try {
+    const response = await fetch("/api/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode: inferMode(question), question }),
+      signal: AbortSignal.timeout(125_000),
+    });
+    const data: unknown = await response.json();
+    if (!response.ok) {
+      const code =
+        isRecord(data) && isRecord(data.error) ? data.error.code : undefined;
+      throw new AskError(
+        code === "timeout" || response.status === 504
+          ? "timeout"
+          : code === "backend_unavailable" || response.status === 503
+            ? "backend_unavailable"
+            : "request_error",
+        response.status,
+      );
+    }
+    if (
+      !isRecord(data) ||
+      typeof data.answer !== "string" ||
+      !["learn", "case"].includes(String(data.mode)) ||
+      !["ar", "en"].includes(String(data.language)) ||
+      ![
+        "ready",
+        "needs_clarification",
+        "specialist_referral",
+        "out_of_scope",
+      ].includes(String(data.decision_state))
+    )
+      throw new AskError("request_error");
+    return data as unknown as AskResponse;
+  } catch (error) {
+    if (error instanceof AskError) throw error;
+    if (
+      error instanceof Error &&
+      ["TimeoutError", "AbortError"].includes(error.name)
+    )
+      throw new AskError("timeout");
+    throw new AskError("request_error");
+  }
+}

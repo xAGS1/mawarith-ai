@@ -11,6 +11,7 @@ from backend.rag.source_validation import validate_rule_records
 from backend.sources.router import enrich_sources
 from backend.schemas.response import Concept, EducationalResponse
 from backend.rules.educational_concepts import supported_concepts, minimal_answer
+from backend.pipeline.educational_grounding import check_concept_scope, relevant_public_excerpts
 
 
 def detect_language(question: str) -> str:
@@ -179,8 +180,13 @@ def run_learn(question: str) -> dict:
                 for e in response.source_excerpts]
     concept_metadata = supported_concepts(question, language, evidence)
     try:
+        check_concept_scope(question, minimal_answer(concept_metadata), response.source_excerpts)
+    except ValueError:
+        concept_metadata = []
+    try:
         generated = provider.explain(question, language, evidence)
         answer, concepts, ids = validate_citations(generated, response.source_excerpts)
+        check_concept_scope(question, answer, [e for e in response.source_excerpts if e["evidence_id"] in ids])
         response.answer, response.key_concepts = answer, concepts
         response.decision_state = "ready"
         response.source_excerpts = [e for e in response.source_excerpts if e["evidence_id"] in ids]
@@ -197,6 +203,7 @@ def run_learn(question: str) -> dict:
     except (ValueError, KeyError, TypeError, requests.RequestException) as exc:
         response.limitations.append("Explanation withheld: " + str(exc))
     response.sources = [e["provenance"] for e in response.source_excerpts]
+    response.source_excerpts = relevant_public_excerpts(question, response.source_excerpts)
     # Attach Quran only when an exact reference occurs in retrieved source text.
     rules = validate_rule_records(json.loads(RULES_PATH.read_text(encoding="utf-8")))
     refs = set(re.findall(r"(?<![0-9])[0-9]{1,3}:[0-9]{1,3}(?![0-9])", " ".join(e["text"] for e in response.source_excerpts)))
