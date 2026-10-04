@@ -2448,77 +2448,96 @@ html[lang="ar"] .question-preview p {
     padding: 24px;
   }
 }
-/* Reusable compact path cards; the catalog currently contains one real path. */
+/* Compact illustrated path catalog; only the beginner journey is available. */
 .path-section .learning-path-catalog {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  max-width: min(100%, calc(820 * var(--desktop-unit, 1px)));
-  margin-inline-end: auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
+  gap: calc(14 * var(--desktop-unit, 1px));
+  max-width: 100%;
 }
 .path-section .learning-card {
-  grid-template-columns: 37% minmax(0, 1fr);
-  border-radius: 11px;
-  box-shadow: 0 4px 14px #4d3a200a;
-  background-image:
-    linear-gradient(90deg, #103f45 37%, transparent 37%),
-    linear-gradient(110deg, #f3e5c7, #fff8e9 65%, #fcf7ee);
+  display: block;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #d6bd894d;
+  border-radius: 10px;
+  background: #fcf5e7;
+  box-shadow: 0 3px 12px #4d3a2008;
 }
 .path-section .path-illustration {
-  height: calc(220 * var(--desktop-unit, 1px));
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  height: calc(156 * var(--desktop-unit, 1px));
   min-height: 0;
-}
-.path-section .path-nook-image {
-  object-position: 53% 52%;
+  border: 0;
+  pointer-events: none;
 }
 .path-section .path-illustration::after {
-  inset: 8px;
-  border-radius: 70px 70px 6px 6px;
-  box-shadow: 0 0 0 8px #062d3215;
+  display: none;
+}
+.path-section .path-nook-image {
+  object-fit: cover;
+  object-position: center;
 }
 .path-section .path-content {
-  padding: calc(17 * var(--desktop-unit, 1px))
-    calc(22 * var(--desktop-unit, 1px));
+  position: relative;
+  min-height: calc(156 * var(--desktop-unit, 1px));
+  padding: calc(20 * var(--desktop-unit, 1px)) 14%
+    calc(16 * var(--desktop-unit, 1px)) 34%;
 }
-.path-section .path-content h3 {
-  font-size: calc(26 * var(--desktop-unit, 1px));
-  margin-top: 6px;
-  line-height: 1.4;
-}
+.path-section .path-content h3,
 html[lang="en"] .path-section .path-content h3 {
-  font-size: calc(23 * var(--desktop-unit, 1px));
+  margin: 0;
+  font-size: calc(17 * var(--desktop-unit, 1px));
+  line-height: 1.45;
+  color: #103f45;
 }
-.path-section .path-content > p {
-  margin-top: 6px;
+.path-section .path-content > p,
+html[lang="ar"] .path-section .path-content > p {
+  margin-top: calc(6 * var(--desktop-unit, 1px));
+  font-size: calc(12 * var(--desktop-unit, 1px));
+  line-height: 1.65;
+  color: #655f50;
 }
 .path-section .path-toggle {
-  margin-top: 13px;
-  padding: 7px 12px;
+  margin-top: calc(10 * var(--desktop-unit, 1px));
+  padding: calc(5 * var(--desktop-unit, 1px)) calc(8 * var(--desktop-unit, 1px));
+  font-size: calc(11 * var(--desktop-unit, 1px));
+  border-radius: 6px;
   box-shadow: none;
-  border-radius: 7px;
+  gap: 4px;
 }
-.path-section .level-badge {
-  background: #efe5cd;
-  border-color: #dac59c;
-  color: #7b6134;
+.path-section .path-toggle svg {
+  width: calc(14 * var(--desktop-unit, 1px));
 }
-@media (max-width: 850px) {
-  .path-section .learning-card {
-    grid-template-columns: 37% minmax(0, 1fr);
-  }
-  .path-section .path-illustration {
-    height: 235px;
+.path-section .path-coming-soon {
+  display: inline-block;
+  margin-top: calc(10 * var(--desktop-unit, 1px));
+  padding: 2px 8px;
+  border: 1px solid #b7975840;
+  border-radius: 20px;
+  background: #fff7e8c9;
+  color: #806735;
+  font-size: calc(11 * var(--desktop-unit, 1px));
+}
+.path-section .path-expansion {
+  margin-left: -46%;
+  margin-right: -10%;
+}
+.path-section .path-details li {
+  font-size: calc(12 * var(--desktop-unit, 1px));
+}
+@media (max-width: 1100px) {
+  .path-section .learning-path-catalog {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 600px) {
-  .path-section .learning-card {
-    grid-template-columns: 1fr;
-    background-image: linear-gradient(110deg, #f3e5c7, #fff8e9);
-  }
-  .path-section .path-illustration {
-    height: 215px;
-  }
-  .path-section .path-content {
-    padding: 20px;
+  .path-section .learning-path-catalog {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (prefers-reduced-motion: reduce) {

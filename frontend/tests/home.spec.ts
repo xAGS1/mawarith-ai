@@ -64,10 +64,10 @@ test("RTL homepage, question selection and previews", async ({
   await expect(page.locator(".concept-card")).toHaveCount(7);
   await expect(page.locator(".example-card")).toHaveCount(3);
   await expect(page.locator(".source-card")).toHaveCount(4);
-  await expect(page.locator(".learning-card")).toHaveCount(1);
+  await expect(page.locator(".learning-card")).toHaveCount(4);
   await expect(page.locator(".path-meta")).toHaveCount(0);
   await expect(
-    page.getByRole("heading", { name: "فهم نظام المواريث في الإسلام" }),
+    page.getByRole("heading", { name: "المستوى المبتدئ" }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -94,9 +94,12 @@ test("RTL homepage, question selection and previews", async ({
   await page.locator(".example-card").first().click();
   await expect(page.getByRole("dialog")).toContainText("مات وترك زوجة");
   await page.getByRole("button", { name: "إغلاق المعاينة" }).click();
-  await page.locator(".learning-card").scrollIntoViewIfNeeded();
-  const artwork = await page.locator(".path-illustration").boundingBox();
-  const scene = await page.locator(".path-nook-image").boundingBox();
+  await page.locator(".learning-card").first().scrollIntoViewIfNeeded();
+  const artwork = await page
+    .locator(".path-illustration")
+    .first()
+    .boundingBox();
+  const scene = await page.locator(".path-nook-image").first().boundingBox();
   const urlBefore = page.url();
   await page.getByRole("button", { name: "استكشف المسار" }).click();
   await expect(
@@ -104,10 +107,12 @@ test("RTL homepage, question selection and previews", async ({
   ).toHaveAttribute("aria-expanded", "true");
   await expect(page.locator(".path-details li")).toHaveCount(5);
   await expect(page.locator(".path-details li").last()).toBeVisible();
-  expect(await page.locator(".path-illustration").boundingBox()).toEqual(
-    artwork,
+  expect(
+    await page.locator(".path-illustration").first().boundingBox(),
+  ).toEqual(artwork);
+  expect(await page.locator(".path-nook-image").first().boundingBox()).toEqual(
+    scene,
   );
-  expect(await page.locator(".path-nook-image").boundingBox()).toEqual(scene);
   expect(page.url()).toBe(urlBefore);
   await page.getByRole("button", { name: "إخفاء المسار" }).click();
   await expect(

@@ -11,7 +11,10 @@ export function LearningPath() {
       <div className="container">
         <SectionHeading
           title={t("خطوة بخطوة .. إلى وضوح أكبر")}
-          description={t("مسار واحد، بداية بسيطة. تعلم بالترتيب الذي يناسبك.")}
+          description={t({
+            ar: "اختر بداية تناسبك، وتعلّم بالوتيرة التي تلائمك.",
+            en: "Choose your starting point and learn at your own pace.",
+          })}
           icon={<Route size={27} />}
         />
         <div className="learning-path-catalog">

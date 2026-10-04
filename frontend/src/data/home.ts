@@ -169,27 +169,55 @@ export type LearningPathDefinition = {
   id: string;
   title: BilingualText;
   subtitle: BilingualText;
-  level: BilingualText;
   image: string;
-  steps: { title: BilingualText; href: string }[];
-};
+} & (
+  | { availability: "ready"; steps: { title: BilingualText; href: string }[] }
+  | { availability: "coming_soon"; steps?: never }
+);
 
 export const learningPaths: LearningPathDefinition[] = [
   {
     id: "beginner-path",
-    title: {
-      ar: "فهم نظام المواريث في الإسلام",
-      en: "Understanding Islamic Inheritance",
-    },
+    title: { ar: "المستوى المبتدئ", en: "Beginner" },
     subtitle: {
-      ar: "من المصطلح إلى المعنى، ومن القاعدة إلى المثال.",
-      en: "From terminology to meaning, from rules to examples.",
+      ar: "المفاهيم الأساسية والقواعد",
+      en: "Core concepts and foundational rules",
     },
-    level: { ar: "المستوى المبتدئ", en: "Beginner level" },
-    image: "/assets/learning-path/learning-path.webp",
+    image: "/assets/learning-path/beginner.webp",
+    availability: "ready",
     steps: pathSteps.map((title, index) => ({
       title,
       href: index === pathSteps.length - 1 ? "#examples" : "#concepts",
     })),
+  },
+  {
+    id: "intermediate-path",
+    title: { ar: "المستوى المتوسط", en: "Intermediate" },
+    subtitle: {
+      ar: "التطبيقات والمسائل المركبة",
+      en: "Applied concepts and combined cases",
+    },
+    image: "/assets/learning-path/intermediate.webp",
+    availability: "coming_soon",
+  },
+  {
+    id: "advanced-path",
+    title: { ar: "المستوى المتقدم", en: "Advanced" },
+    subtitle: {
+      ar: "المسائل المعقدة والعَول",
+      en: "Advanced cases and deeper rule interaction",
+    },
+    image: "/assets/learning-path/advanced.webp",
+    availability: "coming_soon",
+  },
+  {
+    id: "teachers-students-path",
+    title: { ar: "للمعلمين والطلاب", en: "Teachers & Students" },
+    subtitle: {
+      ar: "أدوات وموارد تعليمية",
+      en: "Educational tools and learning resources",
+    },
+    image: "/assets/learning-path/teachers-students.webp",
+    availability: "coming_soon",
   },
 ];
