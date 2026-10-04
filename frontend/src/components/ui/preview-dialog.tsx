@@ -1,4 +1,5 @@
 "use client";
+import { useLocale } from "@/i18n/locale-context";
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
@@ -11,6 +12,7 @@ export function PreviewDialog({
   onClose: () => void;
   children: ReactNode;
 }) {
+  const { t } = useLocale();
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const dialog = ref.current;
@@ -29,12 +31,12 @@ export function PreviewDialog({
     >
       <button
         className="dialog-close"
-        aria-label="إغلاق المعاينة"
+        aria-label={t("إغلاق المعاينة")}
         onClick={() => ref.current?.close()}
       >
         <X size={20} />
       </button>
-      <span className="eyebrow">اكتشف خطوة جديدة</span>
+      <span className="eyebrow">{t("اكتشف خطوة جديدة")}</span>
       <h2 id="preview-title">{title}</h2>
       {children}
     </dialog>

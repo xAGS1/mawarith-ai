@@ -293,40 +293,6 @@ svg {
   margin-top: 25px;
   max-width: 645px;
 }
-.mode-selector {
-  display: flex;
-  gap: 7px;
-  margin-bottom: 12px;
-}
-.mode-selector button {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 10px 16px;
-  background: #ffffff09;
-  border: 1px solid #c1d8d34a;
-  border-radius: 8px;
-  color: #cddad5;
-  font-size: 12px;
-  font-weight: 600;
-}
-.mode-selector button.selected {
-  background: #e7c9972b;
-  border-color: #d4b784bb;
-  color: #fff0d0;
-  box-shadow:
-    inset 0 -2px #d4b78488,
-    0 3px 12px #032e3420;
-}
-.mode-selector button:hover {
-  border-color: #d4b784aa;
-}
-.mode-selector button span {
-  font-size: 10px;
-  opacity: 0.8;
-  font-weight: 400;
-  margin-right: 7px;
-}
 .ask-panel {
   background: #fffdf7;
   border: 1px solid #e4d3b4;
@@ -964,6 +930,18 @@ svg {
 .footer-links a:hover {
   color: #e7cb94;
 }
+@media (min-width: 1101px) {
+  .footer-main {
+    position: relative;
+  }
+  .footer-main .footer-links {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    justify-content: center;
+  }
+}
 .footer-quote {
   font-family: var(--font-serif);
   font-size: 25px;
@@ -1182,9 +1160,6 @@ svg {
   .hero h1 {
     font-size: 36px;
   }
-  .mode-selector button span {
-    display: none;
-  }
   .hero-description {
     font-size: 11px;
   }
@@ -1331,15 +1306,6 @@ svg {
   }
   .ask-area {
     margin-top: 29px;
-  }
-  .mode-selector {
-    gap: 8px;
-  }
-  .mode-selector button {
-    font-size: 11px;
-    padding: 8px 12px;
-    flex: 1;
-    justify-content: center;
   }
   .ask-panel {
     padding: 8px 8px 10px;
@@ -1701,65 +1667,6 @@ svg {
   margin-top: 9px;
   gap: 8px;
 }
-.hero .mode-selector {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  width: 100%;
-  max-width: 760px;
-  margin: 12px auto 0;
-  gap: 0;
-  padding: 0;
-  border: 1px solid #e7d6b6;
-  border-radius: 15px;
-  background: #fbf1dd;
-  box-shadow: 0 10px 28px #022a3430;
-}
-.hero .mode-selector button {
-  min-width: 0;
-  min-height: 65px;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 8px 16px;
-  border: 1px solid transparent;
-  border-radius: 0;
-  background: linear-gradient(130deg, #fff9eb, #f4e5c8);
-  color: #654e2f;
-  font-size: 16px;
-  box-shadow: none;
-}
-.hero .mode-selector {
-  overflow: hidden;
-}
-.hero .mode-selector button:focus-visible {
-  outline-offset: -4px;
-}
-.hero .mode-selector button svg {
-  width: 25px;
-  height: 25px;
-  color: #a57d3e;
-}
-.hero .mode-selector button span {
-  display: block;
-  flex-basis: 100%;
-  margin: 0;
-  font-size: 11px;
-  opacity: 0.9;
-}
-.hero .mode-selector button.selected {
-  background: linear-gradient(125deg, #196b6b, #0c4d53);
-  color: #fff9ed;
-  border-color: #367e7b;
-  box-shadow:
-    inset 0 1px #ffffff20,
-    0 4px 10px #073b4125;
-}
-.hero .mode-selector button.selected svg {
-  color: #ead09b;
-}
-.hero .mode-selector button:hover {
-  border-color: #bfa06c;
-}
 .hero .hero-assurances {
   justify-content: center;
   margin-top: 12px;
@@ -1803,24 +1710,6 @@ svg {
   }
   .hero .question-chips {
     gap: 6px;
-  }
-  .hero .mode-selector {
-    width: 100%;
-    margin-top: 14px;
-    border-radius: 12px;
-  }
-  .hero .mode-selector button {
-    font-size: 13px;
-    padding: 10px 6px;
-    gap: 6px;
-    min-height: 73px;
-  }
-  .hero .mode-selector button span {
-    font-size: 10px;
-  }
-  .hero .mode-selector button svg {
-    width: 21px;
-    height: 21px;
   }
 }
 /* Compact editorial cards and restrained ornament across the existing sections. */
@@ -2088,9 +1977,6 @@ svg {
   .hero .ask-area {
     max-width: calc(760 * var(--desktop-unit));
   }
-  .hero .mode-selector {
-    max-width: calc(760 * var(--desktop-unit));
-  }
   .hero h1 {
     font-size: calc(56 * var(--desktop-unit));
   }
@@ -2115,13 +2001,6 @@ svg {
   .hero .ask-submit {
     width: calc(43 * var(--desktop-unit));
     height: calc(43 * var(--desktop-unit));
-  }
-  .hero .mode-selector button {
-    font-size: calc(16 * var(--desktop-unit));
-    min-height: calc(65 * var(--desktop-unit));
-  }
-  .hero .mode-selector button span {
-    font-size: calc(11 * var(--desktop-unit));
   }
   .section {
     padding-block: clamp(32px, 2vw, 44px);
@@ -2237,16 +2116,6 @@ svg {
   }
   .hero .question-chips button {
     padding: calc(3 * var(--desktop-unit)) calc(8 * var(--desktop-unit));
-  }
-  .hero .mode-selector {
-    margin-top: calc(12 * var(--desktop-unit));
-  }
-  .hero .mode-selector button {
-    padding-block: calc(8 * var(--desktop-unit));
-  }
-  .hero .mode-selector button svg {
-    width: calc(25 * var(--desktop-unit));
-    height: calc(25 * var(--desktop-unit));
   }
   .hero .hero-assurances {
     margin-top: calc(12 * var(--desktop-unit));
@@ -2373,6 +2242,283 @@ svg {
   .path-illustration {
     height: 165px;
     min-height: 0;
+  }
+}
+/* Direction-aware presentation; locale changes keep the same components. */
+html[lang="en"] {
+  --font-serif: Georgia, serif;
+  --font-sans: Arial, sans-serif;
+}
+html[dir="ltr"] .path-content,
+html[dir="ltr"] .path-side-note,
+html[dir="ltr"] .path-illustration {
+  direction: ltr;
+}
+html[dir="ltr"] .example-card {
+  text-align: left;
+}
+html[dir="ltr"] .path-details li:not(:last-child)::before {
+  right: auto;
+  left: 10px;
+}
+html[dir="ltr"] .lucide-arrow-left {
+  transform: rotate(180deg);
+}
+html[lang="en"] .hero h2 {
+  font-size: clamp(26px, 2.2vw, 34px);
+}
+html[lang="en"] .section-heading h2 {
+  font-size: 25px;
+  line-height: 1.4;
+}
+html[lang="en"] .path-content h3 {
+  font-size: 27px;
+}
+.language-button .language-code {
+  display: inline !important;
+  font-size: 11px;
+}
+@media (min-width: 1600px) {
+  html[lang="en"] .hero h2 {
+    font-size: calc(34 * var(--desktop-unit));
+  }
+  html[lang="en"] .section-heading h2 {
+    font-size: calc(25 * var(--desktop-unit));
+  }
+  html[lang="en"] .path-content h3 {
+    font-size: calc(27 * var(--desktop-unit));
+  }
+}
+.hero .hero-assurances {
+  display: block;
+  text-align: center;
+  line-height: 1.9;
+  max-width: 100%;
+}
+/* Arabic reading text gets a comfortable base; headings and metadata stay distinct. */
+html[lang="ar"] body {
+  font-size: 16px;
+}
+html[lang="ar"] .hero .hero-description,
+html[lang="ar"] .concept-card p,
+html[lang="ar"] .path-content > p,
+html[lang="ar"] .example-body p,
+html[lang="ar"] .source-card p,
+html[lang="ar"] .footer-description,
+html[lang="ar"] .preview-dialog > p,
+html[lang="ar"] .scenario p,
+html[lang="ar"] .dialog-question > p,
+html[lang="ar"] .question-preview p {
+  font-size: calc(16 * var(--desktop-unit, 1px));
+  line-height: 1.85;
+}
+/* Featured learning journey: scoped to this section only. */
+.path-section .learning-card {
+  grid-template-columns: 44% minmax(0, 1fr);
+  align-items: start;
+  border: 1px solid #cbb88e88;
+  border-radius: 18px;
+  background-image:
+    linear-gradient(90deg, #103f45 44%, transparent 44%),
+    linear-gradient(115deg, #f2e8d6, #fffaf0 55%, #fffdf7);
+  box-shadow: 0 12px 36px #4d3a2012;
+}
+.path-section .path-illustration {
+  height: clamp(340px, 26vw, 410px);
+  min-height: 0;
+  width: 100%;
+  position: relative;
+  border-inline-end: 1px solid #d6bd89;
+  background: #103f45;
+}
+.path-section .path-nook-image {
+  object-fit: cover;
+  object-position: 50% 52%;
+}
+.path-section .path-illustration::after {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid #ead4a16b;
+  border-radius: 90px 90px 9px 9px;
+  box-shadow: 0 0 0 12px #062d3220;
+  pointer-events: none;
+}
+.path-section .path-content {
+  padding: clamp(24px, 2.4vw, 36px);
+  min-width: 0;
+}
+.path-section .path-content h3 {
+  margin-top: 10px;
+  line-height: 1.4;
+}
+.path-section .path-content > p {
+  margin-top: 10px;
+}
+.path-section .path-meta {
+  gap: 16px;
+  margin-top: 15px;
+}
+.path-section .path-toggle {
+  margin-top: 18px;
+  box-shadow: 0 4px 12px #0e55591a;
+}
+.path-section .path-trust-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 17px;
+  padding-top: 13px;
+  border-top: 1px solid #d8c69f66;
+  direction: inherit;
+}
+.path-section .path-trust-note > svg {
+  color: #a47c3d;
+}
+.path-section .path-trust-note h4 {
+  font-size: 15px;
+  color: #205257;
+}
+.path-section .path-trust-note p {
+  color: #7d7b69;
+  font-size: 11px;
+  line-height: 1.7;
+  margin-top: 3px;
+}
+.path-section .path-trust-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #627757;
+  font-size: 10px;
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+.path-section .path-details ol {
+  margin-top: 12px;
+}
+@media (min-width: 2200px) {
+  .path-section .path-illustration {
+    height: calc(340 * var(--desktop-unit));
+  }
+  .path-section .path-trust-note h4 {
+    font-size: calc(15 * var(--desktop-unit));
+  }
+  .path-section .path-trust-note p {
+    font-size: calc(11 * var(--desktop-unit));
+  }
+  .path-section .path-trust-check {
+    font-size: calc(10 * var(--desktop-unit));
+  }
+}
+@media (max-width: 850px) {
+  .path-section .learning-card {
+    grid-template-columns: 42% minmax(0, 1fr);
+    background-image:
+      linear-gradient(90deg, #103f45 42%, transparent 42%),
+      linear-gradient(115deg, #f2e8d6, #fffaf0);
+  }
+  .path-section .path-illustration {
+    height: 365px;
+  }
+  .path-section .path-nook-image {
+    object-position: 57% center;
+  }
+  .path-section .path-trust-note {
+    flex-wrap: wrap;
+  }
+  .path-section .path-trust-check {
+    margin-inline-start: 33px;
+  }
+}
+@media (max-width: 600px) {
+  .path-section .learning-card {
+    grid-template-columns: 1fr;
+    background-image: linear-gradient(115deg, #f2e8d6, #fffaf0);
+  }
+  .path-section .path-illustration {
+    height: clamp(245px, 70vw, 320px);
+    border-inline-end: 0;
+    border-bottom: 1px solid #d6bd89;
+  }
+  .path-section .path-nook-image {
+    object-position: 50% 55%;
+  }
+  .path-section .path-content {
+    padding: 24px;
+  }
+}
+/* Reusable compact path cards; the catalog currently contains one real path. */
+.path-section .learning-path-catalog {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: min(100%, calc(820 * var(--desktop-unit, 1px)));
+  margin-inline-end: auto;
+}
+.path-section .learning-card {
+  grid-template-columns: 37% minmax(0, 1fr);
+  border-radius: 11px;
+  box-shadow: 0 4px 14px #4d3a200a;
+  background-image:
+    linear-gradient(90deg, #103f45 37%, transparent 37%),
+    linear-gradient(110deg, #f3e5c7, #fff8e9 65%, #fcf7ee);
+}
+.path-section .path-illustration {
+  height: calc(220 * var(--desktop-unit, 1px));
+  min-height: 0;
+}
+.path-section .path-nook-image {
+  object-position: 53% 52%;
+}
+.path-section .path-illustration::after {
+  inset: 8px;
+  border-radius: 70px 70px 6px 6px;
+  box-shadow: 0 0 0 8px #062d3215;
+}
+.path-section .path-content {
+  padding: calc(17 * var(--desktop-unit, 1px))
+    calc(22 * var(--desktop-unit, 1px));
+}
+.path-section .path-content h3 {
+  font-size: calc(26 * var(--desktop-unit, 1px));
+  margin-top: 6px;
+  line-height: 1.4;
+}
+html[lang="en"] .path-section .path-content h3 {
+  font-size: calc(23 * var(--desktop-unit, 1px));
+}
+.path-section .path-content > p {
+  margin-top: 6px;
+}
+.path-section .path-toggle {
+  margin-top: 13px;
+  padding: 7px 12px;
+  box-shadow: none;
+  border-radius: 7px;
+}
+.path-section .level-badge {
+  background: #efe5cd;
+  border-color: #dac59c;
+  color: #7b6134;
+}
+@media (max-width: 850px) {
+  .path-section .learning-card {
+    grid-template-columns: 37% minmax(0, 1fr);
+  }
+  .path-section .path-illustration {
+    height: 235px;
+  }
+}
+@media (max-width: 600px) {
+  .path-section .learning-card {
+    grid-template-columns: 1fr;
+    background-image: linear-gradient(110deg, #f3e5c7, #fff8e9);
+  }
+  .path-section .path-illustration {
+    height: 215px;
+  }
+  .path-section .path-content {
+    padding: 20px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

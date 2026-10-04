@@ -1,11 +1,12 @@
 "use client";
+import { useLocale } from "@/i18n/locale-context";
 import { useState } from "react";
-import { ArrowLeft, BookOpen, Scale, Send, Sparkles } from "lucide-react";
+import { ArrowLeft, Send, Sparkles } from "lucide-react";
 import { exampleQuestions } from "@/data/home";
 export function AskPanel() {
-  const [mode, setMode] = useState<"learn" | "case">("learn");
   const [question, setQuestion] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const { t } = useLocale();
   return (
     <div className="ask-area">
       <form
@@ -18,7 +19,7 @@ export function AskPanel() {
         <div className="question-field">
           <Sparkles className="ask-sparkle" size={21} aria-hidden="true" />
           <label className="sr-only" htmlFor="question">
-            {mode === "learn" ? "سؤالك عن المواريث" : "مسألة المواريث"}
+            {t("سؤال أو حالة مواريث")}
           </label>
           <input
             id="question"
@@ -27,73 +28,43 @@ export function AskPanel() {
               setQuestion(e.target.value);
               setSubmitted(false);
             }}
-            placeholder={
-              mode === "learn"
-                ? "ماذا تود أن تتعلم عن المواريث؟"
-                : "اكتب مسألة أو اختر مثالًا بسيطًا..."
-            }
+            placeholder={t("اسأل عن مفهوم أو اكتب حالة مواريث...")}
             required
             maxLength={600}
           />
           <button
             type="submit"
             className="ask-submit"
-            aria-label="استكشف السؤال"
+            aria-label={t("استكشف السؤال")}
           >
             <Send size={22} aria-hidden="true" />
           </button>
         </div>
         <div className="question-chips">
-          <span>جرّب أن تسأل:</span>
+          <span>{t("جرّب أن تسأل:")}</span>
           {exampleQuestions.map((q) => (
             <button
               type="button"
-              key={q}
+              key={q.ar}
               onClick={() => {
-                setQuestion(q);
-                setMode("learn");
+                setQuestion(t(q));
                 setSubmitted(false);
               }}
             >
-              {q}
+              {t(q)}
             </button>
           ))}
         </div>
       </form>
-      <div className="mode-selector" role="group" aria-label="اختيار الوضع">
-        <button
-          aria-pressed={mode === "learn"}
-          className={mode === "learn" ? "selected" : ""}
-          onClick={() => {
-            setMode("learn");
-            setSubmitted(false);
-          }}
-        >
-          <BookOpen size={18} aria-hidden="true" />
-          وضع التعلم<span>افهم المفاهيم</span>
-        </button>
-        <button
-          aria-pressed={mode === "case"}
-          className={mode === "case" ? "selected" : ""}
-          onClick={() => {
-            setMode("case");
-            setSubmitted(false);
-          }}
-        >
-          <Scale size={18} aria-hidden="true" />
-          وضع المسائل<span>استكشف الأمثلة</span>
-        </button>
-      </div>
       {submitted && (
         <div className="question-preview" role="status">
-          <strong>سؤالك: {question}</strong>
-          <p>
-            رحلتك تبدأ بالفهم. استكشف{" "}
-            {mode === "learn" ? "بطاقات المفاهيم" : "الأمثلة التعليمية"} في هذه
-            المعاينة.
-          </p>
-          <a href={mode === "learn" ? "#concepts" : "#examples"}>
-            متابعة الاستكشاف <ArrowLeft size={15} />
+          <strong>
+            {t("سؤالك:")} {question}
+          </strong>
+          <p>{t("استكشف المفاهيم والأمثلة التعليمية في هذه المعاينة.")}</p>
+          <a href="#concepts">
+            {t("متابعة الاستكشاف")}
+            <ArrowLeft size={15} />
           </a>
         </div>
       )}

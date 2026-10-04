@@ -3,6 +3,7 @@ import "@fontsource-variable/noto-sans-arabic";
 import "@fontsource/amiri/400.css";
 import "@fontsource/amiri/700.css";
 import "./globals.css";
+import { LocaleProvider, SkipLink } from "@/i18n/locale-context";
 
 export const metadata: Metadata = {
   title: "MAWARITH AI | رحلة لفهم علم المواريث",
@@ -16,10 +17,10 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl">
       <body>
-        <a href="#main" className="skip-link">
-          انتقل إلى المحتوى
-        </a>
-        {children}
+        <LocaleProvider>
+          <SkipLink />
+          {children}
+        </LocaleProvider>
       </body>
     </html>
   );

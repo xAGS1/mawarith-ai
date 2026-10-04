@@ -28,14 +28,11 @@ test("bounded desktop layout and reduced-zoom effective viewports", async ({
           document.querySelector(selector)!.getBoundingClientRect();
         return {
           overflow: document.documentElement.scrollWidth > innerWidth,
-          centers: [".hero h1", ".hero h2", ".ask-panel", ".mode-selector"].map(
-            (s) => {
-              const b = box(s);
-              return b.x + b.width / 2;
-            },
-          ),
+          centers: [".hero h1", ".hero h2", ".ask-panel"].map((s) => {
+            const b = box(s);
+            return b.x + b.width / 2;
+          }),
           panel: box(".ask-panel").width,
-          modes: box(".mode-selector").width,
           section: box(".concepts-section .container").width,
           hero: box(".hero").height,
           inputSize: parseFloat(
@@ -46,7 +43,6 @@ test("bounded desktop layout and reduced-zoom effective viewports", async ({
       expect(metrics.overflow).toBe(false);
       for (const center of metrics.centers)
         expect(Math.abs(center - width / 2)).toBeLessThan(0.1);
-      expect(metrics.panel).toBeCloseTo(metrics.modes, 1);
       expect(metrics.panel).toBeLessThanOrEqual(width < 2200 ? 1064 : 2432);
       expect(metrics.section).toBeLessThanOrEqual(width < 2200 ? 1640 : 3600);
       expect(metrics.hero).toBeLessThan(width < 2200 ? 850 : 1900);

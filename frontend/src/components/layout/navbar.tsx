@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useLocale } from "@/i18n/locale-context";
+import { useEffect, useState } from "react";
 import { BookOpen, Scale, LibraryBig, Menu, X, Globe2 } from "lucide-react";
 import { Brand } from "@/components/ui/brand";
 const links = [
@@ -11,7 +12,48 @@ const links = [
 ];
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const [languageNotice, setLanguageNotice] = useState(false);
+  const [activeSection, setActiveSection] = useState("home");
+  const { t, locale, setLocale } = useLocale();
+  useEffect(() => {
+    const sections = [
+      "home",
+      "concepts",
+      "learning-path",
+      "examples",
+      "sources",
+      "about",
+    ]
+      .map((id) => document.getElementById(id))
+      .filter((section): section is HTMLElement => section !== null);
+    const updateActiveSection = () => {
+      const visible = sections.filter((section) => {
+        const bounds = section.getBoundingClientRect();
+        return bounds.bottom > 0 && bounds.top < window.innerHeight;
+      });
+      const atEnd =
+        Math.ceil(window.scrollY + window.innerHeight) >=
+        document.documentElement.scrollHeight;
+      const selected = atEnd
+        ? visible.at(-1)
+        : (visible.find((section) => {
+            const bounds = section.getBoundingClientRect();
+            return (
+              bounds.top <= window.innerHeight / 4 &&
+              bounds.bottom > window.innerHeight / 4
+            );
+          }) ?? visible[0]);
+      if (selected)
+        setActiveSection(
+          selected.id === "learning-path" ? "concepts" : selected.id,
+        );
+    };
+    const observer = new IntersectionObserver(updateActiveSection, {
+      threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
+    });
+    sections.forEach((section) => observer.observe(section));
+    updateActiveSection();
+    return () => observer.disconnect();
+  }, []);
   return (
     <header className="navbar">
       <div className="container nav-inner">
@@ -19,17 +61,20 @@ export function Navbar() {
         <nav
           id="mobile-nav"
           className={open ? "nav-links is-open" : "nav-links"}
-          aria-label="التنقل الرئيسي"
+          aria-label={t("التنقل الرئيسي")}
         >
-          {links.map(({ label, href, icon: Icon }, i) => (
+          {links.map(({ label, href, icon: Icon }) => (
             <a
               key={href}
               href={href}
-              className={i === 0 ? "nav-active" : ""}
+              className={href === `#${activeSection}` ? "nav-active" : ""}
+              aria-current={
+                href === `#${activeSection}` ? "location" : undefined
+              }
               onClick={() => setOpen(false)}
             >
               {Icon && <Icon size={16} aria-hidden="true" />}
-              {label}
+              {t(label)}
             </a>
           ))}
         </nav>
@@ -37,25 +82,20 @@ export function Navbar() {
           <div className="language-wrap">
             <button
               className="language-button"
-              onClick={() => setLanguageNotice(!languageNotice)}
-              aria-expanded={languageNotice}
-              aria-controls="language-notice"
+              onClick={() => setLocale(locale === "ar" ? "en" : "ar")}
+              aria-label={
+                locale === "ar" ? "Switch to English" : "التبديل إلى العربية"
+              }
             >
               <Globe2 size={17} aria-hidden="true" />
-              <span>العربية</span>
-              <span className="language-short" lang="en">
-                AR
+              <span className="language-code" lang="en" dir="ltr">
+                AR / EN
               </span>
             </button>
-            {languageNotice && (
-              <p id="language-notice" className="language-notice" role="status">
-                النسخة الإنجليزية قريبًا
-              </p>
-            )}
           </div>
           <button
             className="menu-toggle"
-            aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
+            aria-label={open ? t("إغلاق القائمة") : t("فتح القائمة")}
             aria-expanded={open}
             aria-controls="mobile-nav"
             onClick={() => setOpen(!open)}

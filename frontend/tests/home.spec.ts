@@ -26,15 +26,11 @@ test("RTL homepage, question selection and previews", async ({
         ".hero h2",
         ".hero-description",
         ".ask-panel",
-        ".mode-selector",
       ]) {
         const box = await page.locator(selector).boundingBox();
         expect(box).not.toBeNull();
         expect(box!.x + box!.width / 2, selector).toBe(width / 2);
       }
-      const panel = await page.locator(".ask-panel").boundingBox();
-      const modes = await page.locator(".mode-selector").boundingBox();
-      expect(panel!.width).toBe(modes!.width);
       const navigation = await page.locator(".navbar .nav-links").boundingBox();
       const brand = await page.locator(".navbar .brand").boundingBox();
       const utility = await page.locator(".navbar .nav-actions").boundingBox();
@@ -60,14 +56,6 @@ test("RTL homepage, question selection and previews", async ({
       expect(panel!.y + panel!.height).toBeLessThanOrEqual(
         hero!.y + hero!.height,
       );
-      const modes = await page.locator(".mode-selector").boundingBox();
-      expect(modes).not.toBeNull();
-      expect(modes!.x).toBeGreaterThanOrEqual(0);
-      expect(modes!.x + modes!.width).toBeLessThanOrEqual(width);
-      expect(modes!.y).toBeGreaterThanOrEqual(panel!.y + panel!.height);
-      expect(modes!.y + modes!.height).toBeLessThanOrEqual(
-        hero!.y + hero!.height,
-      );
     }
     await page.setViewportSize({ width: 1440, height: 1000 });
   }
@@ -76,6 +64,8 @@ test("RTL homepage, question selection and previews", async ({
   await expect(page.locator(".concept-card")).toHaveCount(7);
   await expect(page.locator(".example-card")).toHaveCount(3);
   await expect(page.locator(".source-card")).toHaveCount(4);
+  await expect(page.locator(".learning-card")).toHaveCount(1);
+  await expect(page.locator(".path-meta")).toHaveCount(0);
   await expect(
     page.getByRole("heading", { name: "فهم نظام المواريث في الإسلام" }),
   ).toBeVisible();
@@ -96,10 +86,7 @@ test("RTL homepage, question selection and previews", async ({
   await expect(page.locator(".question-preview")).toContainText(
     "ما معنى العصبة؟",
   );
-  await page.getByRole("button", { name: "وضع المسائل", exact: false }).click();
-  await expect(
-    page.getByRole("button", { name: "وضع المسائل", exact: false }),
-  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".mode-selector")).toHaveCount(0);
   await page.locator(".concept-card").first().click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
@@ -109,7 +96,7 @@ test("RTL homepage, question selection and previews", async ({
   await page.getByRole("button", { name: "إغلاق المعاينة" }).click();
   await page.locator(".learning-card").scrollIntoViewIfNeeded();
   const artwork = await page.locator(".path-illustration").boundingBox();
-  const scene = await page.locator(".path-scene").boundingBox();
+  const scene = await page.locator(".path-nook-image").boundingBox();
   const urlBefore = page.url();
   await page.getByRole("button", { name: "استكشف المسار" }).click();
   await expect(
@@ -120,7 +107,7 @@ test("RTL homepage, question selection and previews", async ({
   expect(await page.locator(".path-illustration").boundingBox()).toEqual(
     artwork,
   );
-  expect(await page.locator(".path-scene").boundingBox()).toEqual(scene);
+  expect(await page.locator(".path-nook-image").boundingBox()).toEqual(scene);
   expect(page.url()).toBe(urlBefore);
   await page.getByRole("button", { name: "إخفاء المسار" }).click();
   await expect(

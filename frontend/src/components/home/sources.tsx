@@ -1,3 +1,5 @@
+"use client";
+import { useLocale } from "@/i18n/locale-context";
 import {
   BookOpen,
   LibraryBig,
@@ -29,21 +31,24 @@ const sources = [
   },
 ];
 export function Sources() {
+  const { t } = useLocale();
   return (
     <section className="section sources-section" id="sources">
       <div className="container">
         <SectionHeading
-          title="للمعرفة أصول، وللفهم مصادر"
-          description="تعرف على أبواب المعرفة التي يستند إليها علم المواريث."
+          title={t("للمعرفة أصول، وللفهم مصادر")}
+          description={t(
+            "تعرف على أبواب المعرفة التي يستند إليها علم المواريث.",
+          )}
           icon={<LibraryBig size={27} />}
         />
         <div className="sources-grid">
           {sources.map(({ name, description, icon: Icon }) => (
-            <div className="source-card" key={name}>
+            <div className="source-card" key={t(name)}>
               <Icon size={25} strokeWidth={1.5} aria-hidden="true" />
               <div>
-                <h3>{name}</h3>
-                <p>{description}</p>
+                <h3>{t(name)}</h3>
+                <p>{t(description)}</p>
               </div>
             </div>
           ))}
@@ -51,11 +56,13 @@ export function Sources() {
         <div className="source-note">
           <span>✦</span>
           <p>
-            الفهم الدقيق يبدأ بالسياق. المسائل الشخصية تستدعي الرجوع إلى أهل
-            الاختصاص.
+            {t(
+              "الفهم الدقيق يبدأ بالسياق. المسائل الشخصية تستدعي الرجوع إلى أهل الاختصاص.",
+            )}
           </p>
           <a href="#about">
-            عن هذه المساحة <ArrowUpLeft size={14} aria-hidden="true" />
+            {t("عن هذه المساحة")}
+            <ArrowUpLeft size={14} aria-hidden="true" />
           </a>
         </div>
       </div>

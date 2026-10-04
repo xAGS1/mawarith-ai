@@ -1,9 +1,12 @@
+"use client";
+import { useLocale } from "@/i18n/locale-context";
 export function Brand({ compact = false }: { compact?: boolean }) {
+  const { t } = useLocale();
   return (
     <a
       href="#home"
       className={`brand ${compact ? "brand-small" : ""}`}
-      aria-label="مواريث — الرئيسية"
+      aria-label={t("مواريث — الرئيسية")}
     >
       <svg
         viewBox="0 0 44 56"
@@ -27,7 +30,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
         <span className="brand-name" lang="en" dir="ltr">
           MAWARITH <span>AI</span>
         </span>
-        <span className="brand-caption">علمٌ يُفهم .. وحقوقٌ تُصان</span>
+        <span className="brand-caption">{t("علمٌ يُفهم .. وحقوقٌ تُصان")}</span>
       </span>
     </a>
   );
