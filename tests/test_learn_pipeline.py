@@ -25,7 +25,8 @@ def test_questions(question, hit, monkeypatch):
     out = learn.run_learn(question)
     assert out["decision_state"] == "ready"
     assert out["language"] == ("ar" if question in QUESTIONS[:5] else "en")
-    assert out["source_excerpts"][0]["text"] == hit["text"]
+    assert len(out["source_excerpts"]) <= 2
+    assert all(e["text"] in hit["text"] for e in out["source_excerpts"])
 
 
 def test_empty_abstains_without_model(monkeypatch):
@@ -108,7 +109,8 @@ def test_overlap_is_exact_slice(hit):
 
 
 def test_inline_citations_and_english_arabic_evidence(hit, monkeypatch):
-    second = {**hit, "text": "سجل تجريبي محايد ثانٍ", "source": {**hit["source"], "chunk_id": "second"}}
+    hit = {**hit, "text": "العصبة — " + hit["text"]}
+    second = {**hit, "text": "العصبة — سجل تجريبي محايد ثانٍ", "source": {**hit["source"], "chunk_id": "second"}}
     retrieve = Mock(return_value=[hit, second])
     monkeypatch.setattr(learn, "retrieve_fiqh", retrieve)
     monkeypatch.setattr(learn, "enrich_sources", lambda rules: [])

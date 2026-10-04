@@ -249,3 +249,62 @@ test("grounded presentation hides IDs, deduplicates and labels Arabic operationa
     "https://example.org/fixture",
   ]);
 });
+
+test("educational excerpts are capped and source metadata is grouped once", async ({
+  page,
+}) => {
+  const source = {
+    source_name: "Grouped fixture",
+    source_url: "https://example.org/group",
+    reference: "Fixture reference",
+    section: "Fixture entry",
+    publisher: "Fixture institution",
+  };
+  await page.route("**/api/ask", (route) =>
+    route.fulfill({
+      json: {
+        ...base,
+        decision_state: "ready",
+        sources: [source, source],
+        source_excerpts: [
+          "First exact fixture paragraph.",
+          "Second exact fixture paragraph.",
+          "Third hidden fixture paragraph.",
+        ].map((text) => ({ ...source, text })),
+      },
+    }),
+  );
+  await page.goto("/");
+  await page.getByRole("textbox").fill("Neutral question");
+  await page.locator(".ask-submit").click();
+  await expect(page.locator(".ask-excerpts blockquote")).toHaveCount(2);
+  await expect(page.locator(".ask-result .ask-source-meta")).toHaveCount(1);
+  await expect(page.locator(".ask-result")).not.toContainText("Third hidden");
+});
+
+test("failed educational grounding never displays legacy raw chunks", async ({
+  page,
+}) => {
+  await page.route("**/api/ask", (route) =>
+    route.fulfill({
+      json: {
+        ...base,
+        decision_state: "specialist_referral",
+        answer: "Evidence is insufficient.",
+        source_excerpts: [
+          {
+            text: "Unrelated raw fixture ".repeat(100),
+            source_name: "Fixture",
+          },
+        ],
+      },
+    }),
+  );
+  await page.goto("/");
+  await page.getByRole("textbox").fill("Neutral unsupported question");
+  await page.locator(".ask-submit").click();
+  await expect(page.locator(".ask-answer")).toContainText(
+    "Evidence is insufficient.",
+  );
+  await expect(page.locator(".ask-excerpts")).toHaveCount(0);
+});

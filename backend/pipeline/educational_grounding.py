@@ -30,7 +30,7 @@ def check_concept_scope(question: str, answer: str, cited: list[dict]) -> None:
 def relevant_public_excerpts(question: str, excerpts: list[dict]) -> list[dict]:
     """Select whole matching paragraphs; never paraphrase or cut sentences.
 
-    Short evidence remains intact. Large evidence without a confidently matched
+    Single short paragraphs remain intact. Evidence without a confidently matched
     paragraph is omitted from public display, retaining its source metadata.
     Quran adapter text is always kept intact.
     """
@@ -41,22 +41,32 @@ def relevant_public_excerpts(question: str, excerpts: list[dict]) -> list[dict]:
         if any(term in query for term in terms):
             anchors.extend(terms)
     output = []
+    seen = set()
     for excerpt in excerpts:
+        if len(output) == 2:
+            break
         text = excerpt["text"]
-        if len(text) <= 900 or excerpt.get("source_type") == "quran":
-            output.append(excerpt)
-            continue
         paragraphs = list(re.finditer(r"[^\n]+(?:\n(?!\s*\n)[^\n]+)*", text))
-        selected = [p for p in paragraphs if any(a in matching_text(p.group().lower()) for a in anchors)]
-        # Keep intervening source context, never splice unrelated passages.
-        if not selected:
+        selected = [p for p in paragraphs if len(p.group().split()) >= 4
+                    and any(a in matching_text(p.group().lower()) for a in anchors)]
+        if excerpt.get("source_type") == "quran":
+            if text not in seen:
+                output.append(excerpt)
+                seen.add(text)
             continue
-        start, end = selected[0].start(), selected[-1].end()
-        if end - start > 1200:
-            continue
-        public = {**excerpt, "text": text[start:end]}
-        origin = excerpt.get("excerpt_char_start", excerpt.get("provenance", {}).get("char_start"))
-        if isinstance(origin, int):
-            public.update(excerpt_char_start=origin + start, excerpt_char_end=origin + end)
-        output.append(public)
+        if not selected and not anchors and len(paragraphs) == 1 and len(text) <= 900:
+            # A cited short, self-contained passage can support non-catalogue queries.
+            selected = paragraphs
+        for paragraph in sorted(selected, key=lambda p: len(p.group())):
+            start, end = paragraph.span()
+            if end - start > 900 or paragraph.group() in seen:
+                continue
+            public = {**excerpt, "text": text[start:end]}
+            origin = excerpt.get("excerpt_char_start", excerpt.get("provenance", {}).get("char_start"))
+            if isinstance(origin, int):
+                public.update(excerpt_char_start=origin + start, excerpt_char_end=origin + end)
+            output.append(public)
+            seen.add(paragraph.group())
+            if len(output) == 2:
+                break
     return output

@@ -8,6 +8,8 @@ import {
   uniqueSources,
   distinctConcepts,
   limitationText,
+  groupExcerpts,
+  sourceIdentity,
 } from "@/lib/ask/presentation";
 
 function text(value: unknown) {
@@ -128,13 +130,20 @@ export function AskResult({
         Number(row.count) > 0 &&
         typeof row.per_head_shares === "string",
     );
-  const excerpts = uniqueSources(
-    records(result.source_excerpts).filter(
-      (source) => typeof source.text === "string",
-    ),
-    true,
+  const excerpts =
+    result.mode === "learn" && result.decision_state !== "ready"
+      ? []
+      : uniqueSources(
+          records(result.source_excerpts).filter(
+            (source) => typeof source.text === "string",
+          ),
+          true,
+        ).slice(0, result.mode === "learn" ? 2 : undefined);
+  const excerptGroups = groupExcerpts(excerpts);
+  const displayedSources = new Set(excerpts.map(sourceIdentity));
+  const sources = uniqueSources(records(result.sources)).filter(
+    (source) => !displayedSources.has(sourceIdentity(source)),
   );
-  const sources = uniqueSources(records(result.sources));
   const concepts = distinctConcepts(
     records(result.key_concepts).filter(
       (concept) =>
@@ -158,7 +167,7 @@ export function AskResult({
         lang={result.language}
         dir={result.language === "ar" ? "rtl" : "ltr"}
       >
-        <h4>{t({ ar: "شرح الذكاء الاصطناعي", en: "AI explanation" })}</h4>
+        <h4>{t({ ar: "الشرح التعليمي", en: "Educational explanation" })}</h4>
         <p>{publicText(result.answer)}</p>
       </div>
       {typeof result.clarification_question === "string" &&
@@ -242,13 +251,15 @@ export function AskResult({
               en: "Source excerpts — exact returned text",
             })}
           </h4>
-          {excerpts.map((source, i) => (
-            <figure key={i}>
-              <blockquote dir="auto">{text(source.text)}</blockquote>
-              <figcaption>
-                <SourceMetadata source={source} />
-              </figcaption>
-            </figure>
+          {excerptGroups.map((group, i) => (
+            <div className="ask-source" key={i}>
+              <SourceMetadata source={group.source} />
+              {group.excerpts.map((source, j) => (
+                <figure key={j}>
+                  <blockquote dir="auto">{text(source.text)}</blockquote>
+                </figure>
+              ))}
+            </div>
           ))}
         </div>
       )}

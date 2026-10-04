@@ -1,27 +1,78 @@
 "use client";
 import { useLocale } from "@/i18n/locale-context";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Send, Sparkles } from "lucide-react";
 import { ask, AskError } from "@/lib/ask/client";
 import type { AskResponse } from "@/lib/ask/types";
 import { AskResult } from "@/components/ask/ask-result";
 import { exampleQuestions } from "@/data/home";
+import {
+  readPendingRequest,
+  markPendingRequest,
+  clearPendingRequest,
+  PENDING_MAX_AGE,
+} from "@/lib/ask/pending-request";
 export function AskPanel() {
   const [question, setQuestion] = useState("");
   const [pending, setPending] = useState(false);
   const inFlight = useRef(false);
+  const leavingPage = useRef(false);
+  const [initialized, setInitialized] = useState(false);
+  const [restoredPending, setRestoredPending] = useState(false);
+  const [expired, setExpired] = useState(false);
   const [result, setResult] = useState<AskResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submittedQuestion, setSubmittedQuestion] = useState("");
   const { t } = useLocale();
+  useEffect(() => {
+    const onLeave = () => {
+      leavingPage.current = true;
+    };
+    const onReturn = () => {
+      leavingPage.current = false;
+    };
+    window.addEventListener("beforeunload", onLeave);
+    window.addEventListener("pagehide", onLeave);
+    window.addEventListener("pageshow", onReturn);
+    const marker = readPendingRequest();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    if (marker) {
+      setQuestion(marker.question);
+      setSubmittedQuestion(marker.question);
+      const remaining = PENDING_MAX_AGE - (Date.now() - marker.startedAt);
+      const recover = () => {
+        clearPendingRequest(marker);
+        inFlight.current = false;
+        setPending(false);
+        setRestoredPending(false);
+        setExpired(true);
+      };
+      if (remaining <= 0) recover();
+      else {
+        inFlight.current = true;
+        setPending(true);
+        setRestoredPending(true);
+        timer = setTimeout(recover, remaining);
+      }
+    }
+    setInitialized(true);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("beforeunload", onLeave);
+      window.removeEventListener("pagehide", onLeave);
+      window.removeEventListener("pageshow", onReturn);
+    };
+  }, []);
   async function submit(value = question) {
-    if (inFlight.current) return;
+    if (!initialized || inFlight.current) return;
     const trimmed = value.trim();
     if (!trimmed) {
       setError("empty");
       return;
     }
     inFlight.current = true;
+    const marker = markPendingRequest(trimmed);
+    setExpired(false);
     setPending(true);
     setError(null);
     setResult(null);
@@ -31,6 +82,8 @@ export function AskPanel() {
     } catch (error) {
       setError(error instanceof AskError ? error.code : "request_error");
     } finally {
+      // Navigation can abort the browser fetch while backend generation continues.
+      if (!leavingPage.current) clearPendingRequest(marker);
       inFlight.current = false;
       setPending(false);
     }
@@ -72,13 +125,13 @@ export function AskPanel() {
               setError(null);
             }}
             placeholder={t("اسأل عن مفهوم أو اكتب حالة مواريث...")}
-            disabled={pending}
+            disabled={!initialized || pending}
             maxLength={600}
           />
           <button
             type="submit"
             className="ask-submit"
-            disabled={pending}
+            disabled={!initialized || pending}
             aria-label={t("استكشف السؤال")}
           >
             <Send size={22} aria-hidden="true" />
@@ -90,7 +143,7 @@ export function AskPanel() {
             <button
               type="button"
               key={q.ar}
-              disabled={pending}
+              disabled={!initialized || pending}
               onClick={() => {
                 setQuestion(t(q));
                 setError(null);
@@ -103,7 +156,34 @@ export function AskPanel() {
       </form>
       {pending && (
         <div className="ask-feedback" role="status">
-          {t({ ar: "جارٍ إعداد الإجابة…", en: "Preparing your answer…" })}
+          {restoredPending ? (
+            <>
+              <p>
+                {t({
+                  ar: "طلبك ما زال تحت المعالجة",
+                  en: "Your request is still being processed",
+                })}
+              </p>
+              <p>
+                {t({
+                  ar: "يرجى الانتظار قبل إرسال سؤال جديد.",
+                  en: "Please wait before submitting another question.",
+                })}
+              </p>
+            </>
+          ) : (
+            t({ ar: "جارٍ إعداد الإجابة…", en: "Preparing your answer…" })
+          )}
+        </div>
+      )}
+      {expired && (
+        <div className="ask-feedback" role="status">
+          <p>
+            {t({
+              ar: "قد تكون مهلة الطلب السابق قد انتهت. يمكنك إعادة المحاولة.",
+              en: "The previous request may have expired. You can try again.",
+            })}
+          </p>
         </div>
       )}
       {error && (

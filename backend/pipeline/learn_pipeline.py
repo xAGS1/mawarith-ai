@@ -12,6 +12,7 @@ from backend.sources.router import enrich_sources
 from backend.schemas.response import Concept, EducationalResponse
 from backend.rules.educational_concepts import supported_concepts, minimal_answer
 from backend.pipeline.educational_grounding import check_concept_scope, relevant_public_excerpts
+from backend.learning.curated import curated_concept
 
 
 def detect_language(question: str) -> str:
@@ -167,6 +168,12 @@ def run_learn(question: str) -> dict:
         response.decision_state = "needs_clarification"
         response.clarification_question = "ما سؤالك عن المواريث؟" if language == "ar" else "What would you like to learn about inheritance?"
         return response.model_dump()
+    curated = curated_concept(question, language)
+    if curated:
+        response.answer = curated["answer"]
+        response.sources = curated["sources"]
+        response.decision_state = "ready"
+        return response.model_dump()
     try:
         response.source_excerpts = build_evidence_bundle(retrieve_educational_evidence(question))
     except (RuntimeError, ValueError, OSError) as exc:
@@ -202,6 +209,11 @@ def run_learn(question: str) -> dict:
             response.limitations.append("Explanation timed out; no matching structured concept metadata is available for a safe fallback.")
     except (ValueError, KeyError, TypeError, requests.RequestException) as exc:
         response.limitations.append("Explanation withheld: " + str(exc))
+    if response.decision_state != "ready":
+        # Retrieved chunks are internal candidates, not validated public evidence.
+        response.source_excerpts = []
+        response.sources = []
+        return response.model_dump()
     response.sources = [e["provenance"] for e in response.source_excerpts]
     response.source_excerpts = relevant_public_excerpts(question, response.source_excerpts)
     # Attach Quran only when an exact reference occurs in retrieved source text.
@@ -220,6 +232,7 @@ def run_learn(question: str) -> dict:
             response.source_excerpts.append({"text": source["arabic_text"], "source_name": source["source_name"],
                 "section": None, "reference": source["reference"], "source_url": source.get("source_url"), "immutable_text": True})
     response.limitations.append("Coverage is limited to the approved local corpus; page numbers may be unavailable. Evidence-ID checks do not prove every generated claim.")
+    response.source_excerpts = response.source_excerpts[:2]
     return response.model_dump()
 
 

@@ -31,19 +31,37 @@ export function uniqueSources(
   const seen = new Set<string>();
   return sources.filter((source) => {
     const m = metadata(source);
-    const key =
-      stable([
-        m.source_type,
-        m.source_name,
-        m.provider,
-        m.reference ?? { volume: m.volume, page: m.page },
-        m.source_url,
-        m.input_file,
-      ]) + (excerpts ? stable(source.text) : "");
+    const key = sourceIdentity(m) + (excerpts ? stable(source.text) : "");
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
+}
+export function sourceIdentity(source: SourceRecord): string {
+  const m = metadata(source);
+  return stable([
+    m.source_type,
+    m.source_name,
+    m.provider,
+    m.reference ?? { volume: m.volume, page: m.page },
+    m.source_url,
+    m.input_file,
+  ]);
+}
+export function groupExcerpts(
+  excerpts: SourceRecord[],
+): { source: SourceRecord; excerpts: SourceRecord[] }[] {
+  const groups = new Map<
+    string,
+    { source: SourceRecord; excerpts: SourceRecord[] }
+  >();
+  for (const excerpt of excerpts) {
+    const key = sourceIdentity(excerpt);
+    const group = groups.get(key);
+    if (group) group.excerpts.push(excerpt);
+    else groups.set(key, { source: metadata(excerpt), excerpts: [excerpt] });
+  }
+  return [...groups.values()];
 }
 export function distinctConcepts(
   concepts: SourceRecord[],
