@@ -27,3 +27,21 @@ def analyze_case_endpoint(payload: CaseRequest):
         return PipelineOutput.model_validate(result)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
+from typing import Literal
+from backend.pipeline.educational_pipeline import run_request
+from backend.schemas.response import EducationalResponse
+
+class EducationalRequest(BaseModel):
+    question: str
+    mode: Literal["learn", "case"] = "learn"
+
+@app.post("/ask", response_model=EducationalResponse)
+def ask_endpoint(payload: EducationalRequest):
+    return run_request(payload.question, payload.mode)
+
+
+from backend.learning.router import router as learning_router
+
+app.include_router(learning_router)
