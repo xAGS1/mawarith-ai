@@ -68,7 +68,6 @@
   "خطوة بخطوة .. إلى وضوح أكبر": "Step by step, toward greater clarity",
   "مسار واحد، بداية بسيطة. تعلم بالترتيب الذي يناسبك.": "One path, a simple beginning. Learn at your own pace.",
   "رحلة الفهم": "A journey of understanding",
-  "المستوى المبتدئ": "Beginner level",
   "فهم نظام المواريث في الإسلام": "Understanding Islamic Inheritance",
   "من المصطلح إلى المعنى، ومن القاعدة إلى المثال.": "From terminology to meaning, from rules to examples.",
   "رحلة واضحة لمن يبدأ من الصفر، بلا معرفة مسبقة.": "A clear starting point. No prior knowledge needed.",
@@ -125,5 +124,9 @@
   "التعلم أولًا .. والحساب خطوة تالية": "Learning first. Calculation comes next.",
   "العودة إلى أعلى الصفحة": "Back to top",
   "إغلاق المعاينة": "Close preview",
-  "اكتشف خطوة جديدة": "Discover a new step"
+  "اكتشف خطوة جديدة": "Discover a new step",
+  "المفاهيم": "Concepts",
+  "مسارات التعلم": "Learning Paths",
+  "القواعد الموثقة": "Documented Rules",
+  "قواعد منظمة مع مراجعها": "Structured rules with references"
 }

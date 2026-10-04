@@ -7,18 +7,18 @@ test("four localized navigation paths, responsive rows and focus effects", async
   const cards = page.locator(".learning-card");
   await expect(cards).toHaveCount(4);
   await expect(cards.locator("h3")).toHaveText([
-    "المستوى المبتدئ",
-    "المستوى المتوسط",
-    "المستوى المتقدم",
-    "للمعلمين والطلاب",
+    "أساسيات المواريث",
+    "الأنصبة والقواعد",
+    "المسائل والتطبيقات",
+    "الحالات الخاصة والمتقدمة",
   ]);
   const links = cards.locator(".path-toggle");
   await expect(links).toHaveCount(4);
   for (const [index, slug] of [
-    "beginner",
-    "intermediate",
-    "advanced",
-    "teachers-students",
+    "inheritance-foundations",
+    "shares-rules",
+    "cases-applications",
+    "special-advanced",
   ].entries()) {
     await expect(links.nth(index)).toHaveAttribute(
       "href",
@@ -68,16 +68,16 @@ test("four localized navigation paths, responsive rows and focus effects", async
   }
   await page.getByRole("button", { name: "Switch to English" }).click();
   await expect(cards.locator("h3")).toHaveText([
-    "Beginner",
-    "Intermediate",
-    "Advanced",
-    "Teachers & Students",
+    "Inheritance Foundations",
+    "Shares & Rules",
+    "Cases & Applications",
+    "Special & Advanced Cases",
   ]);
   await expect(cards.locator("p")).toHaveText([
-    "Core concepts and foundational rules",
-    "Applied concepts and combined cases",
-    "Advanced cases and rule interaction",
-    "Educational tools and learning resources",
+    "Core concepts including heirs, fixed shares, residuary heirs, blocking, and essential terminology.",
+    "How shares are determined, when they change, and how inheritance rules interact.",
+    "Step-by-step practical cases from understanding the situation to heirs, distribution, and explanation.",
+    "Awl, radd, complex blocking, and cases requiring deeper analysis or specialist referral.",
   ]);
 });
 

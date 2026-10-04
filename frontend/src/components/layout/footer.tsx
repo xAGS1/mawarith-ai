@@ -2,13 +2,14 @@
 import { useLocale } from "@/i18n/locale-context";
 import { ArrowUp } from "lucide-react";
 import { Brand } from "@/components/ui/brand";
-export function Footer() {
+export function Footer({ homeLinks = false }: { homeLinks?: boolean }) {
   const { t } = useLocale();
+  const target = (hash: string) => (homeLinks ? `/${hash}` : hash);
   return (
     <footer className="footer" id="about">
       <div className="container footer-main">
         <div>
-          <Brand compact />
+          <Brand compact href={target("#home")} />
           <p className="footer-description">
             {t("مساحة تعليمية لفهم علم المواريث في الإسلام.")}
             <br />
@@ -16,10 +17,10 @@ export function Footer() {
           </p>
         </div>
         <div className="footer-links">
-          <a href="#concepts">{t("استكشف المفاهيم")}</a>
-          <a href="#learning-path">{t("المسار التعليمي")}</a>
-          <a href="#examples">{t("الأمثلة")}</a>
-          <a href="#sources">{t("المصادر")}</a>
+          <a href={target("#concepts")}>{t("استكشف المفاهيم")}</a>
+          <a href={target("#learning-path")}>{t("المسار التعليمي")}</a>
+          <a href={target("#examples")}>{t("الأمثلة")}</a>
+          <a href={target("#sources")}>{t("المصادر")}</a>
         </div>
         <div className="footer-quote">
           {t("بالعلم، نفهم.")}
@@ -35,7 +36,7 @@ export function Footer() {
           {t("— صُمّم من أجل الفهم")}
         </p>
         <span>{t("التعلم أولًا .. والحساب خطوة تالية")}</span>
-        <a href="#home" aria-label={t("العودة إلى أعلى الصفحة")}>
+        <a href={target("#home")} aria-label={t("العودة إلى أعلى الصفحة")}>
           <ArrowUp size={17} />
         </a>
       </div>

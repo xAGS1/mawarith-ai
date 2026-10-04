@@ -601,17 +601,6 @@ svg {
   transform: translateX(-50%);
   opacity: 0.93;
 }
-.path-illustration-label {
-  position: absolute;
-  bottom: 20px;
-  right: 0;
-  left: 0;
-  text-align: center;
-  font-family: var(--font-serif);
-  font-size: 25px;
-  color: #edd5a7;
-  text-shadow: 0 2px 8px #083e44;
-}
 .path-content {
   direction: rtl;
   padding: 39px 36px;
@@ -643,103 +632,6 @@ svg {
   color: #6b7770;
   line-height: 1.9;
   margin-top: 5px;
-}
-.path-meta {
-  display: flex;
-  gap: 20px;
-  margin-top: 15px;
-  font-size: 10px;
-  color: #857657;
-  flex-wrap: wrap;
-}
-.path-meta > span {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-.path-details .path-toggle {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  width: fit-content;
-  background: #0e5559;
-  color: #fff8eb;
-  padding: 9px 18px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 11px;
-  margin-top: 19px;
-  list-style: none;
-}
-.path-details .path-toggle::-webkit-details-marker {
-  display: none;
-}
-.path-details .path-toggle:hover {
-  background: #176e71;
-}
-.path-details ol {
-  list-style: none;
-  padding: 0;
-  margin: 17px 0 0;
-  border-top: 1px solid #e8ddc9;
-  padding-top: 13px;
-}
-.path-details li {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  font-size: 11px;
-  margin-top: 7px;
-}
-.path-details li > span {
-  display: grid;
-  place-items: center;
-  background: #f1e6cf;
-  color: #8f733e;
-  width: 23px;
-  height: 23px;
-  border-radius: 50%;
-  font-size: 10px;
-}
-.path-details li a:hover {
-  color: #a07739;
-}
-.path-side-note {
-  direction: rtl;
-  align-self: center;
-  border-right: 1px solid #e4d9c5;
-  text-align: center;
-  padding: 10px 20px 15px;
-}
-.path-small-arch {
-  display: grid;
-  place-items: center;
-  margin: 0 auto 12px;
-  color: #ad8548;
-  width: 75px;
-  height: 83px;
-  border: 1px solid #d3be98;
-  border-radius: 45px 45px 5px 5px;
-  background: var(--pattern);
-}
-.path-side-note h4 {
-  font-family: var(--font-serif);
-  font-size: 21px;
-}
-.path-side-note p {
-  font-size: 10px;
-  color: #8c8876;
-  margin-top: 8px;
-  line-height: 2.15;
-}
-.path-check {
-  font-size: 9px;
-  color: #6e7b59;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 9px;
 }
 .examples-section {
   padding-bottom: 52px;
@@ -1201,9 +1093,6 @@ svg {
   .learning-card {
     grid-template-columns: 1fr 1.8fr;
   }
-  .path-side-note {
-    display: none;
-  }
   .example-grid {
     gap: 12px;
   }
@@ -1412,10 +1301,6 @@ svg {
     height: 220px;
     bottom: -25px;
   }
-  .path-illustration-label {
-    bottom: 13px;
-    font-size: 24px;
-  }
   .path-content {
     padding: 23px;
   }
@@ -1424,14 +1309,6 @@ svg {
   }
   .path-content > p {
     font-size: 11px;
-  }
-  .path-meta {
-    gap: 17px;
-    font-size: 10px;
-  }
-  .path-details .path-toggle {
-    width: 100%;
-    justify-content: space-between;
   }
   .example-grid {
     grid-template-columns: 1fr;
@@ -1801,26 +1678,6 @@ svg {
   font-size: 30px;
   margin-top: 5px;
 }
-.path-meta {
-  margin-top: 10px;
-}
-.path-details .path-toggle {
-  margin-top: 14px;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 12px;
-}
-.path-small-arch {
-  width: 60px;
-  height: 68px;
-  margin-bottom: 8px;
-}
-.path-side-note {
-  padding: 10px 16px;
-}
-.path-side-note p {
-  margin-top: 4px;
-}
 .example-card {
   padding: 15px 20px 12px;
   background: #fffcf6;
@@ -2034,7 +1891,6 @@ svg {
   }
   .card-discover,
   .example-tags > span,
-  .path-meta,
   .source-note,
   .footer-links,
   .footer-bottom {
@@ -2049,16 +1905,9 @@ svg {
   .path-content {
     padding: calc(25 * var(--desktop-unit)) calc(30 * var(--desktop-unit));
   }
-  .path-details .path-toggle,
   .source-card h3,
   .footer-description {
     font-size: calc(12 * var(--desktop-unit));
-  }
-  .path-side-note h4 {
-    font-size: calc(21 * var(--desktop-unit));
-  }
-  .path-side-note p {
-    font-size: calc(10 * var(--desktop-unit));
   }
   .example-card {
     padding: calc(15 * var(--desktop-unit)) calc(20 * var(--desktop-unit));
@@ -2175,55 +2024,6 @@ svg {
   height: 230px;
   min-height: 0;
 }
-.path-side-note {
-  align-self: start;
-  margin-top: 25px;
-}
-.path-details .path-toggle {
-  border: 0;
-  font-family: inherit;
-}
-.path-expansion {
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  transition:
-    grid-template-rows 300ms ease,
-    opacity 300ms ease;
-}
-.path-expansion[data-expanded="true"] {
-  grid-template-rows: 1fr;
-  opacity: 1;
-}
-.path-expansion-inner {
-  min-height: 0;
-  overflow: hidden;
-}
-.path-details ol {
-  margin: 10px 0 0;
-  padding: 8px 0 0;
-  border-top: 1px solid #e8ddc9;
-}
-.path-details li {
-  position: relative;
-  margin-top: 4px;
-  gap: 9px;
-  line-height: 1.65;
-}
-.path-details li > span {
-  width: 21px;
-  height: 21px;
-  position: relative;
-}
-.path-details li:not(:last-child)::before {
-  content: "";
-  position: absolute;
-  right: 10px;
-  top: 21px;
-  height: 5px;
-  width: 1px;
-  background: #d7c5a0;
-}
 @media (min-width: 1600px) {
   .path-illustration {
     height: calc(230 * var(--desktop-unit));
@@ -2252,16 +2052,11 @@ html[lang="en"] {
   --font-sans: Arial, sans-serif;
 }
 html[dir="ltr"] .path-content,
-html[dir="ltr"] .path-side-note,
 html[dir="ltr"] .path-illustration {
   direction: ltr;
 }
 html[dir="ltr"] .example-card {
   text-align: left;
-}
-html[dir="ltr"] .path-details li:not(:last-child)::before {
-  right: auto;
-  left: 10px;
 }
 html[dir="ltr"] .lucide-arrow-left {
   transform: rotate(180deg);
@@ -2324,6 +2119,10 @@ html[lang="ar"] .question-preview p {
     linear-gradient(90deg, #103f45 44%, transparent 44%),
     linear-gradient(115deg, #f2e8d6, #fffaf0 55%, #fffdf7);
   box-shadow: 0 12px 36px #4d3a2012;
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
 }
 .path-section .path-illustration {
   height: clamp(340px, 26vw, 410px);
@@ -2336,6 +2135,7 @@ html[lang="ar"] .question-preview p {
 .path-section .path-nook-image {
   object-fit: cover;
   object-position: 50% 52%;
+  transition: transform 200ms ease;
 }
 .path-section .path-illustration::after {
   content: "";
@@ -2357,60 +2157,13 @@ html[lang="ar"] .question-preview p {
 .path-section .path-content > p {
   margin-top: 10px;
 }
-.path-section .path-meta {
-  gap: 16px;
-  margin-top: 15px;
-}
 .path-section .path-toggle {
   margin-top: 18px;
   box-shadow: 0 4px 12px #0e55591a;
 }
-.path-section .path-trust-note {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 17px;
-  padding-top: 13px;
-  border-top: 1px solid #d8c69f66;
-  direction: inherit;
-}
-.path-section .path-trust-note > svg {
-  color: #a47c3d;
-}
-.path-section .path-trust-note h4 {
-  font-size: 15px;
-  color: #205257;
-}
-.path-section .path-trust-note p {
-  color: #7d7b69;
-  font-size: 11px;
-  line-height: 1.7;
-  margin-top: 3px;
-}
-.path-section .path-trust-check {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: #627757;
-  font-size: 10px;
-  margin-inline-start: auto;
-  white-space: nowrap;
-}
-.path-section .path-details ol {
-  margin-top: 12px;
-}
 @media (min-width: 2200px) {
   .path-section .path-illustration {
     height: calc(340 * var(--desktop-unit));
-  }
-  .path-section .path-trust-note h4 {
-    font-size: calc(15 * var(--desktop-unit));
-  }
-  .path-section .path-trust-note p {
-    font-size: calc(11 * var(--desktop-unit));
-  }
-  .path-section .path-trust-check {
-    font-size: calc(10 * var(--desktop-unit));
   }
 }
 @media (max-width: 850px) {
@@ -2425,12 +2178,6 @@ html[lang="ar"] .question-preview p {
   }
   .path-section .path-nook-image {
     object-position: 57% center;
-  }
-  .path-section .path-trust-note {
-    flex-wrap: wrap;
-  }
-  .path-section .path-trust-check {
-    margin-inline-start: 33px;
   }
 }
 @media (max-width: 600px) {
@@ -2450,7 +2197,7 @@ html[lang="ar"] .question-preview p {
     padding: 24px;
   }
 }
-/* Compact illustrated path catalog; only the beginner journey is available. */
+/* Compact illustrated goal-based path catalog. */
 .path-section .learning-path-catalog {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2515,23 +2262,6 @@ html[lang="ar"] .path-section .path-content > p {
 .path-section .path-toggle svg {
   width: calc(14 * var(--desktop-unit, 1px));
 }
-.path-section .path-coming-soon {
-  display: inline-block;
-  margin-top: calc(10 * var(--desktop-unit, 1px));
-  padding: 2px 8px;
-  border: 1px solid #b7975840;
-  border-radius: 20px;
-  background: #fff7e8c9;
-  color: #806735;
-  font-size: calc(11 * var(--desktop-unit, 1px));
-}
-.path-section .path-expansion {
-  margin-left: -46%;
-  margin-right: -10%;
-}
-.path-section .path-details li {
-  font-size: calc(12 * var(--desktop-unit, 1px));
-}
 @media (max-width: 1100px) {
   .path-section .learning-path-catalog {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2541,15 +2271,6 @@ html[lang="ar"] .path-section .path-content > p {
   .path-section .learning-path-catalog {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-.path-section .learning-card {
-  transition:
-    transform 200ms ease,
-    box-shadow 200ms ease,
-    border-color 200ms ease;
-}
-.path-section .path-nook-image {
-  transition: transform 200ms ease;
 }
 .path-section .learning-card[data-path]:is(:hover, :focus-within) {
   transform: translateY(-4px);
@@ -2565,17 +2286,7 @@ html[lang="ar"] .path-section .path-content > p {
   outline: 2px solid #a48245;
   outline-offset: 3px;
 }
-.path-section .path-coming-soon {
-  transition:
-    background-color 200ms ease,
-    border-color 200ms ease;
-}
-.path-section .learning-card:is(:hover, :focus-within) .path-coming-soon {
-  background-color: #f1e3c5;
-  border-color: #b7975880;
-}
-.path-section .path-toggle,
-.path-section .path-coming-soon {
+.path-section .path-toggle {
   position: relative;
 }
 .path-section .path-hover-copy {
@@ -2672,18 +2383,32 @@ html[lang="en"] .path-section .path-content > p {
   font-size: calc(11 * var(--desktop-unit, 1px));
   line-height: 1.4;
 }
-html[lang="en"] .path-section .path-toggle,
-html[lang="en"] .path-section .path-coming-soon {
+html[lang="en"] .path-section .path-toggle {
   margin-top: 0;
   flex-shrink: 0;
-}
-html[lang="en"] .path-section .path-details {
-  width: 100%;
 }
 html[lang="en"] .path-section .path-hover-copy {
   inset-inline-start: 0;
   inset-inline-end: auto;
   font-size: calc(9 * var(--desktop-unit, 1px));
+}
+.path-shell {
+  min-height: 60vh;
+}
+.path-shell h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 3vw, 40px);
+  color: #103f45;
+}
+.path-shell p {
+  margin-block: 16px;
+  max-width: 65ch;
+}
+.path-shell a {
+  display: inline-block;
+  color: #103f45;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 @media (prefers-reduced-motion: reduce) {
   .path-section .learning-card[data-path]:is(:hover, :focus-within),

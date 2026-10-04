@@ -1,16 +1,25 @@
 "use client";
 import { useLocale } from "@/i18n/locale-context";
 import { useEffect, useState } from "react";
-import { BookOpen, Scale, LibraryBig, Menu, X, Globe2 } from "lucide-react";
+import {
+  BookOpen,
+  Route,
+  Scale,
+  LibraryBig,
+  Menu,
+  X,
+  Globe2,
+} from "lucide-react";
 import { Brand } from "@/components/ui/brand";
 const links = [
   { label: "الرئيسية", href: "#home" },
-  { label: "وضع التعلم", href: "#concepts", icon: BookOpen },
-  { label: "وضع المسائل", href: "#examples", icon: Scale },
+  { label: "المفاهيم", href: "#concepts", icon: BookOpen },
+  { label: "مسارات التعلم", href: "#learning-path", icon: Route },
+  { label: "الأمثلة", href: "#examples", icon: Scale },
   { label: "المصادر", href: "#sources", icon: LibraryBig },
   { label: "عن المشروع", href: "#about" },
 ];
-export function Navbar() {
+export function Navbar({ homeLinks = false }: { homeLinks?: boolean }) {
   const [open, setOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
   const { t, locale, setLocale } = useLocale();
@@ -42,10 +51,7 @@ export function Navbar() {
               bounds.bottom > window.innerHeight / 4
             );
           }) ?? visible[0]);
-      if (selected)
-        setActiveSection(
-          selected.id === "learning-path" ? "concepts" : selected.id,
-        );
+      if (selected) setActiveSection(selected.id);
     };
     const observer = new IntersectionObserver(updateActiveSection, {
       threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
@@ -57,7 +63,7 @@ export function Navbar() {
   return (
     <header className="navbar">
       <div className="container nav-inner">
-        <Brand />
+        <Brand href={homeLinks ? "/#home" : "#home"} />
         <nav
           id="mobile-nav"
           className={open ? "nav-links is-open" : "nav-links"}
@@ -66,10 +72,14 @@ export function Navbar() {
           {links.map(({ label, href, icon: Icon }) => (
             <a
               key={href}
-              href={href}
-              className={href === `#${activeSection}` ? "nav-active" : ""}
+              href={homeLinks ? `/${href}` : href}
+              className={
+                !homeLinks && href === `#${activeSection}` ? "nav-active" : ""
+              }
               aria-current={
-                href === `#${activeSection}` ? "location" : undefined
+                !homeLinks && href === `#${activeSection}`
+                  ? "location"
+                  : undefined
               }
               onClick={() => setOpen(false)}
             >

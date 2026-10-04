@@ -12,7 +12,7 @@ test("scroll spy, Arabic reading size and optimized hero", async ({ page }) => {
   await expect(active).toHaveAttribute("href", "#home");
   for (const [section, href] of [
     ["concepts", "#concepts"],
-    ["learning-path", "#concepts"],
+    ["learning-path", "#learning-path"],
     ["examples", "#examples"],
     ["sources", "#sources"],
   ]) {

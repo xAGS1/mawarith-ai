@@ -171,52 +171,56 @@ export type LearningPathDefinition = {
   subtitle: BilingualText;
   image: string;
   hoverText: BilingualText;
-  slug: "beginner" | "intermediate" | "advanced" | "teachers-students";
+  slug:
+    | "inheritance-foundations"
+    | "shares-rules"
+    | "cases-applications"
+    | "special-advanced";
 };
 
 export const learningPaths: LearningPathDefinition[] = [
   {
-    id: "beginner-path",
-    title: { ar: "المستوى المبتدئ", en: "Beginner" },
+    id: "inheritance-foundations-path",
+    title: { ar: "أساسيات المواريث", en: "Inheritance Foundations" },
     subtitle: {
-      ar: "المفاهيم الأساسية والقواعد",
-      en: "Core concepts and foundational rules",
+      ar: "المفاهيم الأساسية: الورثة، الفروض، العصبات، الحجب، وأهم المصطلحات.",
+      en: "Core concepts including heirs, fixed shares, residuary heirs, blocking, and essential terminology.",
     },
     image: "/assets/learning-path/beginner.webp",
     hoverText: { ar: "ابدأ من الأساس", en: "Start with the basics" },
-    slug: "beginner",
+    slug: "inheritance-foundations",
   },
   {
-    id: "intermediate-path",
-    title: { ar: "المستوى المتوسط", en: "Intermediate" },
+    id: "shares-rules-path",
+    title: { ar: "الأنصبة والقواعد", en: "Shares & Rules" },
     subtitle: {
-      ar: "التطبيقات والمسائل المركبة",
-      en: "Applied concepts and combined cases",
+      ar: "كيف تُحدد الأنصبة، متى تتغير، وكيف تتفاعل القواعد مع وجود ورثة مختلفين.",
+      en: "How shares are determined, when they change, and how inheritance rules interact.",
     },
     image: "/assets/learning-path/intermediate.webp",
     hoverText: { ar: "طبّق ما تعلمت", en: "Apply what you learned" },
-    slug: "intermediate",
+    slug: "shares-rules",
   },
   {
-    id: "advanced-path",
-    title: { ar: "المستوى المتقدم", en: "Advanced" },
+    id: "cases-applications-path",
+    title: { ar: "المسائل والتطبيقات", en: "Cases & Applications" },
     subtitle: {
-      ar: "المسائل المعقدة وتفاعل القواعد",
-      en: "Advanced cases and rule interaction",
+      ar: "حالات عملية خطوة بخطوة، من فهم الحالة إلى تحديد الورثة والتوزيع وشرح السبب.",
+      en: "Step-by-step practical cases from understanding the situation to heirs, distribution, and explanation.",
     },
     image: "/assets/learning-path/advanced.webp",
     hoverText: { ar: "تعمّق أكثر", en: "Go deeper" },
-    slug: "advanced",
+    slug: "cases-applications",
   },
   {
-    id: "teachers-students-path",
-    title: { ar: "للمعلمين والطلاب", en: "Teachers & Students" },
+    id: "special-advanced-path",
+    title: { ar: "الحالات الخاصة والمتقدمة", en: "Special & Advanced Cases" },
     subtitle: {
-      ar: "أدوات وموارد تعليمية",
-      en: "Educational tools and learning resources",
+      ar: "العَول، الرد، الحجب المركب، والحالات التي تحتاج معالجة أعمق أو إحالة لمختص.",
+      en: "Awl, radd, complex blocking, and cases requiring deeper analysis or specialist referral.",
     },
     image: "/assets/learning-path/teachers-students.webp",
     hoverText: { ar: "استكشف الموارد", en: "Explore resources" },
-    slug: "teachers-students",
+    slug: "special-advanced",
   },
 ];

@@ -1,11 +1,17 @@
 "use client";
 import Image from "next/image";
 import { useLocale } from "@/i18n/locale-context";
-export function Brand({ compact = false }: { compact?: boolean }) {
+export function Brand({
+  compact = false,
+  href = "#home",
+}: {
+  compact?: boolean;
+  href?: string;
+}) {
   const { t } = useLocale();
   return (
     <a
-      href="#home"
+      href={href}
       className={`brand ${compact ? "brand-small" : ""}`}
       aria-label={t("مواريث — الرئيسية")}
     >

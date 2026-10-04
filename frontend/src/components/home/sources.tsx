@@ -15,8 +15,8 @@ const sources = [
     icon: BookOpen,
   },
   {
-    name: "السنة النبوية",
-    description: "التعرّف على مصادر السنة",
+    name: "القواعد الموثقة",
+    description: "قواعد منظمة مع مراجعها",
     icon: ScrollText,
   },
   {
