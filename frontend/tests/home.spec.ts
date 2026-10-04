@@ -94,31 +94,8 @@ test("RTL homepage, question selection and previews", async ({
   await page.locator(".example-card").first().click();
   await expect(page.getByRole("dialog")).toContainText("مات وترك زوجة");
   await page.getByRole("button", { name: "إغلاق المعاينة" }).click();
-  await page.locator(".learning-card").first().scrollIntoViewIfNeeded();
-  const artwork = await page
-    .locator(".path-illustration")
-    .first()
-    .boundingBox();
-  const scene = await page.locator(".path-nook-image").first().boundingBox();
-  const urlBefore = page.url();
-  await page.getByRole("button", { name: "استكشف المسار" }).click();
-  await expect(
-    page.getByRole("button", { name: "إخفاء المسار" }),
-  ).toHaveAttribute("aria-expanded", "true");
-  await expect(page.locator(".path-details li")).toHaveCount(5);
-  await expect(page.locator(".path-details li").last()).toBeVisible();
-  expect(
-    await page.locator(".path-illustration").first().boundingBox(),
-  ).toEqual(artwork);
-  expect(await page.locator(".path-nook-image").first().boundingBox()).toEqual(
-    scene,
-  );
-  expect(page.url()).toBe(urlBefore);
-  await page.getByRole("button", { name: "إخفاء المسار" }).click();
-  await expect(
-    page.getByRole("button", { name: "استكشف المسار" }),
-  ).toHaveAttribute("aria-expanded", "false");
-  await expect(page.locator(".path-expansion")).toHaveAttribute("inert", "");
+  await expect(page.locator(".learning-card .path-toggle")).toHaveCount(4);
+  await expect(page.locator(".path-expansion")).toHaveCount(0);
   if (testInfo.project.name === "mobile") {
     await page.getByRole("button", { name: "فتح القائمة" }).click();
     await expect(page.getByRole("navigation")).toBeVisible();

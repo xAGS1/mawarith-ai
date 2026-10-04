@@ -2540,7 +2540,156 @@ html[lang="ar"] .path-section .path-content > p {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+.path-section .learning-card {
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+}
+.path-section .path-nook-image {
+  transition: transform 200ms ease;
+}
+.path-section .learning-card[data-path]:is(:hover, :focus-within) {
+  transform: translateY(-4px);
+  border-color: #b7975899;
+  box-shadow: 0 8px 20px #4d3a2018;
+}
+.path-section
+  .learning-card[data-path]:is(:hover, :focus-within)
+  .path-nook-image {
+  transform: scale(1.02);
+}
+.path-section .learning-card:focus-visible {
+  outline: 2px solid #a48245;
+  outline-offset: 3px;
+}
+.path-section .path-coming-soon {
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+.path-section .learning-card:is(:hover, :focus-within) .path-coming-soon {
+  background-color: #f1e3c5;
+  border-color: #b7975880;
+}
+.path-section .path-toggle,
+.path-section .path-coming-soon {
+  position: relative;
+}
+.path-section .path-hover-copy {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 3px);
+  white-space: nowrap;
+  font-size: calc(10 * var(--desktop-unit, 1px));
+  line-height: 1.4;
+  font-weight: 400;
+  color: #68552f;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+.path-section .learning-card:is(:hover, :focus-within) .path-hover-copy {
+  opacity: 1;
+}
+.path-section .path-toggle[aria-expanded="true"] .path-hover-copy {
+  display: none;
+}
+/* Fade only the text corridor, leaving both scenic edges visible. */
+.path-section .path-illustration::after {
+  display: block;
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: linear-gradient(
+    90deg,
+    transparent 22%,
+    #fff4dfcc 36%,
+    #fff4dff0 52%,
+    #fff4dfe0 78%,
+    transparent 90%
+  );
+}
+.path-section .path-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: calc(6 * var(--desktop-unit, 1px));
+  height: calc(156 * var(--desktop-unit, 1px));
+  padding-top: calc(10 * var(--desktop-unit, 1px));
+  padding-bottom: calc(24 * var(--desktop-unit, 1px));
+}
+.path-section .path-content h3,
+.path-section .path-content > p,
+html[lang="ar"] .path-section .path-content > p {
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.path-section .path-content > p,
+html[lang="ar"] .path-section .path-content > p {
+  color: #454b40;
+  line-height: 1.4;
+}
+.path-section .path-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+/* English copy needs a compact, bounded column within the same artwork. */
+html[lang="en"] .path-section .path-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: calc(6 * var(--desktop-unit, 1px));
+  padding: calc(12 * var(--desktop-unit, 1px)) 16%
+    calc(24 * var(--desktop-unit, 1px)) 32%;
+}
+html[lang="en"] .path-section .path-content h3,
+html[lang="en"] .path-section .path-content > p {
+  width: 100%;
+  max-width: calc(210 * var(--desktop-unit, 1px));
+  margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+html[lang="en"] .path-section .path-content h3 {
+  font-size: calc(15 * var(--desktop-unit, 1px));
+  line-height: 1.25;
+}
+html[lang="en"] .path-section .path-content > p {
+  font-size: calc(11 * var(--desktop-unit, 1px));
+  line-height: 1.4;
+}
+html[lang="en"] .path-section .path-toggle,
+html[lang="en"] .path-section .path-coming-soon {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+html[lang="en"] .path-section .path-details {
+  width: 100%;
+}
+html[lang="en"] .path-section .path-hover-copy {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+  font-size: calc(9 * var(--desktop-unit, 1px));
+}
 @media (prefers-reduced-motion: reduce) {
+  .path-section .learning-card[data-path]:is(:hover, :focus-within),
+  .path-section
+    .learning-card[data-path]:is(:hover, :focus-within)
+    .path-nook-image {
+    transform: none;
+  }
   html {
     scroll-behavior: auto;
   }

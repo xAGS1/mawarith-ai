@@ -51,21 +51,12 @@ test("Arabic default, in-place English switch, persistence and Arabic return", a
     "What are fixed-share heirs?",
   );
   await page.getByRole("button", { name: "Close preview" }).click();
-  await page.getByRole("button", { name: "Explore path", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Hide path" })).toHaveAttribute(
-    "aria-expanded",
-    "true",
-  );
-  await expect(page.locator(".path-details li")).toHaveCount(5);
-  await expect
-    .poll(() =>
-      page
-        .locator(".path-expansion")
-        .evaluate((element) =>
-          Math.abs(element.clientHeight - element.scrollHeight),
-        ),
-    )
-    .toBeLessThanOrEqual(1);
+  await expect(page.locator(".learning-card .path-toggle")).toHaveText([
+    /Explore path/,
+    /Explore path/,
+    /Explore path/,
+    /Explore path/,
+  ]);
   await page.screenshot({
     path: `test-results/home-english-${testInfo.project.name}.png`,
     fullPage: true,

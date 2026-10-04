@@ -170,10 +170,9 @@ export type LearningPathDefinition = {
   title: BilingualText;
   subtitle: BilingualText;
   image: string;
-} & (
-  | { availability: "ready"; steps: { title: BilingualText; href: string }[] }
-  | { availability: "coming_soon"; steps?: never }
-);
+  hoverText: BilingualText;
+  slug: "beginner" | "intermediate" | "advanced" | "teachers-students";
+};
 
 export const learningPaths: LearningPathDefinition[] = [
   {
@@ -184,11 +183,8 @@ export const learningPaths: LearningPathDefinition[] = [
       en: "Core concepts and foundational rules",
     },
     image: "/assets/learning-path/beginner.webp",
-    availability: "ready",
-    steps: pathSteps.map((title, index) => ({
-      title,
-      href: index === pathSteps.length - 1 ? "#examples" : "#concepts",
-    })),
+    hoverText: { ar: "ابدأ من الأساس", en: "Start with the basics" },
+    slug: "beginner",
   },
   {
     id: "intermediate-path",
@@ -198,17 +194,19 @@ export const learningPaths: LearningPathDefinition[] = [
       en: "Applied concepts and combined cases",
     },
     image: "/assets/learning-path/intermediate.webp",
-    availability: "coming_soon",
+    hoverText: { ar: "طبّق ما تعلمت", en: "Apply what you learned" },
+    slug: "intermediate",
   },
   {
     id: "advanced-path",
     title: { ar: "المستوى المتقدم", en: "Advanced" },
     subtitle: {
-      ar: "المسائل المعقدة والعَول",
-      en: "Advanced cases and deeper rule interaction",
+      ar: "المسائل المعقدة وتفاعل القواعد",
+      en: "Advanced cases and rule interaction",
     },
     image: "/assets/learning-path/advanced.webp",
-    availability: "coming_soon",
+    hoverText: { ar: "تعمّق أكثر", en: "Go deeper" },
+    slug: "advanced",
   },
   {
     id: "teachers-students-path",
@@ -218,6 +216,7 @@ export const learningPaths: LearningPathDefinition[] = [
       en: "Educational tools and learning resources",
     },
     image: "/assets/learning-path/teachers-students.webp",
-    availability: "coming_soon",
+    hoverText: { ar: "استكشف الموارد", en: "Explore resources" },
+    slug: "teachers-students",
   },
 ];
