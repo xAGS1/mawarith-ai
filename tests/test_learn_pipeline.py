@@ -61,7 +61,7 @@ def test_unsupported_generation(hit, monkeypatch, invalid):
 
 
 def test_case_referral(monkeypatch):
-    monkeypatch.setattr(shared, "run_pipeline", lambda q: {"decision_state": "insufficient_sources",
+    monkeypatch.setattr(shared, "run_pipeline", lambda q: {"decision_state": "specialist_referral",
         "result": None, "sources": [], "fiqh_evidence": []})
     out = shared.run_request("Complex unsupported case", "case")
     assert out["decision_state"] == "specialist_referral"

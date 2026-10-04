@@ -119,10 +119,13 @@ def test_corrupt_cache_is_refetched(isolated_sources):
 def test_pipeline_keeps_source_text_out_of_reasoning_input(isolated_sources):
     isolated_sources.side_effect = None
     isolated_sources.return_value = response()
-    parsed = {"mentioned_relatives": [{"relation": "زوجة", "count": 1}]}
+    parsed = {"mentioned_relatives": [{"relation": "زوجة", "count": 1},
+        {"relation": "أخ شقيق", "count": 1}, {"relation": "أخت شقيقة", "count": 1}]}
     generated = {"heirs": [{"heir": "زوجة", "count": 1}], "blocked": [], "shares": [],
                  "awl_or_radd": "لا", "post_tasil": {"distribution": [
-                     {"heir": "زوجة", "count": 1, "per_head_shares": "1/4"}]}}
+                     {"heir": "زوجة", "count": 1, "per_head_shares": "1/4"},
+                     {"heir": "أخ شقيق", "count": 1, "per_head_shares": "1/2"},
+                     {"heir": "أخت شقيقة", "count": 1, "per_head_shares": "1/4"}]}}
     with (
         patch("backend.pipeline.qwen_pipeline.parse_relations", return_value=parsed),
         patch("backend.pipeline.qwen_pipeline.analyze_case", return_value=generated) as reasoner,

@@ -10,10 +10,11 @@ from backend.rules.case_features import build_case_features
 from backend.verifier.fractions import verify_and_normalize
 from backend.sources.router import enrich_sources
 from backend.rag.fiqh.retriever import retrieve_fiqh
+from backend.rules.case_readiness import assess_case
 
 
 def run_pipeline(question: str) -> dict:
-    parsed = parse_relations(question)
+    parsed = parse_relations(question) if question.strip() else {"mentioned_relatives": []}
     features = build_case_features(parsed)
     sources = retrieve_rules(parsed, features)
     enriched_sources = enrich_sources(sources)
@@ -25,6 +26,7 @@ def run_pipeline(question: str) -> dict:
         fiqh_retrieval = {"status": "unavailable", "error": str(exc)}
     # Evidence never enters structured-rule coverage or grants new rulings.
     coverage = check_source_coverage(parsed, sources)
+    readiness = assess_case(question, parsed, sources)
     output = {
         "question": question,
         "parsed_relations": parsed,
@@ -33,10 +35,12 @@ def run_pipeline(question: str) -> dict:
         "fiqh_evidence": fiqh_evidence,
         "fiqh_retrieval": fiqh_retrieval,
         "source_coverage": coverage,
-        "decision_state": "insufficient_sources",
+        "decision_state": readiness["decision_state"] if readiness["decision_state"] != "ready" else "specialist_referral",
+        "clarification_question": readiness["clarification_question"],
+        "case_readiness": readiness,
         "result": None,
     }
-    if not coverage["is_sufficient"]:
+    if readiness["decision_state"] != "ready" or not coverage["is_sufficient"]:
         return output
 
     result = analyze_case(

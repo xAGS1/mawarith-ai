@@ -43,7 +43,7 @@ def main():
                 "source_coverage": pipeline_output["source_coverage"],
                 "decision_state": pipeline_output["decision_state"],
                 "gold": item["output"],
-                "status": "completed" if prediction is not None else "insufficient_sources",
+                "status": "completed" if prediction is not None else pipeline_output["decision_state"],
             }
 
             print("\nQWEN OUTPUT:")

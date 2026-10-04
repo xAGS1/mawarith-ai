@@ -54,5 +54,7 @@ class PipelineOutput(BaseModel):
     fiqh_evidence: List[dict]
     fiqh_retrieval: dict
     source_coverage: SourceCoverage
-    decision_state: Literal["ready", "insufficient_sources"]
+    decision_state: Literal["ready", "needs_clarification", "specialist_referral", "out_of_scope"]
+    clarification_question: Optional[str] = None
+    case_readiness: dict = Field(default_factory=dict)
     result: Optional[InheritanceOutput]

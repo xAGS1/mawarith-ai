@@ -257,7 +257,7 @@ def test_rag_evidence_cannot_promote_unsupported_relation():
     ):
         output = run_pipeline("اختبار محايد")
     assert output["fiqh_evidence"] == evidence
-    assert output["decision_state"] == "insufficient_sources"
+    assert output["decision_state"] == "specialist_referral"
     assert output["result"] is None
     reasoner.assert_not_called()
 

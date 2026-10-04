@@ -37,7 +37,7 @@ def test_unsupported_brother_blocks_reasoner_and_verifier(through_api):
         "unsupported_relations": ["أخ شقيق"],
         "coverage_ratio": 0.5,
     }
-    assert output["decision_state"] == "insufficient_sources"
+    assert output["decision_state"] == "specialist_referral"
     assert output["result"] is None
 
 
@@ -65,5 +65,5 @@ def test_empty_case_never_calls_reasoner():
     ):
         output = run_pipeline("")
     reasoner.assert_not_called()
-    assert output["decision_state"] == "insufficient_sources"
+    assert output["decision_state"] == "needs_clarification"
     assert output["result"] is None

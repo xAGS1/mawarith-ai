@@ -221,3 +221,25 @@ To explore an example, fetch it, then submit its `scenario_ar` or `scenario_en` 
 `POST /ask` with `mode="case"`. For a detailed educational explanation or follow-up,
 submit a question to the same endpoint with `mode="learn"`. The existing pipelines
 perform parsing, retrieval, generation and verification; catalogs invoke no model.
+
+## Case clarification and v1 limitations
+
+Case mode uses only `ready`, `needs_clarification`, `specialist_referral` and
+`out_of_scope`. Learn mode is unchanged. Missing sibling subtype (full, paternal
+or maternal), uncertain family facts, unspecified children or explicitly unlisted
+relatives produce a localized `clarification_question` and no calculation.
+For example, `ترك بنتًا وأخًا` asks whether the brother is full, paternal or maternal.
+Clarifying a relation does not guarantee that its rules are covered by v1.
+
+Advanced circumstances such as pregnancy, missing persons, successive deaths,
+bequests or divorce return a specialist referral. So do cases outside structured
+coverage, father/daughter cases needing an additional residue rule, and cases
+whose retrieved fixed fractions require awl/radd or an uncovered residue rule.
+The deterministic check stops the reasoner and verifier for these cases; it
+does not supply any new inheritance rule or distribution. Trusted sources and
+short explanations of retrieved rules remain available when found.
+
+`/analyze-case` and the Qwen CLI also use these four states; the former
+`insufficient_sources` state is now `specialist_referral`. Supported cases still
+use the existing reasoner and Python fraction verifier. The clarification checks
+recognize common explicit ambiguities; they are not a complete family intake.
