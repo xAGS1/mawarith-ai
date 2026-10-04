@@ -7,6 +7,7 @@ export interface AskResponse {
   decision_state: DecisionState;
   language: "ar" | "en";
   answer: string;
+  evidence_status?: "supported" | "insufficient" | null;
   key_concepts?: { term: string; explanation: string }[] | null;
   source_excerpts?: SourceRecord[] | null;
   sources?: SourceRecord[] | null;

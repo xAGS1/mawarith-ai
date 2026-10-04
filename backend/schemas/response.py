@@ -11,6 +11,7 @@ class EducationalResponse(BaseModel):
     decision_state: Literal["ready", "needs_clarification", "specialist_referral", "out_of_scope"]
     language: Literal["ar", "en"]
     answer: str
+    evidence_status: Literal["supported", "insufficient"] | None = None
     key_concepts: list[Concept] = Field(default_factory=list)
     source_excerpts: list[dict] = Field(default_factory=list)
     sources: list[dict] = Field(default_factory=list)

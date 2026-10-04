@@ -119,6 +119,10 @@ for (const state of [
     if (state === "ready")
       await expect(page.locator(".ask-distribution")).toContainText("1/1");
     else await expect(page.locator(".ask-distribution")).toHaveCount(0);
+    if (state === "specialist_referral")
+      await expect(page.locator(".ask-result h3")).toHaveText(
+        "Specialist referral — no final distribution",
+      );
     if (state === "needs_clarification")
       await expect(page.locator(".ask-clarification")).toContainText(
         "Which brother?",
@@ -307,4 +311,35 @@ test("failed educational grounding never displays legacy raw chunks", async ({
     "Evidence is insufficient.",
   );
   await expect(page.locator(".ask-excerpts")).toHaveCount(0);
+});
+
+test("learn evidence insufficiency has educational wording in Arabic and English", async ({
+  page,
+}) => {
+  await page.route("**/api/ask", (route) =>
+    route.fulfill({
+      json: {
+        ...base,
+        mode: "learn",
+        language: "ar",
+        decision_state: "out_of_scope",
+        evidence_status: "insufficient",
+        answer: "لا تكفي الأدلة المتاحة.",
+      },
+    }),
+  );
+  await page.goto("/");
+  await page.getByRole("textbox").fill("ما معنى أصحاب الفروض؟");
+  await page.locator(".ask-submit").click();
+  await expect(page.locator(".ask-result h3")).toHaveText(
+    "تعذر تقديم شرح موثق",
+  );
+  await expect(page.locator(".ask-result")).not.toContainText("إحالة إلى مختص");
+  await page.getByRole("button", { name: "Switch to English" }).click();
+  await expect(page.locator(".ask-result h3")).toHaveText(
+    "Verified explanation unavailable",
+  );
+  await expect(page.locator(".ask-result")).not.toContainText(
+    "no final distribution",
+  );
 });

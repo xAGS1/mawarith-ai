@@ -6,7 +6,7 @@ from backend.pipeline.educational_grounding import relevant_public_excerpts
 
 def test_fixed_share_heirs_uses_verified_catalogue_without_rag_or_model(monkeypatch):
     source = {"source_name": "Neutral catalogue fixture", "source_url": "https://example.invalid", "verified_source": True}
-    monkeypatch.setattr(curated, "list_concepts", lambda: [{"title_ar": "أصحاب الفروض", "title_en": "Fixed-share heirs", "availability": "available", "short_definition": {"ar": "تعريف محايد مخصص للاختبار.", "en": "Neutral curated fixture definition."}, "sources": [source]}])
+    monkeypatch.setattr(curated, "find_curated_concept_by_query", lambda _: {"verified": True, "definition_ar": "تعريف محايد مخصص للاختبار.", "source": source, "exact_excerpt": "فقرة اختبار محايدة.", "source_title": source["source_name"], "source_entry": "Fixture", "reference": "Fixture reference"})
     retrieve, model = Mock(), Mock()
     monkeypatch.setattr(learn, "retrieve_educational_evidence", retrieve)
     monkeypatch.setattr(learn.provider, "explain", model)
@@ -23,7 +23,8 @@ def test_failed_grounding_never_returns_retrieved_dump(monkeypatch):
     monkeypatch.setattr(learn, "retrieve_educational_evidence", lambda _: [{"text": "Unrelated fixture text. " * 100, "source": {"chunk_id": "fixture", "source_name": "Fixture", "source_url": "https://example.invalid"}}])
     monkeypatch.setattr(learn.provider, "explain", lambda *args: {"answer": "Unsupported fixture [E99]."})
     out = learn.run_learn("ما معنى أصحاب الفروض؟")
-    assert out["decision_state"] == "specialist_referral"
+    assert out["decision_state"] == "out_of_scope"
+    assert out["evidence_status"] == "insufficient"
     assert out["source_excerpts"] == []
     assert out["sources"] == []
 
@@ -41,5 +42,5 @@ def test_unverified_catalogue_and_unsupported_concept_abstain(monkeypatch):
     monkeypatch.setattr(learn, "retrieve_educational_evidence", lambda _: [])
     model = Mock()
     monkeypatch.setattr(learn.provider, "explain", model)
-    assert learn.run_learn("ما معنى الحجب؟")["decision_state"] == "specialist_referral"
+    assert learn.run_learn("ما معنى الحجب؟")["decision_state"] == "out_of_scope"
     model.assert_not_called()

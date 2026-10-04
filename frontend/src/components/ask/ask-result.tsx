@@ -93,6 +93,11 @@ export function AskResult({
     },
     out_of_scope: { ar: "خارج نطاق الخدمة", en: "Out of scope" },
   };
+  const educationalInsufficiency =
+    result.mode === "learn" &&
+    (result.decision_state === "specialist_referral" ||
+      (result.evidence_status === "insufficient" &&
+        result.decision_state !== "needs_clarification"));
   const details = isRecord(result.case_details) ? result.case_details : null;
   const parsed =
     details && isRecord(details.parsed_relations)
@@ -131,7 +136,8 @@ export function AskResult({
         typeof row.per_head_shares === "string",
     );
   const excerpts =
-    result.mode === "learn" && result.decision_state !== "ready"
+    result.mode === "learn" &&
+    (result.decision_state !== "ready" || educationalInsufficiency)
       ? []
       : uniqueSources(
           records(result.source_excerpts).filter(
@@ -161,7 +167,16 @@ export function AskResult({
       aria-label={t({ ar: "نتيجة السؤال", en: "Question result" })}
     >
       <p className="ask-result-question">{question}</p>
-      <h3>{t(stateLabels[result.decision_state])}</h3>
+      <h3>
+        {t(
+          educationalInsufficiency
+            ? {
+                ar: "تعذر تقديم شرح موثق",
+                en: "Verified explanation unavailable",
+              }
+            : stateLabels[result.decision_state],
+        )}
+      </h3>
       <div
         className="ask-answer"
         lang={result.language}

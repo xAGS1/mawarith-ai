@@ -13,6 +13,7 @@ from backend.schemas.response import Concept, EducationalResponse
 from backend.rules.educational_concepts import supported_concepts, minimal_answer
 from backend.pipeline.educational_grounding import check_concept_scope, relevant_public_excerpts
 from backend.learning.curated import curated_concept
+from backend.learning.comparisons import curated_comparison
 
 
 def detect_language(question: str) -> str:
@@ -161,18 +162,28 @@ def validate_citations(generated: dict, bundle: list[dict]) -> tuple[str, list[C
 
 def run_learn(question: str) -> dict:
     language = detect_language(question)
-    response = EducationalResponse(mode="learn", decision_state="specialist_referral",
+    response = EducationalResponse(mode="learn", decision_state="out_of_scope", evidence_status="insufficient",
         language=language, answer=("لا تكفي الأدلة المتاحة لتقديم شرح موثق لهذا السؤال." if language == "ar"
         else "The available evidence is insufficient for a sourced explanation of this question."))
     if not question.strip():
         response.decision_state = "needs_clarification"
         response.clarification_question = "ما سؤالك عن المواريث؟" if language == "ar" else "What would you like to learn about inheritance?"
         return response.model_dump()
+    comparison = curated_comparison(question, language)
+    if comparison:
+        response.answer = comparison["answer"]
+        response.sources = comparison["sources"]
+        response.source_excerpts = comparison["source_excerpts"]
+        response.decision_state = "ready"
+        response.evidence_status = "supported"
+        return response.model_dump()
     curated = curated_concept(question, language)
     if curated:
         response.answer = curated["answer"]
         response.sources = curated["sources"]
+        response.source_excerpts = relevant_public_excerpts(question, curated.get("source_excerpts", []))
         response.decision_state = "ready"
+        response.evidence_status = "supported"
         return response.model_dump()
     try:
         response.source_excerpts = build_evidence_bundle(retrieve_educational_evidence(question))
@@ -196,6 +207,7 @@ def run_learn(question: str) -> dict:
         check_concept_scope(question, answer, [e for e in response.source_excerpts if e["evidence_id"] in ids])
         response.answer, response.key_concepts = answer, concepts
         response.decision_state = "ready"
+        response.evidence_status = "supported"
         response.source_excerpts = [e for e in response.source_excerpts if e["evidence_id"] in ids]
     except requests.Timeout:
         # Only source-bound definitions covering all requested concepts qualify.
@@ -204,6 +216,7 @@ def run_learn(question: str) -> dict:
             response.answer = minimal_answer(concept_metadata)
             response.key_concepts = [Concept(term=c["term"], explanation=c["explanation"] + " [" + c["evidence_id"] + "]") for c in concept_metadata]
             response.decision_state = "ready"
+            response.evidence_status = "supported"
             response.limitations.append("Qwen timed out; returned a minimal source-bound concept explanation.")
         else:
             response.limitations.append("Explanation timed out; no matching structured concept metadata is available for a safe fallback.")

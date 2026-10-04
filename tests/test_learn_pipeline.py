@@ -33,7 +33,7 @@ def test_empty_abstains_without_model(monkeypatch):
     monkeypatch.setattr(learn, "retrieve_fiqh", lambda q, **kwargs: [])
     model = Mock()
     monkeypatch.setattr(learn.provider, "explain", model)
-    assert learn.run_learn(QUESTIONS[0])["decision_state"] == "specialist_referral"
+    assert learn.run_learn(QUESTIONS[0])["decision_state"] == "out_of_scope"
     model.assert_not_called()
 
 
@@ -58,7 +58,7 @@ def test_unsupported_generation(hit, monkeypatch, invalid):
     monkeypatch.setattr(learn, "retrieve_fiqh", lambda q, **kwargs: [hit])
     monkeypatch.setattr(learn, "enrich_sources", lambda rules: [])
     monkeypatch.setattr(learn.provider, "explain", lambda *args: invalid)
-    assert learn.run_learn(QUESTIONS[0])["decision_state"] == "specialist_referral"
+    assert learn.run_learn(QUESTIONS[0])["decision_state"] == "out_of_scope"
 
 
 def test_case_referral(monkeypatch):
@@ -136,7 +136,7 @@ def test_timeout_has_no_knowledge_fallback(hit, monkeypatch):
     monkeypatch.setattr(learn, "enrich_sources", lambda rules: [])
     monkeypatch.setattr(learn.provider, "explain", Mock(side_effect=requests.Timeout()))
     out = learn.run_learn("What is a residuary heir?")
-    assert out["decision_state"] == "specialist_referral"
+    assert out["decision_state"] == "out_of_scope"
     assert any("safe fallback" in limit for limit in out["limitations"])
 
 
