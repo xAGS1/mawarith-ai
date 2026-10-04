@@ -6,11 +6,22 @@ test("RTL homepage, question selection and previews", async ({
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
+  await expect(page.locator(".hero-background")).toHaveCount(1);
+  await expect(page.locator(".hero-background")).toHaveJSProperty(
+    "complete",
+    true,
+  );
+  expect(
+    await page
+      .locator(".hero-background")
+      .evaluate((image: HTMLImageElement) => image.naturalWidth),
+  ).toBeGreaterThan(0);
   if (testInfo.project.name === "desktop") {
     for (const width of [1440, 1920]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.evaluate(() => document.fonts.ready);
       for (const selector of [
+        ".navbar .nav-links",
         ".hero h1",
         ".hero h2",
         ".hero-description",
@@ -24,6 +35,11 @@ test("RTL homepage, question selection and previews", async ({
       const panel = await page.locator(".ask-panel").boundingBox();
       const modes = await page.locator(".mode-selector").boundingBox();
       expect(panel!.width).toBe(modes!.width);
+      const navigation = await page.locator(".navbar .nav-links").boundingBox();
+      const brand = await page.locator(".navbar .brand").boundingBox();
+      const utility = await page.locator(".navbar .nav-actions").boundingBox();
+      expect(utility!.x + utility!.width).toBeLessThan(navigation!.x);
+      expect(navigation!.x + navigation!.width).toBeLessThan(brand!.x);
       await page.locator(".hero").screenshot({
         path: `test-results/hero-centered-${width}.png`,
       });
@@ -91,8 +107,26 @@ test("RTL homepage, question selection and previews", async ({
   await page.locator(".example-card").first().click();
   await expect(page.getByRole("dialog")).toContainText("مات وترك زوجة");
   await page.getByRole("button", { name: "إغلاق المعاينة" }).click();
-  await page.locator(".path-details summary").click();
+  await page.locator(".learning-card").scrollIntoViewIfNeeded();
+  const artwork = await page.locator(".path-illustration").boundingBox();
+  const scene = await page.locator(".path-scene").boundingBox();
+  const urlBefore = page.url();
+  await page.getByRole("button", { name: "استكشف المسار" }).click();
+  await expect(
+    page.getByRole("button", { name: "إخفاء المسار" }),
+  ).toHaveAttribute("aria-expanded", "true");
   await expect(page.locator(".path-details li")).toHaveCount(5);
+  await expect(page.locator(".path-details li").last()).toBeVisible();
+  expect(await page.locator(".path-illustration").boundingBox()).toEqual(
+    artwork,
+  );
+  expect(await page.locator(".path-scene").boundingBox()).toEqual(scene);
+  expect(page.url()).toBe(urlBefore);
+  await page.getByRole("button", { name: "إخفاء المسار" }).click();
+  await expect(
+    page.getByRole("button", { name: "استكشف المسار" }),
+  ).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator(".path-expansion")).toHaveAttribute("inert", "");
   if (testInfo.project.name === "mobile") {
     await page.getByRole("button", { name: "فتح القائمة" }).click();
     await expect(page.getByRole("navigation")).toBeVisible();

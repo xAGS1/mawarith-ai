@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ArrowLeft, BookOpen, Scale, Sparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, Scale, Send, Sparkles } from "lucide-react";
 import { exampleQuestions } from "@/data/home";
 export function AskPanel() {
   const [mode, setMode] = useState<"learn" | "case">("learn");
@@ -40,7 +40,7 @@ export function AskPanel() {
             className="ask-submit"
             aria-label="استكشف السؤال"
           >
-            <ArrowLeft size={22} aria-hidden="true" />
+            <Send size={22} aria-hidden="true" />
           </button>
         </div>
         <div className="question-chips">

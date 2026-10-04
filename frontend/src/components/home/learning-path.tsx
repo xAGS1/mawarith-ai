@@ -1,8 +1,11 @@
+"use client";
+import { useState } from "react";
 import { ArrowLeft, Route, BookOpen, Clock3, Check } from "lucide-react";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { MoonlitScene } from "./moonlit-scene";
 import { pathSteps } from "@/data/home";
 export function LearningPath() {
+  const [expanded, setExpanded] = useState(false);
   return (
     <section className="section path-section" id="learning-path">
       <div className="container">
@@ -36,19 +39,36 @@ export function LearningPath() {
                 على مهل، وبوتيرتك
               </span>
             </div>
-            <details className="path-details">
-              <summary>
-                استكشف المسار <ArrowLeft size={17} aria-hidden="true" />
-              </summary>
-              <ol>
-                {pathSteps.map((step, i) => (
-                  <li key={step}>
-                    <span>{i + 1}</span>
-                    <a href={i === 4 ? "#examples" : "#concepts"}>{step}</a>
-                  </li>
-                ))}
-              </ol>
-            </details>
+            <div className="path-details">
+              <button
+                type="button"
+                className="path-toggle"
+                aria-expanded={expanded}
+                aria-controls="beginner-path-steps"
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? "إخفاء المسار" : "استكشف المسار"}
+                <ArrowLeft size={17} aria-hidden="true" />
+              </button>
+              <div
+                className="path-expansion"
+                data-expanded={expanded}
+                aria-hidden={!expanded}
+                inert={!expanded}
+                id="beginner-path-steps"
+              >
+                <div className="path-expansion-inner">
+                  <ol>
+                    {pathSteps.map((step, i) => (
+                      <li key={step}>
+                        <span>{i + 1}</span>
+                        <a href={i === 4 ? "#examples" : "#concepts"}>{step}</a>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+            </div>
           </div>
           <div className="path-side-note">
             <span className="path-small-arch">

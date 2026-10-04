@@ -40,7 +40,11 @@ export function InteractiveExamples() {
                 </div>
               </div>
               <div className="example-bottom">
-                <span>{example.concepts.join(" · ")}</span>
+                <span className="example-tags">
+                  {example.concepts.map((concept) => (
+                    <span key={concept}>{concept}</span>
+                  ))}
+                </span>
                 <span className="round-arrow">
                   <ArrowLeft size={16} aria-hidden="true" />
                 </span>

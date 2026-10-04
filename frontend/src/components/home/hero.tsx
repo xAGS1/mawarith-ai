@@ -1,10 +1,19 @@
 import { ShieldCheck, Sparkles } from "lucide-react";
+import Image from "next/image";
 import { AskPanel } from "./ask-panel";
-import { MoonlitScene } from "./moonlit-scene";
 export function Hero() {
   return (
     <section className="hero" id="home" aria-labelledby="hero-title">
-      <div className="hero-pattern" aria-hidden="true" />
+      <Image
+        className="hero-background"
+        src="/assets/hero/mawarith-moonlit-hero.webp"
+        alt=""
+        aria-hidden="true"
+        fill
+        sizes="100vw"
+        preload
+        unoptimized
+      />
       <div className="container hero-inner">
         <div className="hero-copy">
           <div className="hero-eyebrow">
@@ -36,13 +45,6 @@ export function Hero() {
               تعلم يناسب الجميع
             </span>
             <span className="preview-badge">معاينة تعليمية</span>
-          </div>
-        </div>
-        <div className="hero-art">
-          <MoonlitScene />
-          <div className="art-caption">
-            <span className="ornament">✦</span> للعلم أبواب .. وللفهم مفاتيح{" "}
-            <span className="ornament">✦</span>
           </div>
         </div>
       </div>
