@@ -4,6 +4,7 @@ import json
 
 from backend.rag.fiqh.embeddings import embed_texts, embedding_model_name
 from backend.rag.fiqh.schemas import FiqhChunk
+from backend.rag.fiqh.query_expansion import expand_embedding_query, concept_query_filters
 from backend.rag.fiqh.vector_store import FiqhStoreError, QdrantFiqhStore, build_filter, load_chunks
 
 
@@ -28,7 +29,8 @@ def retrieve_fiqh(query: str, top_k: int = 5, filters: dict | None = None) -> li
                                            document[index + 1] if index + 1 < len(document) else None)
     store = QdrantFiqhStore()
     store.ensure_collection()
-    hits = store.query(embed_texts([query])[0], top_k, filters)
+    hits = store.query(embed_texts([expand_embedding_query(query)])[0], top_k,
+                       concept_query_filters(query, filters))
     evidence = []
     for hit in hits:
         payload = dict(hit["payload"])
