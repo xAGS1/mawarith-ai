@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { learningPathCurriculum } from "../src/data/learning-paths";
 
 test("four localized navigation paths, responsive rows and focus effects", async ({
   page,
@@ -7,7 +8,7 @@ test("four localized navigation paths, responsive rows and focus effects", async
   const cards = page.locator(".learning-card");
   await expect(cards).toHaveCount(4);
   await expect(cards.locator("h3")).toHaveText([
-    "أساسيات المواريث",
+    "أساسيات الوارث",
     "الأنصبة والقواعد",
     "المسائل والتطبيقات",
     "الحالات الخاصة والمتقدمة",
@@ -68,17 +69,14 @@ test("four localized navigation paths, responsive rows and focus effects", async
   }
   await page.getByRole("button", { name: "Switch to English" }).click();
   await expect(cards.locator("h3")).toHaveText([
-    "Inheritance Foundations",
+    "Heir Foundations",
     "Shares & Rules",
     "Cases & Applications",
     "Special & Advanced Cases",
   ]);
-  await expect(cards.locator("p")).toHaveText([
-    "Core concepts including heirs, fixed shares, residuary heirs, blocking, and essential terminology.",
-    "How shares are determined, when they change, and how inheritance rules interact.",
-    "Step-by-step practical cases from understanding the situation to heirs, distribution, and explanation.",
-    "Awl, radd, complex blocking, and cases requiring deeper analysis or specialist referral.",
-  ]);
+  await expect(cards.locator("p")).toHaveText(
+    learningPathCurriculum.map((path) => path.subtitle.en),
+  );
 });
 
 test("English card text stays separated and equal height; Arabic styles stay intact", async ({

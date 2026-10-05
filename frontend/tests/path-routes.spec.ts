@@ -12,7 +12,7 @@ test("path shells resolve, stay bilingual and link back to homepage sections", a
     const response = await page.goto(`/learn/paths/${slug}`);
     expect(response?.status()).toBe(200);
     await expect(page.locator("main h1")).toBeVisible();
-    await expect(page.locator("main")).toContainText("لم تُضف الدروس بعد");
+    await expect(page.locator("main")).toContainText("محطات المسار");
     await expect(
       page.locator('.nav-links a[href="/#learning-path"]'),
     ).toHaveCount(1);
@@ -22,9 +22,7 @@ test("path shells resolve, stay bilingual and link back to homepage sections", a
   }
   await page.getByRole("button", { name: "Switch to English" }).click();
   await expect(page.locator("main h1")).toHaveText("Special & Advanced Cases");
-  await expect(page.locator("main")).toContainText(
-    "Lessons have not been added yet.",
-  );
+  await expect(page.locator("main")).toContainText("Path stations");
   await page.getByRole("link", { name: "Back to Learning Paths" }).click();
   await expect(page.locator(".source-card").nth(1)).toContainText(
     "Documented Rules",

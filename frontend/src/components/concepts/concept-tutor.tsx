@@ -5,9 +5,17 @@ import { ask, AskError } from "@/lib/ask/client";
 import type { AskResponse } from "@/lib/ask/types";
 import { AskResult } from "@/components/ask/ask-result";
 import { AskLoading } from "@/components/ask/result-controls";
-import type { CurriculumConcept } from "@/data/concept-curriculum";
+import type { BilingualText } from "@/data/home";
 
-export function ConceptTutor({ concept }: { concept: CurriculumConcept }) {
+export function ConceptTutor({
+  concept,
+  heading,
+  intro,
+}: {
+  concept: { slug: string; title: BilingualText; prompts: BilingualText[] };
+  heading?: BilingualText;
+  intro?: BilingualText;
+}) {
   const { t } = useLocale();
   const [question, setQuestion] = useState("");
   const [submitted, setSubmitted] = useState("");
@@ -62,11 +70,14 @@ export function ConceptTutor({ concept }: { concept: CurriculumConcept }) {
         {t({ ar: "هل تريد أن تسأل أكثر؟", en: "Want to ask more?" })}
       </p>
       <h2 id="tutor-title">
-        {t({
-          ar: `اسأل MAWARITH عن ${concept.title.ar}`,
-          en: `Ask MAWARITH about ${concept.title.en}`,
-        })}
+        {t(
+          heading || {
+            ar: `اسأل MAWARITH عن ${concept.title.ar}`,
+            en: `Ask MAWARITH about ${concept.title.en}`,
+          },
+        )}
       </h2>
+      {intro && <p>{t(intro)}</p>}
       <div className="tutor-prompts">
         {concept.prompts.map((prompt, i) => (
           <button

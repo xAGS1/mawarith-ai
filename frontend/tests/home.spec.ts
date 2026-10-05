@@ -78,7 +78,7 @@ test("RTL homepage, question selection and previews", async ({
   await expect(page.locator(".learning-card")).toHaveCount(4);
   await expect(page.locator(".path-meta")).toHaveCount(0);
   await expect(
-    page.getByRole("heading", { name: "أساسيات المواريث" }),
+    page.getByRole("heading", { name: "أساسيات الوارث" }),
   ).toBeVisible();
   expect(
     await page.evaluate(
