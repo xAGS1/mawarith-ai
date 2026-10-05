@@ -17,10 +17,21 @@ data/qias/*.json
 data/sources/quran_cache/*
 !data/sources/quran_cache/README.md
 
-# Approved source files and generated fiqh artifacts stay local.
-data/fiqh/kuwaiti_encyclopedia/raw/*
-!data/fiqh/kuwaiti_encyclopedia/raw/README.md
-data/fiqh/kuwaiti_encyclopedia/processed/*
-!data/fiqh/kuwaiti_encyclopedia/processed/README.md
+# Approved fiqh source files and generated artifacts stay local.
+data/fiqh/**/raw/*
+!data/fiqh/**/raw/README.md
 
+data/fiqh/**/processed/*
+!data/fiqh/**/processed/README.md
+
+# Local vector database storage.
 qdrant_storage/
+
+# Common local/generated files.
+node_modules/
+.next/
+dist/
+build/
+*.log
+.DS_Store
+Thumbs.db
