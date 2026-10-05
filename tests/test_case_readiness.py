@@ -84,8 +84,8 @@ def test_supported_case_still_runs_solver_and_verifier(isolated_case, monkeypatc
     assert out["decision_state"] == "ready"
     assert out["clarification_question"] is None
     assert out["case_details"]["result"]["verification"]["is_consistent"] is True
-    for mock in isolated_case:
-        mock.assert_called_once()
+    # /ask now allocates from executable rules, never model-generated shares.
+    isolated_case[0].assert_not_called()
 
 
 def test_unknown_requested_share_is_not_missing_family_information():

@@ -83,14 +83,11 @@ def test_full_pipeline_and_api_preserve_sources_and_verification(through_api):
     distribution = output["result"]["post_tasil"]["distribution"]
     assert [item["per_head_shares"] for item in distribution] == ["15/120", "20/120", "34/120", "17/120"]
     assert sum(Fraction(item["per_head_shares"]) * item["count"] for item in distribution) == 1
-    assert post.call_count == 2
+    assert post.call_count == 1
     for call in post.call_args_list:
         payload = call.kwargs["json"]
         assert payload["think"] is False
         assert payload["options"]["temperature"] == 0
-    prompt = post.call_args_list[1].kwargs["json"]["prompt"]
-    assert json.dumps(PARSED, ensure_ascii=False) in prompt
-    assert json.dumps(output["sources"], ensure_ascii=False) in prompt
 
 
 def test_retriever_matches_whole_relations_and_is_independent_of_cwd(tmp_path, monkeypatch):

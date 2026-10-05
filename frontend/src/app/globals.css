@@ -2535,3 +2535,493 @@ html[lang="en"] .path-section .path-hover-copy {
     transition: none !important;
   }
 }
+/* Source-backed concept curriculum. Other homepage sections keep their layout. */
+.concept-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.concept-card:focus-visible {
+  outline: 2px solid #b48743;
+  outline-offset: 4px;
+}
+.concept-lesson {
+  background: #f7f4ec;
+  color: #144e50;
+  min-height: 70vh;
+}
+.curriculum-container {
+  max-width: 1120px;
+}
+.curriculum-back {
+  display: inline-flex;
+  padding-block: 12px;
+  color: #215d5e;
+  font-size: 14px;
+}
+.curriculum-header {
+  text-align: center;
+  margin: 24px auto 36px;
+  max-width: 740px;
+}
+.curriculum-header h1 {
+  font-family: Amiri, serif;
+  font-size: clamp(32px, 3vw, 48px);
+  margin: 8px 0;
+}
+.curriculum-intro {
+  color: #60716b;
+  font-size: 16px;
+  line-height: 1.9;
+}
+.curriculum-eyebrow {
+  font-size: 12px;
+  font-weight: 650;
+  color: #8a6a35;
+  margin-bottom: 10px;
+}
+.curriculum-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #697973;
+  margin-bottom: 28px;
+}
+.curriculum-track {
+  width: 120px;
+  height: 3px;
+  background: #e2dccd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.curriculum-track > span {
+  display: block;
+  height: 100%;
+  background: #b79860;
+}
+.curriculum-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.curriculum-panel {
+  min-width: 0;
+  padding: clamp(22px, 3vw, 36px);
+  background: #fffdf7;
+  border: 1px solid #e1d7c3;
+  border-radius: 18px;
+  box-shadow: 0 8px 26px #71593008;
+}
+.curriculum-panel h2 {
+  font-family: Amiri, serif;
+  font-size: 26px;
+  margin: 0 0 14px;
+}
+.curriculum-panel p {
+  line-height: 2;
+}
+.curriculum-panel article,
+.curriculum-panel blockquote {
+  min-width: 0;
+}
+.curriculum-definition {
+  font-size: 19px;
+  line-height: 2;
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e8dfcd;
+}
+.curriculum-provenance {
+  font-size: 14px;
+}
+.curriculum-source > p {
+  color: #64736c;
+  font-size: 13px;
+  margin: 8px 0;
+}
+.curriculum-source strong {
+  display: block;
+  font-size: 15px;
+  line-height: 1.9;
+}
+.curriculum-source a {
+  display: inline-block;
+  color: #216465;
+  padding-block: 8px;
+}
+.curriculum-source details {
+  margin-top: 10px;
+  border-top: 1px solid #e9e1d2;
+}
+.curriculum-source summary,
+.tutor-source-disclosure summary {
+  cursor: pointer;
+  padding-block: 14px;
+  font-size: 14px;
+  color: #276368;
+}
+.curriculum-source blockquote {
+  border-inline-start: 3px solid #c6ac76;
+  padding-inline-start: 16px;
+  font-size: 16px;
+  line-height: 2;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.curriculum-note {
+  font-size: 12px;
+  color: #69746c;
+  margin-top: 20px;
+}
+.concept-visual {
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 28px 0 8px;
+}
+.concept-visual li {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+}
+.concept-visual li > span {
+  width: 100%;
+  text-align: center;
+  padding: 16px 10px;
+  background: #f5efdf;
+  border: 1px solid #e4d7bc;
+  border-radius: 12px;
+}
+.concept-visual li + li::before {
+  content: "←";
+  color: #a68449;
+  flex: 0 0 auto;
+}
+html[dir="ltr"] .concept-visual li + li::before {
+  content: "→";
+}
+.curriculum-example {
+  margin-top: 28px;
+  padding: 22px;
+  background: #f7f1e3;
+  border-radius: 14px;
+  border: 1px solid #e3d5b8;
+}
+.curriculum-example h3 {
+  font-size: 16px;
+  margin: 10px 0;
+}
+.awl-origin {
+  text-align: center;
+  font-family: Georgia, serif;
+  font-size: 32px;
+  padding: 16px;
+  color: #8e6c31;
+}
+.awl-origin span {
+  display: inline-block;
+  margin-inline: 20px;
+  font-size: 22px;
+}
+.concept-tutor {
+  margin-top: 24px;
+  border-top: 3px solid #bfa46b;
+}
+.tutor-prompts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block: 20px;
+}
+.tutor-prompts button {
+  border: 1px solid #ddcfb6;
+  border-radius: 20px;
+  padding: 9px 14px;
+  color: #26585b;
+  background: #faf6ec;
+  font-size: 13px;
+}
+.tutor-input-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+.tutor-input-row input {
+  flex: 1;
+  min-width: 0;
+  min-height: 48px;
+  border: 1px solid #d6c8b0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  color: #144e50;
+  font: inherit;
+}
+.tutor-input-row button {
+  min-height: 48px;
+  white-space: nowrap;
+}
+.concept-tutor button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.tutor-source-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tutor-source-chips span {
+  padding: 6px 10px;
+  background: #f4eedf;
+  border-radius: 20px;
+  font-size: 12px;
+}
+.tutor-source-disclosure .ask-source-meta dd {
+  overflow-wrap: anywhere;
+}
+.curriculum-navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 28px;
+}
+.curriculum-navigation a {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #1a5b5e;
+  padding: 16px 0;
+}
+.curriculum-navigation a:last-child {
+  text-align: end;
+}
+.curriculum-navigation small {
+  color: #768078;
+}
+.concept-lesson :is(a, button, input, summary):focus-visible {
+  outline: 2px solid #a78341;
+  outline-offset: 4px;
+}
+@media (max-width: 760px) {
+  .curriculum-body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .curriculum-header {
+    margin-block: 16px 24px;
+  }
+  .concept-visual {
+    flex-direction: column;
+  }
+  .concept-visual li {
+    flex-direction: column;
+  }
+  .concept-visual li + li::before,
+  html[dir="ltr"] .concept-visual li + li::before {
+    content: "↓";
+  }
+  .tutor-input-row {
+    flex-direction: column;
+  }
+  .tutor-input-row button {
+    justify-content: center;
+  }
+  .curriculum-example {
+    padding: 16px;
+  }
+}
+/* Compact answer controls; only exact evidence receives an internal scroll area. */
+.ask-result {
+  max-width: 900px;
+  margin-inline: auto;
+  scroll-margin-block: 24px;
+}
+.answer-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+}
+.answer-expand,
+.result-disclosure > button {
+  min-height: 44px;
+  color: #195b5e;
+  font: inherit;
+  font-size: 14px;
+}
+.answer-expand {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: 1px solid #d9c39d;
+  border-radius: 8px;
+  background: #f8f1e4;
+}
+.result-disclosure {
+  border-top: 1px solid #ddd0b6;
+  margin-top: 16px;
+}
+.result-disclosure > button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 0;
+  text-align: start;
+}
+.result-disclosure > button span {
+  color: #947338;
+  font-size: 20px;
+}
+.result-disclosure > div:not([hidden]) {
+  animation: answer-reveal 180ms ease-out;
+}
+.result-disclosure [hidden] {
+  display: none;
+}
+.source-excerpt-scroll {
+  max-height: min(380px, 50vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding-inline-end: 8px;
+}
+.source-excerpt-scroll blockquote {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ask-result .ask-source-meta dd {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.answer-safety-notes {
+  border-inline-start: 3px solid #b28b4c;
+  padding: 10px 14px;
+  background: #f6eddb;
+  font-size: 14px;
+}
+.answer-follow-up {
+  position: sticky;
+  bottom: 12px;
+  z-index: 2;
+  margin-top: 20px;
+  padding: 14px;
+  border: 1px solid #ddcba7;
+  border-radius: 12px;
+  background: #fffaf0;
+  box-shadow: 0 4px 16px #173b3e0d;
+}
+.answer-follow-up label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.answer-follow-up > div {
+  display: flex;
+  gap: 10px;
+}
+.answer-follow-up input {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #d7c8ac;
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: #16494e;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+}
+.answer-follow-up button {
+  min-height: 44px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.answer-follow-up button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.answer-navigation {
+  position: sticky;
+  bottom: 128px;
+  z-index: 3;
+  display: block;
+  width: fit-content;
+  margin-inline-start: auto;
+  margin-top: 12px;
+  padding: 8px 14px;
+  min-height: 44px;
+  border: 1px solid #baa16f;
+  border-radius: 22px;
+  background: #fffaf0;
+  color: #1c575b;
+  box-shadow: 0 3px 12px #173b3e18;
+  font-size: 13px;
+}
+.ask-result :is(button, input, a, [tabindex]):focus-visible {
+  outline: 2px solid #a78341;
+  outline-offset: 3px;
+}
+.ask-loading {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #225a5d;
+}
+.ask-loading-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #aa874a;
+  animation: ask-pulse 1.2s ease-in-out infinite;
+}
+@keyframes ask-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes answer-reveal {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 760px) {
+  .answer-follow-up {
+    position: static;
+    padding: 12px;
+  }
+  .answer-follow-up > div {
+    flex-direction: column;
+  }
+  .answer-follow-up button {
+    justify-content: center;
+  }
+  .answer-navigation {
+    bottom: 12px;
+  }
+  .source-excerpt-scroll {
+    max-height: 40vh;
+  }
+  .ask-result .ask-source-meta > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ask-loading-dot,
+  .result-disclosure > div:not([hidden]) {
+    animation: none;
+  }
+}

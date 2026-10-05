@@ -47,10 +47,12 @@ test("Arabic default, in-place English switch, persistence and Arabic return", a
     ),
   ).toBe(true);
   await page.locator(".concept-card").first().click();
-  await expect(page.getByRole("dialog")).toContainText(
-    "What are fixed-share heirs?",
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Fixed-share heirs",
   );
-  await page.getByRole("button", { name: "Close preview" }).click();
+  await page
+    .getByRole("link", { name: "Back to all concepts", exact: true })
+    .click();
   await expect(page.locator(".learning-card .path-toggle")).toHaveText([
     /Explore path/,
     /Explore path/,

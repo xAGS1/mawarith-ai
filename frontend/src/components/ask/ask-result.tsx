@@ -1,4 +1,11 @@
 "use client";
+import { useRef } from "react";
+import {
+  ResultDisclosure,
+  AnswerPreview,
+  FollowUpInput,
+  AnswerNavigation,
+} from "./result-controls";
 import { useLocale } from "@/i18n/locale-context";
 import { isRecord, type AskResponse, type SourceRecord } from "@/lib/ask/types";
 
@@ -30,7 +37,7 @@ function SourceMetadata({ source }: { source: SourceRecord }) {
     },
     {
       label: t({ ar: "الناشر / المؤسسة", en: "Publisher / institution" }),
-      value: text(m.publisher),
+      value: text(m.publisher) || text(m.institution),
     },
     {
       label: t({ ar: "المرجع", en: "Reference" }),
@@ -45,13 +52,20 @@ function SourceMetadata({ source }: { source: SourceRecord }) {
           ]
             .filter(Boolean)
             .join(" / ")
-        : text(m.reference) ||
-          (m.volume != null
-            ? `${t({ ar: "الجزء", en: "Volume" })} ${m.volume}`
-            : ""),
+        : [
+            text(m.reference),
+            m.volume != null
+              ? `${t({ ar: "الجزء", en: "Volume" })} ${m.volume}`
+              : "",
+            m.page != null
+              ? `${t({ ar: "الصفحة", en: "Page" })} ${m.page}`
+              : "",
+          ]
+            .filter(Boolean)
+            .join(" / "),
     },
   ];
-  const url = text(m.source_url);
+  const url = text(m.source_url) || text(m.canonical_url);
   return (
     <dl className="ask-source-meta">
       {fields
@@ -79,11 +93,18 @@ function SourceMetadata({ source }: { source: SourceRecord }) {
 export function AskResult({
   result,
   question,
+  compactSources = false,
+  onFollowUp,
+  pending = false,
 }: {
   result: AskResponse;
   question: string;
+  compactSources?: boolean;
+  onFollowUp?: (question: string) => void;
+  pending?: boolean;
 }) {
   const { t } = useLocale();
+  const container = useRef<HTMLElement>(null);
   const stateLabels = {
     ready: { ar: "الإجابة", en: "Answer" },
     needs_clarification: { ar: "يلزم توضيح", en: "Clarification needed" },
@@ -161,8 +182,22 @@ export function AskResult({
   const limitations = Array.isArray(result.limitations)
     ? result.limitations.filter((item) => typeof item === "string")
     : [];
+  const allSources = uniqueSources([...excerpts, ...sources]);
+  // Only known, purely operational notes may be collapsed. Unrecognized or
+  // religious/safety limitations remain visible rather than being guessed safe.
+  const routineNotes = new Set([
+    "Page numbers may be unavailable.",
+    "أرقام الصفحات قد لا تكون متاحة.",
+  ]);
+  const warnings = limitations.filter(
+    (item) => result.decision_state !== "ready" || !routineNotes.has(item),
+  );
+  const notes = limitations.filter(
+    (item) => result.decision_state === "ready" && routineNotes.has(item),
+  );
   return (
     <section
+      ref={container}
       className="ask-result"
       aria-label={t({ ar: "نتيجة السؤال", en: "Question result" })}
     >
@@ -182,8 +217,20 @@ export function AskResult({
         lang={result.language}
         dir={result.language === "ar" ? "rtl" : "ltr"}
       >
-        <h4>{t({ ar: "الشرح التعليمي", en: "Educational explanation" })}</h4>
-        <p>{publicText(result.answer)}</p>
+        <h4>
+          {t(
+            result.mode === "learn"
+              ? { ar: "الشرح التعليمي", en: "Educational explanation" }
+              : { ar: "شرح النتيجة", en: "Result explanation" },
+          )}
+        </h4>
+        <AnswerPreview
+          key={question + result.answer}
+          answer={publicText(result.answer)}
+          collapsible={
+            result.decision_state === "ready" && !educationalInsufficiency
+          }
+        />
       </div>
       {typeof result.clarification_question === "string" &&
         result.clarification_question && (
@@ -198,18 +245,31 @@ export function AskResult({
             </small>
           </div>
         )}
-      {concepts.length > 0 && (
-        <div>
-          <h4>{t({ ar: "المفاهيم المرتبطة", en: "Key concepts" })}</h4>
-          <dl>
-            {concepts.map((concept, i) => (
-              <div key={i}>
-                <dt>{publicText(text(concept.term))}</dt>
-                <dd>{publicText(text(concept.explanation))}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
+      {(concepts.length > 0 || notes.length > 0) && (
+        <ResultDisclosure
+          title={t({ ar: "تفاصيل الإجابة", en: "Answer details" })}
+        >
+          {concepts.length > 0 && (
+            <div>
+              <h4>{t({ ar: "المفاهيم المرتبطة", en: "Key concepts" })}</h4>
+              <dl>
+                {concepts.map((concept, i) => (
+                  <div key={i}>
+                    <dt>{publicText(text(concept.term))}</dt>
+                    <dd>{publicText(text(concept.explanation))}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+          {notes.length > 0 && (
+            <ul>
+              {notes.map((item, i) => (
+                <li key={i}>{limitationText(item, result.language)}</li>
+              ))}
+            </ul>
+          )}
+        </ResultDisclosure>
       )}
       {relatives.length > 0 && (
         <div>
@@ -258,49 +318,102 @@ export function AskResult({
           </div>
         </div>
       )}
-      {excerpts.length > 0 && (
-        <div className="ask-excerpts">
-          <h4>
-            {t({
-              ar: "مقتطفات المصادر — النص كما ورد",
-              en: "Source excerpts — exact returned text",
-            })}
-          </h4>
-          {excerptGroups.map((group, i) => (
-            <div className="ask-source" key={i}>
-              <SourceMetadata source={group.source} />
-              {group.excerpts.map((source, j) => (
-                <figure key={j}>
-                  <blockquote dir="auto">{text(source.text)}</blockquote>
-                </figure>
+      {allSources.length > 0 && (
+        <div className="tutor-source-chips">
+          {allSources.map((source, i) => (
+            <span key={i}>{text(metadata(source).source_name)}</span>
+          ))}
+        </div>
+      )}
+      {allSources.length > 0 && (
+        <ResultDisclosure
+          className={
+            compactSources
+              ? "tutor-source-disclosure"
+              : "answer-source-disclosure"
+          }
+          title={t({
+            ar: `${educationalInsufficiency ? "عرض المصادر المتاحة" : "عرض المصادر"} (${allSources.length})`,
+            en: `${educationalInsufficiency ? "View available sources" : "View sources"} (${allSources.length})`,
+          })}
+        >
+          {excerpts.length > 0 && (
+            <div className="ask-excerpts">
+              <h4>
+                {t({
+                  ar: "مقتطفات المصادر — النص كما ورد",
+                  en: "Source excerpts — exact returned text",
+                })}
+              </h4>
+              {excerptGroups.map((group, i) => (
+                <div className="ask-source" key={i}>
+                  <SourceMetadata source={group.source} />
+                  <ResultDisclosure
+                    title={t({
+                      ar: "عرض النص من المصدر",
+                      en: "Show source text",
+                    })}
+                    hideTitle={t({ ar: "إخفاء النص", en: "Hide text" })}
+                    className="source-text-disclosure"
+                  >
+                    <div
+                      className="source-excerpt-scroll"
+                      tabIndex={0}
+                      role="region"
+                      aria-label={t({
+                        ar: "النص الأصلي من المصدر",
+                        en: "Exact source text",
+                      })}
+                    >
+                      {group.excerpts.map((source, j) => (
+                        <figure key={j}>
+                          <blockquote dir="auto">
+                            {text(source.text)}
+                          </blockquote>
+                        </figure>
+                      ))}
+                    </div>
+                  </ResultDisclosure>
+                </div>
               ))}
             </div>
-          ))}
-        </div>
-      )}
-      {sources.length > 0 && (
-        <div>
-          <h4>{t({ ar: "المصادر والمراجع", en: "Sources and references" })}</h4>
-          {sources.map((source, i) => (
-            <div className="ask-source" key={i}>
-              {typeof source.rule === "string" && (
-                <p>{publicText(source.rule)}</p>
-              )}
-              <SourceMetadata source={source} />
+          )}
+          {sources.length > 0 && (
+            <div>
+              <h4>
+                {t({ ar: "المصادر والمراجع", en: "Sources and references" })}
+              </h4>
+              {sources.map((source, i) => (
+                <div className="ask-source" key={i}>
+                  <SourceMetadata source={source} />
+                  {typeof source.rule === "string" && (
+                    <ResultDisclosure
+                      title={t({
+                        ar: "عرض ملخص القاعدة",
+                        en: "Show rule summary",
+                      })}
+                    >
+                      <p>{publicText(source.rule)}</p>
+                    </ResultDisclosure>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </ResultDisclosure>
       )}
-      {limitations.length > 0 && (
-        <div>
+      {warnings.length > 0 && (
+        <div className="answer-safety-notes">
           <h4>{result.language === "ar" ? "حدود الإجابة" : "Limitations"}</h4>
           <ul>
-            {limitations.map((item, i) => (
+            {warnings.map((item, i) => (
               <li key={i}>{limitationText(item, result.language)}</li>
             ))}
           </ul>
         </div>
       )}
+      <AnswerNavigation container={container} />
+      {onFollowUp && <FollowUpInput onSubmit={onFollowUp} pending={pending} />}
     </section>
   );
 }

@@ -63,7 +63,9 @@ test("learn request, loading, ready sources, no direct backend call and empty in
   await page.getByRole("textbox").fill("  What is a residuary heir?  ");
   await submit.click();
   await expect(submit).toBeDisabled();
-  await expect(page.getByRole("status")).toContainText("Preparing your answer");
+  await expect(page.getByRole("status")).toContainText(
+    "searching trusted sources",
+  );
   release();
   await expect(page.locator(".ask-answer")).toContainText(
     "A grounded explanation.",
@@ -75,7 +77,7 @@ test("learn request, loading, ready sources, no direct backend call and empty in
   expect(await page.locator(".ask-excerpts blockquote").textContent()).toBe(
     base.source_excerpts[0].text,
   );
-  await expect(page.getByRole("textbox")).toHaveValue(
+  await expect(page.locator("#question")).toHaveValue(
     "  What is a residuary heir?  ",
   );
 });

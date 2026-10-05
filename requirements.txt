@@ -3,3 +3,6 @@ uvicorn[standard]==0.34.2
 pydantic==2.11.4
 requests==2.32.3
 pytest==8.3.5
+pypdf==5.9.0
+fonttools==4.66.1
+lxml==6.1.3

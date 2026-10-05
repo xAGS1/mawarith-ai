@@ -14,7 +14,7 @@ def test_fixed_share_heirs_uses_verified_catalogue_without_rag_or_model(monkeypa
     retrieve, model = Mock(), Mock()
     monkeypatch.setattr(learn, "retrieve_educational_evidence", retrieve)
     monkeypatch.setattr(learn.provider, "explain", model)
-    out = learn.run_learn("ما معنى أصحاب الفروض؟")
+    out = learn.run_learn("اشرح أصحاب الفروض")
     assert out["decision_state"] == "ready"
     assert out["answer"] == "تعريف محايد مخصص للاختبار."
     assert out["sources"] == [{**source, "content_kind": "reviewed_summary"}]

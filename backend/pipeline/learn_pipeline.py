@@ -17,6 +17,7 @@ from backend.learning.comparisons import curated_comparison
 from backend.pipeline.understanding import CURRENT_UNDERSTANDING, CURRENT_TRACE
 from backend.pipeline.evidence_plan import build_evidence_plan
 from backend.pipeline.claim_guard import guard_claims
+from backend.learning.definition_retrieval import definition_intent, select_definition_evidence
 
 
 def detect_language(question: str) -> str:
@@ -180,7 +181,8 @@ def run_learn(question: str) -> dict:
         response.decision_state = "ready"
         response.evidence_status = "supported"
         return response.model_dump()
-    curated = curated_concept(question, language)
+    definition = definition_intent(question)
+    curated = curated_concept(question, language) if definition is None else None
     if curated:
         response.answer = curated["answer"]
         response.sources = curated["sources"]
@@ -189,11 +191,15 @@ def run_learn(question: str) -> dict:
         response.evidence_status = "supported"
         return response.model_dump()
     try:
-        response.source_excerpts = build_evidence_bundle(retrieve_educational_evidence(question))
+        response.source_excerpts = (select_definition_evidence(question, definition,
+            retrieve_educational_evidence, CURRENT_TRACE.get()) if definition else
+            build_evidence_bundle(retrieve_educational_evidence(question)))
     except (RuntimeError, ValueError, OSError) as exc:
         response.limitations.append("Evidence retrieval unavailable: " + str(exc))
     if not response.source_excerpts:
-        response.limitations.append("No matching approved fiqh evidence is available.")
+        response.limitations.append(("لم يُعثر على تعريف مباشر وكامل في المصادر المعتمدة." if language == "ar"
+            else "No complete direct definition was found in the approved sources.") if definition
+            else "No matching approved fiqh evidence is available.")
         return response.model_dump()
     # Quran references come only from existing validated rules. Quran text is
     # never sent to the explainer, and is attached only after reasoning.
@@ -203,7 +209,7 @@ def run_learn(question: str) -> dict:
     if understanding is not None:
         evidence[0]["explanation_preferences"] = {"depth": understanding.depth,
             "question_kind": understanding.question_kind, "intent": understanding.intent}
-    concept_metadata = supported_concepts(question, language, evidence)
+    concept_metadata = [] if definition else supported_concepts(question, language, evidence)
     try:
         check_concept_scope(question, minimal_answer(concept_metadata), response.source_excerpts)
     except ValueError:
@@ -228,8 +234,21 @@ def run_learn(question: str) -> dict:
             if trace is not None:
                 trace["blocked_explanation_claims"] = guarded["blocked_claims"]
             if not guarded["supported_sensitive_claims"]:
-                raise ValueError("Sensitive explanation claims lack direct evidence support")
-            answer = guarded["answer"]
+                if not definition:
+                    raise ValueError("Sensitive explanation claims lack direct evidence support")
+                # The definition selector already approved this complete exact
+                # passage. Do not salvage an unsupported model paraphrase or
+                # teach the guard to accept it: return source wording instead.
+                answer = cited[0]["text"].strip()
+                exact_guard = guard_claims(answer, cited, language=language)
+                if exact_guard["blocked_claims"]:
+                    raise ValueError("Selected definition failed exact claim support")
+                concepts = []
+                if trace is not None:
+                    trace["definition_explanation_origin"] = "exact_source_fallback"
+                    trace["definition_fallback_guard"] = exact_guard
+            else:
+                answer = guarded["answer"]
         response.answer, response.key_concepts = answer, concepts
         response.decision_state = "ready"
         response.evidence_status = "supported"
@@ -253,7 +272,8 @@ def run_learn(question: str) -> dict:
         response.sources = []
         return response.model_dump()
     response.sources = [e["provenance"] for e in response.source_excerpts]
-    response.source_excerpts = relevant_public_excerpts(question, response.source_excerpts)
+    if not definition:
+        response.source_excerpts = relevant_public_excerpts(question, response.source_excerpts)
     # Attach Quran only when an exact reference occurs in retrieved source text.
     rules = validate_rule_records(json.loads(RULES_PATH.read_text(encoding="utf-8")))
     refs = set(re.findall(r"(?<![0-9])[0-9]{1,3}:[0-9]{1,3}(?![0-9])", " ".join(e["text"] for e in response.source_excerpts)))

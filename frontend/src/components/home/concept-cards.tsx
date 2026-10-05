@@ -1,13 +1,11 @@
 "use client";
 import { useLocale } from "@/i18n/locale-context";
-import { useState } from "react";
+import Link from "next/link";
 import { ArrowLeft, BookOpenText } from "lucide-react";
-import { concepts, type Concept } from "@/data/home";
+import { concepts } from "@/data/home";
 import { ConceptIcon } from "@/components/ui/icons";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { PreviewDialog } from "@/components/ui/preview-dialog";
 export function ConceptCards() {
-  const [selected, setSelected] = useState<Concept | null>(null);
   const { t } = useLocale();
   return (
     <section className="section concepts-section" id="concepts">
@@ -23,10 +21,10 @@ export function ConceptCards() {
         />
         <div className="concept-grid">
           {concepts.map((concept, i) => (
-            <button
+            <Link
               key={concept.id}
               className="concept-card"
-              onClick={() => setSelected(concept)}
+              href={`/concepts/${concept.id === "residuary-heirs" ? "asabah" : concept.id === "residuary-inheritance" ? "tasib" : concept.id}`}
             >
               <span className="concept-index" dir="ltr">
                 0{i + 1}
@@ -38,35 +36,10 @@ export function ConceptCards() {
                 {t("اكتشف المفهوم")}
                 <ArrowLeft size={14} aria-hidden="true" />
               </span>
-            </button>
+            </Link>
           ))}
         </div>
       </div>
-      {selected && (
-        <PreviewDialog
-          title={t(selected.title)}
-          onClose={() => setSelected(null)}
-        >
-          <p>{t(selected.description)}</p>
-          <div className="dialog-question">
-            <span>{t("سؤال تبدأ به")}</span>
-            <p>{t(selected.question)}</p>
-          </div>
-          <p className="dialog-note">
-            {t(
-              "بطاقة استكشافية في المعاينة التعليمية. لا تتضمن حكمًا لحالة شخصية.",
-            )}
-          </p>
-          <a
-            href="#home"
-            className="primary-button"
-            onClick={() => setSelected(null)}
-          >
-            {t("العودة إلى مساحة السؤال")}
-            <ArrowLeft size={16} />
-          </a>
-        </PreviewDialog>
-      )}
     </section>
   );
 }

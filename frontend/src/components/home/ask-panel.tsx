@@ -5,6 +5,7 @@ import { Send, Sparkles } from "lucide-react";
 import { ask, AskError } from "@/lib/ask/client";
 import type { AskResponse } from "@/lib/ask/types";
 import { AskResult } from "@/components/ask/ask-result";
+import { AskLoading } from "@/components/ask/result-controls";
 import { exampleQuestions } from "@/data/home";
 import {
   readPendingRequest,
@@ -172,7 +173,7 @@ export function AskPanel() {
               </p>
             </>
           ) : (
-            t({ ar: "جارٍ إعداد الإجابة…", en: "Preparing your answer…" })
+            <AskLoading />
           )}
         </div>
       )}
@@ -204,7 +205,18 @@ export function AskPanel() {
           )}
         </div>
       )}
-      {result && <AskResult result={result} question={submittedQuestion} />}
+      {result && (
+        <AskResult
+          key={submittedQuestion + result.answer}
+          result={result}
+          question={submittedQuestion}
+          onFollowUp={(value) => {
+            setQuestion(value);
+            void submit(value);
+          }}
+          pending={pending}
+        />
+      )}
     </div>
   );
 }

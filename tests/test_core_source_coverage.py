@@ -140,7 +140,10 @@ def test_promoted_knowledge_answers_without_llm_or_open_rag(question, approved_c
     def unexpected(*args, **kwargs):
         pytest.fail("Verified educational source must not use open RAG or LLM")
     monkeypatch.setattr(learn_pipeline, "retrieve_educational_evidence", unexpected)
-    monkeypatch.setattr(learn_pipeline.provider, "explain", unexpected)
+    from backend.learning.definition_retrieval import definition_intent
+    monkeypatch.setattr(learn_pipeline.provider, "explain", (
+        lambda q, language, evidence: {"answer": evidence[0]["text"] + " [E1]"}
+        ) if definition_intent(question) else unexpected)
     result = learn_pipeline.run_learn(question)
     assert result["evidence_status"] == "supported"
     assert result["mode"] == "learn" and result["case_details"] is None

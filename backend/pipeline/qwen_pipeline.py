@@ -13,8 +13,9 @@ from backend.rag.fiqh.retriever import retrieve_fiqh
 from backend.rules.case_readiness import assess_case
 
 
-def run_pipeline(question: str) -> dict:
-    parsed = parse_relations(question) if question.strip() else {"mentioned_relatives": []}
+def run_pipeline(question: str, *, parsed_relations: dict | None = None, deterministic: bool = True) -> dict:
+    parsed = parsed_relations if parsed_relations is not None else (
+        parse_relations(question) if question.strip() else {"mentioned_relatives": []})
     features = build_case_features(parsed)
     sources = retrieve_rules(parsed, features)
     enriched_sources = enrich_sources(sources)
@@ -41,6 +42,15 @@ def run_pipeline(question: str) -> dict:
         "result": None,
     }
     if readiness["decision_state"] != "ready" or not coverage["is_sufficient"]:
+        return output
+
+    if deterministic:
+        from backend.rules.distribution import allocate
+        try:
+            result = allocate(parsed, sources)
+        except (ValueError, KeyError, ZeroDivisionError):
+            return output
+        output.update(decision_state="ready", result=result)
         return output
 
     result = analyze_case(

@@ -1,4 +1,4 @@
-import { isRecord, type AskResponse } from "./types";
+import { isRecord, type AskResponse, type ConceptContext } from "./types";
 import { inferMode } from "./infer-mode";
 export class AskError extends Error {
   constructor(
@@ -8,12 +8,19 @@ export class AskError extends Error {
     super(code);
   }
 }
-export async function ask(question: string): Promise<AskResponse> {
+export async function ask(
+  question: string,
+  conceptContext?: ConceptContext,
+): Promise<AskResponse> {
   try {
     const response = await fetch("/api/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode: inferMode(question), question }),
+      body: JSON.stringify({
+        mode: conceptContext ? "learn" : inferMode(question),
+        question,
+        ...(conceptContext ? { concept_context: conceptContext } : {}),
+      }),
       signal: AbortSignal.timeout(125_000),
     });
     const data: unknown = await response.json();

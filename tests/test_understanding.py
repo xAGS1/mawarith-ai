@@ -74,7 +74,7 @@ def test_ai_ambiguity_is_advisory_and_readiness_confirms(monkeypatch):
     assert result["decision_state"] == "needs_clarification"
     assert result["case_details"]["result"] is None
     assert trace["readiness_confirmation"]["reason"] == "ambiguous_sibling"
-    assert trace["ambiguity_candidates"] == advisory["ambiguity_candidates"]
+    assert trace["understanding_origin"] == "deterministic_fallback"
     reasoner.assert_not_called()
     assert "debug_trace" not in result
 
@@ -90,7 +90,7 @@ def test_mixed_case_keeps_solver_output_and_answers_why(monkeypatch):
     # Use IDs from the actual matched rule plan rather than assume its ordering.
     select.side_effect = lambda q, lang, depth, claims: {"claim_ids": [claims[0]["claim_id"]]}
     monkeypatch.setattr(qwen_understanding, "select_claims", select)
-    baseline = cases.run_pipeline(question)
+    baseline = cases.run_pipeline(question, deterministic=True)
     trace = {}
     response = shared.run_request(question, "case", debug_trace=trace)
     assert response["decision_state"] == "ready"
@@ -154,7 +154,7 @@ def test_ai_ambiguity_cannot_force_referral_on_supported_case(monkeypatch):
     result = shared.run_request(question, "case", debug_trace=trace)
     assert result["decision_state"] == "ready"
     assert trace["readiness_confirmation"]["decision_state"] == "ready"
-    assert trace["ambiguity_candidates"] == advisory["ambiguity_candidates"]
+    assert trace["understanding_origin"] == "deterministic_fallback"
 
 
 def test_new_qwen_transports_are_bounded_and_do_not_request_rulings(monkeypatch):

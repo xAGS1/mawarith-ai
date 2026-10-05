@@ -133,7 +133,7 @@ def test_pipeline_keeps_source_text_out_of_reasoning_input(isolated_sources):
         output = run_pipeline("سؤال اختبار")
     assert output["sources"][0]["source"]["arabic_text"] == TEXT
     assert output["sources"][0]["rule_id"] == "wife_without_descendant"
-    assert "arabic_text" not in reasoner.call_args.kwargs["sources"][0]["source"]
+    reasoner.assert_not_called()  # Default allocations no longer use LLM reasoning.
     assert TEXT not in json.dumps(output["result"], ensure_ascii=False)
     assert output["result"]["shares"][0]["fraction"] == "1/4"
     assert output["decision_state"] == "ready"

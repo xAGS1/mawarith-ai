@@ -23,6 +23,11 @@ def test_questions(question, hit, monkeypatch):
     monkeypatch.setattr(learn.provider, "explain", lambda *args: {"supported": True,
         "answer": "Neutral test explanation", "key_concepts": [], "evidence_ids": ["E1"]})
     out = learn.run_learn(question)
+    if learn.definition_intent(question):
+        # A neutral mention fixture is not an approved direct definition.
+        assert out["evidence_status"] == "insufficient"
+        assert out["source_excerpts"] == []
+        return
     assert out["decision_state"] == "ready"
     assert out["language"] == ("ar" if question in QUESTIONS[:5] else "en")
     assert len(out["source_excerpts"]) <= 2

@@ -9,3 +9,9 @@ def explain(question: str, language: str, evidence: list[dict]) -> dict:
     if provider != "qwen":
         raise ValueError(f"Unsupported LLM_PROVIDER: {provider}")
     return qwen_explainer.explain(question, language, evidence)
+
+
+def explain_context(question, language, evidence, verified_result=None):
+    if os.getenv("LLM_PROVIDER", "qwen") != "qwen":
+        raise ValueError("Unsupported LLM provider")
+    return qwen_explainer.explain_context(question, language, evidence, verified_result)

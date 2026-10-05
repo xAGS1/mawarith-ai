@@ -97,9 +97,13 @@ test("RTL homepage, question selection and previews", async ({
   await expect(page.locator(".ask-result")).toContainText("ما معنى العصبة؟");
   await expect(page.locator(".mode-selector")).toHaveCount(0);
   await page.locator(".concept-card").first().click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page).toHaveURL(/\/concepts\/fixed-share-heirs$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "أصحاب الفروض",
+  );
+  await page
+    .getByRole("link", { name: "العودة إلى جميع المفاهيم", exact: true })
+    .click();
   await page.locator(".example-card").first().click();
   await expect(page.getByRole("dialog")).toContainText("مات وترك زوجة");
   await page.getByRole("button", { name: "إغلاق المعاينة" }).click();

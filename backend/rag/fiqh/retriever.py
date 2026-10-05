@@ -8,7 +8,7 @@ from backend.rag.fiqh.query_expansion import expand_embedding_query, concept_que
 from backend.rag.fiqh.vector_store import FiqhStoreError, QdrantFiqhStore, build_filter, load_chunks
 
 
-def retrieve_fiqh(query: str, top_k: int = 5, filters: dict | None = None) -> list[dict]:
+def retrieve_fiqh(query: str, top_k: int = 5, filters: dict | None = None, *, semantic_only: bool = False) -> list[dict]:
     if not isinstance(query, str) or not query.strip():
         raise ValueError("Fiqh query must be nonempty")
     if type(top_k) is not int or not 1 <= top_k <= 100:
@@ -29,8 +29,9 @@ def retrieve_fiqh(query: str, top_k: int = 5, filters: dict | None = None) -> li
                                            document[index + 1] if index + 1 < len(document) else None)
     store = QdrantFiqhStore()
     store.ensure_collection()
-    hits = store.query(embed_texts([expand_embedding_query(query)])[0], top_k,
-                       concept_query_filters(query, filters))
+    embedding_query = query if semantic_only else expand_embedding_query(query)
+    query_filters = filters if semantic_only else concept_query_filters(query, filters)
+    hits = store.query(embed_texts([embedding_query])[0], top_k, query_filters)
     evidence = []
     for hit in hits:
         payload = dict(hit["payload"])

@@ -1,0 +1,14 @@
+{
+  "source_id": "dorar_fiqhia",
+  "source_name": "الموسوعة الفقهية - الدرر السنية",
+  "source_type": "fiqh_reference",
+  "source_url": "https://dorar.net/feqhia/",
+  "book": "كتاب المواريث",
+  "seed_url": "https://dorar.net/feqhia/13638",
+  "verified_source": true,
+  "approval_basis": "User explicitly approved inheritance-only source integration; this does not certify every generated explanation",
+  "license_status": "needs_review",
+  "scope": "Inheritance navigation descendants only; no unrelated book content",
+  "extraction_method": "HTML article DOM; inline reference tooltips preserved",
+  "reviewed_at": "2026-10-05"
+}

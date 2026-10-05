@@ -67,7 +67,8 @@ def test_other_case_states_keep_existing_source_display(state, monkeypatch):
     out = pipeline.run_request("Test case", "case")
     assert out["decision_state"] == state
     assert len(out["source_excerpts"]) == 3
-    assert out["case_details"]["fiqh_evidence"] == case["fiqh_evidence"]
+    assert out["case_details"]["fiqh_evidence"] == []
+    assert "chunk_id" not in str(out)
 
 
 def test_inconsistent_result_mapped_to_referral_also_filters(monkeypatch):

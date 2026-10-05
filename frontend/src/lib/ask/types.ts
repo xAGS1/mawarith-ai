@@ -1,4 +1,5 @@
 export type AskMode = "learn" | "case";
+export type ConceptContext = { slug: string; title: string };
 export type DecisionState =
   "ready" | "needs_clarification" | "specialist_referral" | "out_of_scope";
 export type SourceRecord = Record<string, unknown>;

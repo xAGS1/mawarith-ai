@@ -16,4 +16,8 @@ def isolate_new_understanding_transport(monkeypatch):
 @pytest.fixture(autouse=True)
 def isolate_runtime_fiqh_corpus(tmp_path, monkeypatch):
     from backend.rag.fiqh import vector_store
+    from backend.learning import definition_retrieval
+    from backend.rag import dorar_retrieval
+    monkeypatch.setattr(definition_retrieval, "UQU_DIR", tmp_path / "empty-uqu-corpus")
     monkeypatch.setattr(vector_store, "DATA_DIR", tmp_path / "empty-fiqh-corpus")
+    monkeypatch.setattr(dorar_retrieval, "DATA_DIR", tmp_path / "empty-dorar-corpus")
