@@ -2,6 +2,7 @@
 import re
 import requests
 from backend.llm import qwen_understanding
+from backend.pipeline.claim_guard import guard_claims
 
 
 def explain_case_question(question: str, understanding, plan: list[dict]) -> tuple[str, list[dict], str]:
@@ -27,4 +28,8 @@ def explain_case_question(question: str, understanding, plan: list[dict]) -> tup
         claims = claims[:1]
     lead = "القاعدة الموثقة ذات الصلة بسؤالك:" if understanding.language == "ar" else "The documented rule relevant to your question (original Arabic wording):"
     # No model-authored factual prose can change a fraction, heir or condition.
-    return lead + "\n" + "\n".join(c["statement"] for c in claims), claims, origin
+    text = lead + "\n" + "\n".join(c["statement"] for c in claims)
+    # Only selected structured claims can support the explanatory prose.
+    rules = [{"rule": c["statement"]} for c in claims]
+    guarded = guard_claims(text, confirmed_rules=rules, language=understanding.language)
+    return guarded["answer"], claims, origin

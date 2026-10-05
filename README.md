@@ -301,3 +301,21 @@ each property's source mapping. It renders source text and reviewed summaries
 with distinct labels, never uses a draft, and falls back to the existing grounded
 flow when either concept or shared properties lack support. Source excerpts always
 contain source wording, never reviewed summaries or generated AI explanation.
+
+## Minimal explanation claim guard
+
+`backend/pipeline/claim_guard.py` filters generated educational prose after the
+existing citation and concept-scope checks. It checks complete sensitive statements
+against the cited evidence, existing source-bound concept definitions, or confirmed
+case rules. A narrow Arabic entitlement sentence can also pass when the heir and
+fraction match a confirmed rule; those rules must already be confirmed for the case,
+not merely present somewhere in the source library. Matching an heir, fraction or
+citation alone never grants support. Unsupported claims receive a concise localized
+insufficiency statement. Supported statements and harmless presentation text remain.
+Unsupported related-concept explanations are omitted; entirely unsupported learn
+explanations use the existing abstention state. Mixed-case explanations also apply
+the guard to their selected structured rule statements.
+
+This is a conservative lexical guard, not a general semantic proof. Unrecognized
+sensitive paraphrases may be withheld. Source text, structured rules, distributions,
+arithmetic, models, readiness and referral decisions are not edited by this layer.

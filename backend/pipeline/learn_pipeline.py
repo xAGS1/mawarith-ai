@@ -16,6 +16,7 @@ from backend.learning.curated import curated_concept
 from backend.learning.comparisons import curated_comparison
 from backend.pipeline.understanding import CURRENT_UNDERSTANDING, CURRENT_TRACE
 from backend.pipeline.evidence_plan import build_evidence_plan
+from backend.pipeline.claim_guard import guard_claims
 
 
 def detect_language(question: str) -> str:
@@ -219,6 +220,16 @@ def run_learn(question: str) -> dict:
         generated = provider.explain(question, language, evidence)
         answer, concepts, ids = validate_citations(generated, response.source_excerpts)
         check_concept_scope(question, answer, [e for e in response.source_excerpts if e["evidence_id"] in ids])
+        cited = [e for e in response.source_excerpts if e["evidence_id"] in ids]
+        guarded = guard_claims(answer, cited, supported_definitions=concept_metadata, language=language)
+        concepts = [concept for concept in concepts if not guard_claims(
+            concept.explanation, cited, supported_definitions=concept_metadata, language=language)["blocked_claims"]]
+        if guarded["blocked_claims"]:
+            if trace is not None:
+                trace["blocked_explanation_claims"] = guarded["blocked_claims"]
+            if not guarded["supported_sensitive_claims"]:
+                raise ValueError("Sensitive explanation claims lack direct evidence support")
+            answer = guarded["answer"]
         response.answer, response.key_concepts = answer, concepts
         response.decision_state = "ready"
         response.evidence_status = "supported"
