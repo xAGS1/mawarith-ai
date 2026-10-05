@@ -6,6 +6,7 @@ from backend.rag.fiqh.vector_store import load_chunks
 from backend.rag.retriever import retrieve_rules
 from backend.rules.case_features import build_case_features
 from backend.rules.educational_concepts import supported_concepts
+from backend.learning.compound_evidence import educational_rule_summaries
 
 
 def bilingual(ar: str, en: str) -> dict:
@@ -99,9 +100,12 @@ def list_examples() -> list[dict]:
         try:
             rules = retrieve_rules(parsed, build_case_features(parsed))
             supported = check_source_coverage(parsed, rules)["is_sufficient"]
+            evidence = educational_rule_summaries(rules) if supported else []
         except (ValueError, OSError):
             supported = False
+            evidence = []
         example["case_supported"] = supported
+        example["educational_evidence"] = evidence
         examples.append(example)
     return examples
 

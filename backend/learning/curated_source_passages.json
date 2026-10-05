@@ -48,6 +48,59 @@
       "volume": 3,
       "section": "إِرْثٌ ",
       "verified_source": true
+    },
+    "properties": {
+      "eligible_origins": {
+        "chunk_id": "f316b8ccfa0e42873f0ff78d350cb87c0c6eefe06f93a40c6c7be3d709fb6224",
+        "text": "58 - وَلَقَدْ وُجِدَ بِالاِسْتِقْرَاءِ أَنَّ أُصُولَ الْمَسَائِلِ الَّتِي تَعُولُ هِيَ: مَا كَانَ أَصْلُهُ سِتَّةً، وَاثْنَيْ عَشَرَ، وَأَرْبَعَةً وَعِشْرِينَ. ",
+        "char_start": 118,
+        "char_end": 278,
+        "sha256": "8f5b3a5dce5c0f55b0fd0fc04efd7f2b54e52358fb1b22d86bf37acfe3a2333b",
+        "provenance": {
+          "source_name": "الموسوعة الفقهية الكويتية",
+          "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+          "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+          "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+          "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+          "volume": 3,
+          "section": "إِرْثٌ ",
+          "verified_source": true
+        }
+      },
+      "origin_six_outcomes": {
+        "chunk_id": "f316b8ccfa0e42873f0ff78d350cb87c0c6eefe06f93a40c6c7be3d709fb6224",
+        "text": "59 - فَمَا أَصْلُهُ سِتَّةٌ قَدْ يَعُولُ إِلَى سَبْعَةٍ وَإِلَى ثَمَانِيَةٍ وَإِلَى تِسْعَةٍ وَإِلَى عَشَرَةٍ. ",
+        "char_start": 280,
+        "char_end": 391,
+        "sha256": "abc4b50e9834e6b41e8e64a222439f098f7b85fb5839f8372d021d207922c8fa",
+        "provenance": {
+          "source_name": "الموسوعة الفقهية الكويتية",
+          "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+          "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+          "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+          "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+          "volume": 3,
+          "section": "إِرْثٌ ",
+          "verified_source": true
+        }
+      },
+      "origin_24_example": {
+        "chunk_id": "79460488ccd3e23ca0ca7df57c072a8218a94deaf7e336ae5b467779c5aa3d01",
+        "text": "61 - وَإِذَا كَانَ أَصْلُ الْمَسْأَلَةِ أَرْبَعَةً وَعِشْرِينَ، فَإِنَّهَا لاَ تَعُولُ إِلاَّ إِلَى سَبْعَةٍ وَعِشْرِينَ، وَذَلِكَ كَزَوْجَةٍ، وَبِنْتَيْنِ، وَأُمٍّ، وَأَبٍ، لِلزَّوْجَةِ الثُّمُنُ ثَلاَثَةٌ، وَلِلْبِنْتَيْنِ الثُّلُثَانِ سِتَّةَ عَشَرَ، وَلِكُلٍّ مِنَ الأَْبِ وَالأُْمِّ السُّدُسُ أَرْبَعَةُ أَسْهُمٍ، فَيَكُونُ الْمَجْمُوعُ سَبْعَةً وَعِشْرِينَ. ",
+        "char_start": 89,
+        "char_end": 453,
+        "sha256": "dfeb5d5667ae4ad2c1153aa86601f3304a2be87c7b7efea7e7c6a0848836ac9b",
+        "provenance": {
+          "source_name": "الموسوعة الفقهية الكويتية",
+          "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+          "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+          "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+          "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+          "volume": 3,
+          "section": "إِرْثٌ ",
+          "verified_source": true
+        }
+      }
     }
   },
   "radd": {
@@ -90,6 +143,74 @@
     "char_start": 96,
     "char_end": 562,
     "sha256": "cf1f49403648c87cf7da0523aadcf51d3fe9d3bbe4d9c361d3cda59fda035108",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  },
+  "heir": {
+    "chunk_id": "8c96ee839003086275f31587ccac39407bc8a9297996885be225cc698782f23d",
+    "text": "وَثَانِيهَا: الْوَارِثُ وَهُوَ الْحَيُّ بَعْدَ الْمُورَثِ أَوِ الْمُلْحَقُ بِالأَْحْيَاءِ. ",
+    "char_start": 431,
+    "char_end": 522,
+    "sha256": "7d7ba4e1dac6cc6e4ac6e67d19c36ebea9f8b01657cc06f9b8f5bb2af85be9cd",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  },
+  "heir_branch": {
+    "chunk_id": "e0f25ec970419b9159c8aca66139c83cdcc69a30d727cb7ebe11e3ce6c0a9fcd",
+    "text": "36 - أ - يَرِثُ الزَّوْجُ نِصْفَ مِيرَاثِ زَوْجَتِهِ بِطَرِيقِ الْفَرْضِ، إِذَا لَمْ يَكُنْ لَهَا فَرْعٌ وَارِثٌ بِطَرِيقِ الْفَرْضِ أَوِ التَّعْصِيبِ، وَهُوَ الاِبْنُ وَابْنُ الاِبْنِ وَإِنْ نَزَلَ، وَالْبِنْتُ وَبِنْتُ الاِبْنِ وَإِنْ نَزَلَ، سَوَاءٌ أَكَانَ هَذَا الْفَرْعُ الْوَارِثُ مِنَ الزَّوْجِ أَمْ مِنْ غَيْرِهِ، وَتَشْمَلُ هَذِهِ الْحَالَةُ مَا إِذَا لَمْ يَكُنْ لِلزَّوْجَةِ فَرْعٌ أَصْلاً وَمَا إِذَا كَانَ لَهَا فَرْعٌ غَيْرُ وَارِثٍ بِطَرِيقِ الْفَرْضِ أَوِ التَّعْصِيبِ، وَهُوَ بِنْتُ الْبِنْتِ أَوِ ابْنُ الْبِنْتِ. ",
+    "char_start": 147,
+    "char_end": 680,
+    "sha256": "3094c54d87e34058014ff455ee34caa0b952a46c18b62a9fb232e509d91b8809",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  },
+  "blocking_deprivation": {
+    "chunk_id": "217368b420e2d9ce27106a71e77a79e8ad95b188cd27946866289667ae82c69f",
+    "text": "حَجْبُ حِرْمَانٍ، وَهُوَ أَنْ يُسْقِطَ الشَّخْصُ غَيْرَهُ بِالْكُلِّيَّةِ. وَهُوَ لاَ يَدْخُلُ عَلَى سِتَّةٍ مِنَ الْوَرَثَةِ إِجْمَاعًا، وَهُمْ: الأَْبَوَانِ وَالزَّوْجَانِ وَالْوَلَدَانِ (الاِبْنُ وَالْبِنْتُ) وَضَابِطُهُمْ كُلُّ مَنْ أَدْلَى بِنَفْسِهِ إِلَى الْمَيِّتِ إِلاَّ الْمُعْتَقَ. ",
+    "char_start": 80,
+    "char_end": 373,
+    "sha256": "431653faf0928c515eccbe4ac6df12bee83b0a9f8e9f39172b66e0d8e3a49f49",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  },
+  "maternal_siblings": {
+    "chunk_id": "0ee4ca4c4ef01237c5413ddf53cab18ea4c1713f6ef99a5e8ce167c2818d9e54",
+    "text": "44 - الْمُرَادُ بِأَوْلاَدِ الأُْمِّ، إِخْوَةُ الْمُتَوَفَّى وَأَخَوَاتُهُ مِنْ جِهَةِ أُمِّهِ فَقَطْ. ",
+    "char_start": 506,
+    "char_end": 609,
+    "sha256": "8f639ab3cdfc4376e482abe21f3ede91f183905d3a7a29118bca2fff8d6cf5a2",
     "provenance": {
       "source_name": "الموسوعة الفقهية الكويتية",
       "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",

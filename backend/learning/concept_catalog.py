@@ -82,6 +82,7 @@ _ENTRIES = (
     ("heir", "الوارث", "Heir", ("وارث", "الورثة", "heirs")),
     ("heir_branch", "الفرع الوارث", "Inheriting descendant", ("فرع وارث", "heir branch")),
     ("case_origin", "أصل المسألة", "Case origin", ("اصل المسالة", "origin of the case")),
+    ("maternal_siblings", "أولاد الأم", "Maternal siblings", ("الإخوة لأم", "الأخوة لأم", "maternal brothers and sisters")),
 )
 
 
@@ -130,7 +131,8 @@ def _load_pinned_definition(record: dict) -> None:
         selected = entries.get(record["id"])
         if not selected:
             return
-        chunk = next((c for c in load_chunks() if c["chunk_id"] == selected["chunk_id"]), None)
+        chunks = load_chunks()
+        chunk = next((c for c in chunks if c["chunk_id"] == selected["chunk_id"]), None)
         if not chunk or chunk.get("verified_source") is not True:
             return
         if any(chunk.get(k) != v for k, v in selected["provenance"].items()):
@@ -143,7 +145,9 @@ def _load_pinned_definition(record: dict) -> None:
         return
     source = {k: v for k, v in chunk.items() if k != "text"}
     source.update(excerpt_char_start=chunk["char_start"] + start,
-                  excerpt_char_end=chunk["char_start"] + end)
+                  excerpt_char_end=chunk["char_start"] + end,
+                  excerpt_sha256=selected["sha256"],
+                  chunk_sha256=hashlib.sha256(chunk["text"].encode()).hexdigest())
     item = {"status": "source_verbatim", "source_id": chunk["chunk_id"],
             "reviewer": None, "reviewed_at": None}
     record.update(definition={"text": passage, **item}, definition_ar=passage,
@@ -153,6 +157,25 @@ def _load_pinned_definition(record: dict) -> None:
                   source_records={chunk["chunk_id"]: {**source, "exact_text": chunk["text"]}},
                   properties={"definition": {"value": passage, **item}})
     record["verified"] = verified_definition(record)
+    for name, pinned in selected.get("properties", {}).items():
+        fact_chunk = next((c for c in chunks if c["chunk_id"] == pinned["chunk_id"]), None)
+        if not fact_chunk or fact_chunk.get("verified_source") is not True:
+            continue
+        if any(fact_chunk.get(k) != v for k, v in pinned["provenance"].items()):
+            continue
+        value = pinned["text"]
+        left, right = pinned["char_start"], pinned["char_end"]
+        if (fact_chunk["text"][left:right] != value
+                or hashlib.sha256(value.encode()).hexdigest() != pinned["sha256"]):
+            continue
+        source_id = f'{fact_chunk["chunk_id"]}:{name}'
+        metadata = {k: v for k, v in fact_chunk.items() if k != "text"}
+        metadata.update(excerpt_char_start=fact_chunk["char_start"] + left,
+                        excerpt_char_end=fact_chunk["char_start"] + right,
+                        excerpt_sha256=pinned["sha256"],
+                        chunk_sha256=hashlib.sha256(fact_chunk["text"].encode()).hexdigest())
+        record["source_records"][source_id] = {**metadata, "exact_text": fact_chunk["text"]}
+        record["properties"][name] = {"value": value, **item, "source_id": source_id}
 
 
 def find_curated_concept_by_query(text: str) -> dict | None:
