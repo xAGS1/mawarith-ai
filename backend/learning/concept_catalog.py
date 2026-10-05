@@ -1,10 +1,12 @@
 """Auditable curated concept structure; no model-generated religious content.
 
-Only existing source-bound definitions for fixed_share and residuary_heirs may
-be populated, and only while their approved local evidence is available.
-All other entries are intentionally empty and unverified.
+Definitions are populated only while their pinned approved local evidence is
+available. Unsupported entries remain empty and unverified.
 """
 import re
+import json
+import hashlib
+from pathlib import Path
 from backend.learning.catalogs import list_concepts
 from backend.rag.fiqh.vector_store import load_chunks
 from backend.rules.educational_concepts import matching_text
@@ -94,6 +96,7 @@ def get_curated_concept(id: str) -> dict | None:
                               "reviewer": None, "reviewed_at": None},
                   properties={}, source_records={}, educational_summaries={})
     if id not in {"fixed_share", "residuary_heirs"}:
+        _load_pinned_definition(record)
         return record
     card = next((c for c in list_concepts() if c["concept_id"] == id), None)
     if not card or card.get("availability") != "available":
@@ -118,6 +121,38 @@ def get_curated_concept(id: str) -> dict | None:
                   exact_excerpt=chunk["text"], source=dict(source))
     _migrate_content(record, definition, chunk["text"], source)
     return record
+
+
+def _load_pinned_definition(record: dict) -> None:
+    """Fail closed on changed/missing corpus, provenance, or exact passage."""
+    try:
+        entries = json.loads(Path(__file__).with_name("curated_source_passages.json").read_text(encoding="utf-8"))
+        selected = entries.get(record["id"])
+        if not selected:
+            return
+        chunk = next((c for c in load_chunks() if c["chunk_id"] == selected["chunk_id"]), None)
+        if not chunk or chunk.get("verified_source") is not True:
+            return
+        if any(chunk.get(k) != v for k, v in selected["provenance"].items()):
+            return
+        passage = selected["text"]
+        start, end = selected["char_start"], selected["char_end"]
+        if chunk["text"][start:end] != passage or hashlib.sha256(passage.encode()).hexdigest() != selected["sha256"]:
+            return
+    except (OSError, ValueError, KeyError, TypeError):
+        return
+    source = {k: v for k, v in chunk.items() if k != "text"}
+    source.update(excerpt_char_start=chunk["char_start"] + start,
+                  excerpt_char_end=chunk["char_start"] + end)
+    item = {"status": "source_verbatim", "source_id": chunk["chunk_id"],
+            "reviewer": None, "reviewed_at": None}
+    record.update(definition={"text": passage, **item}, definition_ar=passage,
+                  exact_excerpt=passage, source=source, source_title=source["source_name"],
+                  source_entry=source.get("section") or "",
+                  reference={"volume": source.get("volume"), "page": source.get("page")},
+                  source_records={chunk["chunk_id"]: {**source, "exact_text": chunk["text"]}},
+                  properties={"definition": {"value": passage, **item}})
+    record["verified"] = verified_definition(record)
 
 
 def find_curated_concept_by_query(text: str) -> dict | None:

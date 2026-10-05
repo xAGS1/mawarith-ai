@@ -1,0 +1,250 @@
+[
+  {
+    "id": "q01",
+    "question": "ما معنى أصحاب الفروض؟",
+    "expected_topic": "fixed-share heirs",
+    "expected_concept": "fixed_share_heirs",
+    "topic_anchors": [
+      "أصحاب الفروض"
+    ],
+    "expected_source_ids": [
+      "626025f99f0af460b4d5756c5c48f096faafe8a1f4581d34a15b78917d933225"
+    ]
+  },
+  {
+    "id": "q02",
+    "question": "ما معنى الفرض في المواريث؟",
+    "expected_topic": "fixed shares",
+    "expected_concept": "fixed_share",
+    "topic_anchors": [
+      "الفروض المقدرة"
+    ],
+    "expected_source_ids": [
+      "4ec5b1efbb75934eb395f0ace94041221989e7cedecfe18311717ae0a09b9521"
+    ]
+  },
+  {
+    "id": "q03",
+    "question": "ما معنى العصبة؟",
+    "expected_topic": "residuary heirs",
+    "expected_concept": "residuary_heirs",
+    "topic_anchors": [
+      "العصبة"
+    ],
+    "expected_source_ids": [
+      "cb8e758735dbe2e36c010920a48f27233f467c99080021b68007ab3b7a35446f"
+    ]
+  },
+  {
+    "id": "q04",
+    "question": "ما معنى الحجب؟",
+    "expected_topic": "blocking",
+    "expected_concept": "blocking",
+    "topic_anchors": [
+      "الحجب"
+    ],
+    "expected_source_ids": [
+      "1db090660ec5df0d21ecc8eac15ed6ee303c58d25aeb49a1bdb366ea67252181"
+    ]
+  },
+  {
+    "id": "q05",
+    "question": "ما معنى العول؟",
+    "expected_topic": "awl",
+    "expected_concept": "awl",
+    "topic_anchors": [
+      "العول"
+    ],
+    "expected_source_ids": [
+      "fb00c96be1570c0a7aca9ff71d44939be375e58057200537b2ff20f12b085d28"
+    ]
+  },
+  {
+    "id": "q06",
+    "question": "ما معنى الرد؟",
+    "expected_topic": "radd",
+    "expected_concept": "radd",
+    "topic_anchors": [
+      "الرد"
+    ],
+    "expected_source_ids": [
+      "4822416b14c362233c4aea6eecc9f8b1921a25370dd5d6962c8627d23bd7484f"
+    ]
+  },
+  {
+    "id": "q07",
+    "question": "ما معنى التركة؟",
+    "expected_topic": "estate",
+    "expected_concept": "estate",
+    "topic_anchors": [
+      "التركة"
+    ],
+    "expected_source_ids": [
+      "270c23c8bb814e19172cc82ab8b7980560674d1b057d3320200317a596506d08"
+    ]
+  },
+  {
+    "id": "q08",
+    "question": "ما معنى أصل المسألة؟",
+    "expected_topic": "case origin",
+    "expected_concept": "case_origin",
+    "topic_anchors": [
+      "أصل المسألة"
+    ],
+    "expected_source_ids": [
+      "44f748e00a2c2df4db8d68fcfd9f3b986e99f1a95be4a6d5f35c74fd2b5c3ca5"
+    ]
+  },
+  {
+    "id": "q09",
+    "question": "ما الفرق بين الفرض والتعصيب؟",
+    "expected_topic": "fixed shares versus residue",
+    "topic_anchors": [
+      "الفروض",
+      "العصبة"
+    ],
+    "expected_source_ids": [
+      "4ec5b1efbb75934eb395f0ace94041221989e7cedecfe18311717ae0a09b9521",
+      "cb8e758735dbe2e36c010920a48f27233f467c99080021b68007ab3b7a35446f"
+    ]
+  },
+  {
+    "id": "q10",
+    "question": "ما الفرق بين العول والرد؟",
+    "expected_topic": "awl versus radd",
+    "topic_anchors": [
+      "العول",
+      "الرد"
+    ],
+    "expected_source_ids": [
+      "fb00c96be1570c0a7aca9ff71d44939be375e58057200537b2ff20f12b085d28",
+      "4822416b14c362233c4aea6eecc9f8b1921a25370dd5d6962c8627d23bd7484f"
+    ]
+  },
+  {
+    "id": "q11",
+    "question": "ما الفرق بين حجب الحرمان وحجب النقصان؟",
+    "expected_topic": "types of blocking",
+    "topic_anchors": [
+      "حجب الحرمان",
+      "حجب النقصان"
+    ]
+  },
+  {
+    "id": "q12",
+    "question": "من هم أصحاب الفروض من النساء؟",
+    "expected_topic": "female fixed-share heirs",
+    "topic_anchors": [
+      "والنساء هن"
+    ]
+  },
+  {
+    "id": "q13",
+    "question": "متى ترث الأم السدس؟",
+    "expected_topic": "mother share conditions",
+    "topic_anchors": [
+      "الأم",
+      "السدس"
+    ]
+  },
+  {
+    "id": "q14",
+    "question": "متى ترث الزوجة الثمن؟",
+    "expected_topic": "wife share with descendant",
+    "topic_anchors": [
+      "الزوجة",
+      "الثمن"
+    ]
+  },
+  {
+    "id": "q15",
+    "question": "ما الفروض المقدرة الستة؟",
+    "expected_topic": "six prescribed fractions",
+    "topic_anchors": [
+      "الفروض المقدرة"
+    ]
+  },
+  {
+    "id": "q16",
+    "question": "ما نصيب البنت الواحدة إذا لم يوجد ابن؟",
+    "expected_topic": "single daughter without son",
+    "topic_anchors": [
+      "البنت",
+      "النصف"
+    ]
+  },
+  {
+    "id": "q17",
+    "question": "كيف يتقاسم الأبناء والبنات الباقي؟",
+    "expected_topic": "sons and daughters residue",
+    "topic_anchors": [
+      "للذكر مثل حظ الأنثيين"
+    ]
+  },
+  {
+    "id": "q18",
+    "question": "هل يحجب الابن الأخ الشقيق؟",
+    "expected_topic": "sibling blocking by son",
+    "topic_anchors": [
+      "يحجب",
+      "الأخ الشقيق"
+    ]
+  },
+  {
+    "id": "q19",
+    "question": "ما المقصود بمنع بعض الميراث بسبب وجود وارث آخر؟",
+    "expected_topic": "blocking reduction",
+    "topic_anchors": [
+      "الحجب",
+      "بعضه"
+    ]
+  },
+  {
+    "id": "q20",
+    "question": "متى لا يبقى للعاصب شيء بعد الفروض؟",
+    "expected_topic": "residue exhausted",
+    "topic_anchors": [
+      "فلا شيء له"
+    ]
+  },
+  {
+    "id": "q21",
+    "question": "توفي رجل وترك زوجة وأم وابنين وبنت.",
+    "expected_topic": "wife mother children",
+    "topic_anchors": [
+      "الزوجة",
+      "الأم",
+      "الأولاد"
+    ]
+  },
+  {
+    "id": "q22",
+    "question": "توفي رجل وترك زوجة وابن وبنت.",
+    "expected_topic": "wife and children",
+    "topic_anchors": [
+      "الزوجة",
+      "الابن",
+      "البنت"
+    ]
+  },
+  {
+    "id": "q23",
+    "question": "توفي رجل وترك بنتًا وأخًا.",
+    "expected_topic": "ambiguous brother subtype",
+    "topic_anchors": [
+      "الأخ الشقيق",
+      "الأخ لأب",
+      "الأخ لأم"
+    ]
+  },
+  {
+    "id": "q24",
+    "question": "هل يرث الأخ؟",
+    "expected_topic": "underspecified sibling entitlement",
+    "topic_anchors": [
+      "الأخ الشقيق",
+      "الأخ لأب",
+      "الأخ لأم"
+    ]
+  }
+]

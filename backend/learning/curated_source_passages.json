@@ -1,0 +1,104 @@
+{
+  "fixed_share_heirs": {
+    "chunk_id": "626025f99f0af460b4d5756c5c48f096faafe8a1f4581d34a15b78917d933225",
+    "text": "أَصْحَابُ الْفُرُوضِ: \n\n26 - يَسْتَحِقُّ الْفُرُوضَ السَّابِقَةَ اثْنَا عَشَرَ شَخْصًا، أَرْبَعَةٌ مِنَ الرِّجَالِ، وَثَمَانِيَةٌ مِنَ النِّسَاءِ. ",
+    "char_start": 430,
+    "char_end": 577,
+    "sha256": "ee3c571e25538923b29b0d54ea729eb60a2de6d51f1ab9fb1ebd80eef58d48c5",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  },
+  "blocking": {
+    "chunk_id": "1db090660ec5df0d21ecc8eac15ed6ee303c58d25aeb49a1bdb366ea67252181",
+    "text": "وَفِي الاِصْطِلاَحِ عَرَّفَهُ صَاحِبُ السِّرَاجِيَّةِ: بِأَنَّهُ مَنْعُ شَخْصٍ مُعَيَّنٍ عَنْ مِيرَاثِهِ إِمَّا كُلِّهِ أَوْ بَعْضِهِ بِوُجُودِ شَخْصٍ آخَرَ() ",
+    "char_start": 95,
+    "char_end": 254,
+    "sha256": "5b4e6093fff0a121232d5aeeed9ac4d7bd82133d4c8095afa74a90e1fd8c86c5",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  },
+  "awl": {
+    "chunk_id": "fb00c96be1570c0a7aca9ff71d44939be375e58057200537b2ff20f12b085d28",
+    "text": "الْعَوْلُ: \n\n56 - مِنْ مَعَانِي الْعَوْلِ فِي اللُّغَةِ: الزِّيَادَةُ، وَعَالَتِ الْفَرِيضَةُ فِي الْحِسَابِ زَادَتْ. وَالْفِعْلُ عَالَ وَمُضَارِعُهُ يَعُولُ وَتُعِيلُ(). \n\n57 - وَفِي الاِصْطِلاَحِ: زِيَادَةُ سِهَامِ الْفُرُوضِ عَنْ أَصْلِ الْمَسْأَلَةِ، بِزِيَادَةِ كُسُورِهَا عَنِ الْوَاحِدِ الصَّحِيحِ. ",
+    "char_start": 461,
+    "char_end": 767,
+    "sha256": "09dbdddad6a4d218df312fef01c1e65b2b306dfe3136cdc052c44924c996ab86",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  },
+  "radd": {
+    "chunk_id": "4822416b14c362233c4aea6eecc9f8b1921a25370dd5d6962c8627d23bd7484f",
+    "text": "وَفِي الاِصْطِلاَحِ: دَفْعُ مَا فَضَلَ مِنْ فُرُوضِ ذَوِي الْفُرُوضِ النَّسَبِيَّةِ إِلَيْهِمْ بِقَدْرِ حُقُوقِهِمْ، عِنْدَ عَدَمِ اسْتِحْقَاقِ الْغَيْرِ().",
+    "char_start": 494,
+    "char_end": 650,
+    "sha256": "dda0a1bdc7eb272972ac217436cc45b7d8df112ac21183e72d5d89bd49bbf3b3",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  },
+  "estate": {
+    "chunk_id": "270c23c8bb814e19172cc82ab8b7980560674d1b057d3320200317a596506d08",
+    "text": "6 - مِنْ إِطْلاَقَاتِ الإِْرْثِ لُغَةً: التَّرِكَةُ(). وَهِيَ فِي الاِصْطِلاَحِ عِنْدَ الْجُمْهُورِ: مَا تَرَكَهُ الْمَيِّتُ مِنْ أَمْوَالٍ وَحُقُوقٍ. ",
+    "char_start": 390,
+    "char_end": 541,
+    "sha256": "286e0fe8223727d2eac9c57eb6c42a6cac5c730e22d701f2239d70641e345735",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  },
+  "case_origin": {
+    "chunk_id": "44f748e00a2c2df4db8d68fcfd9f3b986e99f1a95be4a6d5f35c74fd2b5c3ca5",
+    "text": "140 - ثَانِيًا: مَعْرِفَةُ أَصْلِ الْمَسْأَلَةِ الْمَعْرُوضَةِ، وَهُوَ أَقَلُّ عَدَدٍ يُمْكِنُ أَنْ تُؤْخَذَ مِنْهُ سِهَامُ الْوَرَثَةِ بِدُونِ كَسْرٍ، وَهَذَا يَخْتَلِفُ بِاخْتِلاَفِ مَنْ يُوجَدُ مِنَ الْوَرَثَةِ. فَإِمَّا أَنْ يَكُونَ مِنَ الْعَصَبَاتِ النَّسَبِيَّةِ، أَوْ مِنْ أَصْحَابِ الْفُرُوضِ، أَوْ مُشْتَرَكًا. فَإِذَا وُجِدَ عَصَبَةٌ فَقَطْ يُعْتَبَرُ عَدَدُ رُءُوسِهِمْ أَصْلَ الْمَسْأَلَةِ، فَتُقْسَمُ التَّرِكَةُ عَلَيْهِمْ بِحَسَبِ عَدَدِ الرُّءُوسِ. ",
+    "char_start": 96,
+    "char_end": 562,
+    "sha256": "cf1f49403648c87cf7da0523aadcf51d3fe9d3bbe4d9c361d3cda59fda035108",
+    "provenance": {
+      "source_name": "الموسوعة الفقهية الكويتية",
+      "publisher": "وزارة الأوقاف والشؤون الإسلامية - الكويت",
+      "source_url": "https://bohoth.awqaf.gov.kw/ar/%D8%A7%D9%84%D9%85%D9%88%D8%B3%D9%88%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D9%82%D9%87%D9%8A%D8%A9",
+      "input_file": "kuwaiti_fiqh_encyclopedia_vol_03.docx",
+      "document_sha256": "fa606784b41fe6e1fa8eafd4d0766026c5c5fd2a2f7eebbde4fa45e4a17dbd7f",
+      "volume": 3,
+      "section": "إِرْثٌ ",
+      "verified_source": true
+    }
+  }
+}
