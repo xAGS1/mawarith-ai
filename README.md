@@ -1,53 +1,138 @@
 # MAWARITH AI
 
-**Understand the case. Verify the calculation. Explain with evidence.**
+### Understand the case. Verify the calculation. Explain with evidence.
 
-MAWARITH AI is an Arabic-first platform for learning Islamic inheritance and solving supported inheritance cases. It supports **Arabic and English**, with RTL/LTR interfaces, structured learning paths, contextual tutors, and source-grounded explanations.
+**MAWARITH AI** brings Islamic inheritance learning, natural-language case understanding, and source-grounded explanations into one bilingual experience. Arabic is the primary language, with English support and layouts adapted to both RTL and LTR reading.
 
-The system separates language understanding from inheritance rule selection and arithmetic. The LLM interprets questions and explains selected evidence or verified results. A deterministic rule engine determines final shares using exact fractions. Missing information triggers clarification; unsupported calculations stop with a specialist referral.
+The platform is built around a clear engineering principle: **language understanding, source evidence, and inheritance arithmetic have separate responsibilities**. An LLM interprets the request and explains the evidence or verified result. A deterministic rule engine selects implemented inheritance rules, calculates exact shares, and records how the result was produced.
 
-## Contents
+## Why MAWARITH AI
 
-- [What the platform does](#what-the-platform-does)
-- [Quick start](#quick-start)
-- [Configuration reference](#configuration-reference)
-- [How it works](#how-it-works)
-- [Calculation scope](#calculation-scope)
-- [Sources and retrieval](#sources-and-retrieval)
-- [API and decision states](#api-and-decision-states)
-- [Docker and deployment](#docker-and-deployment)
-- [Validation](#validation)
-- [Troubleshooting](#troubleshooting)
-- [Repository map](#repository-map)
-- [Limitations and source policy](#limitations-and-source-policy)
+Inheritance questions connect family relationships, conditional rules, and precise arithmetic. A useful answer should help the user understand the case, follow the calculation, and inspect the supporting references.
 
-## What the platform does
+MAWARITH AI connects these needs in a single workflow:
 
-| Capability | User experience |
+- **Learn the concepts** through structured lessons and contextual tutoring.
+- **Describe a case naturally** in Arabic or English.
+- **Review the interpreted relatives and relationships** before relying on the result.
+- **Understand the distribution** through exact shares and applied-rule details.
+- **Explore the evidence** through source excerpts and reference metadata.
+
+## Product experience
+
+| Feature | What it delivers |
 | --- | --- |
-| Bilingual interaction | Arabic and English questions, explanations, and interface layouts. |
+| Arabic and English | Bilingual interaction and interface layouts with RTL/LTR support. |
 | Guided learning | Seven concept lessons, four learning paths, and four calculation teaching paths. |
-| Contextual tutoring | Educational definitions, comparisons, and help within learning pages. |
-| Case understanding | Extracts relatives and relationships from natural-language descriptions. |
-| Exact calculation | Applies implemented rules and verifies supported distributions using rational arithmetic. |
-| Evidence presentation | Shows source excerpts and references separately from the generated explanation and applied rules. |
-| Clarification and referral | Asks for consequential missing information or explains why a final distribution is unavailable. |
-| Session continuity | Restores drafts, completed answers, and meaningful errors within the browser session; supports retry, cancellation, and duplicate-submit protection. |
+| Contextual tutors | Definitions, comparisons, and explanations connected to the learning page. |
+| Natural-language cases | Structured extraction of relatives, relationships, and case features. |
+| Exact inheritance arithmetic | Rational calculations with fixed shares assigned before residuary distribution. |
+| Source-grounded explanations | Evidence excerpts, reference summaries, and applied rules presented separately. |
+| Clarification | Targeted questions when a consequential detail is missing or ambiguous. |
+| Session continuity | Drafts and completed answers restored within the browser session, with cancellation, retry, and duplicate-submit protection. |
 
-Teaching a concept does not imply that its calculation rule is implemented. For example, **awl and radd are covered educationally, but automatic allocation for them is not implemented**.
+## How it works
 
-## Quick start
+The frontend sends requests through a Next.js server-side proxy to FastAPI. Structured understanding routes each request into an educational or calculation workflow.
 
-Run backend commands from the repository root. The commands below use **Windows PowerShell** and call the virtual environment's Python directly, so activation is unnecessary.
+```mermaid
+flowchart TD
+    A[Arabic or English request] --> B[Structured understanding]
+    B --> C[Educational workflow]
+    B --> D[Calculation workflow]
+    C --> E[Retrieve and select evidence]
+    E --> F[Explain and check source support]
+    D --> G[Normalize case and check readiness]
+    G --> H[Apply rules and verify exact shares]
+    H --> I[Explain result and applied rules]
+    F --> J[Answer with evidence and decision state]
+    I --> J
+```
 
-### 1. Prepare the project
+### Educational workflow
 
-Prerequisites:
+Relevant material is retrieved from approved sources using BGE-M3 embeddings, Qdrant, and source-specific retrieval paths. Selected evidence is passed to the LLM, followed by provider-specific explanation checks. The user can open the original excerpts and available reference details.
 
-- Python 3.13, matching the backend Docker image.
+### Calculation workflow
+
+Extracted relationships are normalized into structured case features. The backend checks case readiness and rule coverage, applies fixed shares and the relevant implemented residuary rules, and verifies the calculation using Python's `fractions.Fraction`.
+
+The result includes an applied-rule trace with identifiers, affected heirs, exact fractions, relevant residue values, and available source references. Requests that need additional information or review receive an explicit decision state.
+
+**Knowledge and calculation grow together through reviewed references, explicit rule families, and regression coverage.**
+
+## Engineering foundations
+
+| Design choice | Engineering value |
+| --- | --- |
+| Separate understanding and calculation | Final shares are determined by executable rules rather than generated arithmetic. |
+| Exact rational arithmetic | Preserves fraction values throughout allocation and verification. |
+| Structured request and response models | Connects extraction, calculation, evidence, and interface presentation through explicit contracts. |
+| Traceable sources and rules | Keeps source text, generated explanation, and calculation provenance distinct. |
+| Modular providers | Supports Fanar and local Ollama, with explicit provider configuration. |
+| Independent source and embedding modes | Allows local and cloud retrieval configurations without coupling them to the LLM transport. |
+| Session-aware frontend | Maintains request ownership and restores useful state across client-side navigation. |
+| Containerized backend | Provides a non-root runtime with environment-based configuration. |
+
+## Technology stack
+
+| Layer | Technology | Role |
+| --- | --- | --- |
+| Interface | Next.js, React, TypeScript | Learning pages, tutors, bilingual layouts, and session state. |
+| API | FastAPI, Python, Pydantic | Request orchestration and structured results. |
+| Language model | Fanar-C-2-27B | Language understanding and evidence-based explanation. |
+| Local model option | Ollama, Qwen3-8B | Alternative local LLM transport. |
+| Embeddings | BGE-M3 | Semantic representation of questions and source passages. |
+| Cloud embeddings | Cloudflare Workers AI | BGE-M3 query embeddings without loading the model into application-server memory. |
+| Vector retrieval | Qdrant | Dense vector search and source metadata filtering. |
+| Calculation | Rule engine, `fractions.Fraction` | Rule execution, exact allocation, and verification. |
+| Deployment | Docker, Railway, Vercel | Backend container and separate frontend/backend hosting. |
+| Validation | pytest, TypeScript checks, Playwright | Backend regressions and desktop/mobile interface tests. |
+
+Fanar receives evidence selected by MAWARITH, keeping the retrieval and explanation layers under the applicationâ€™s orchestration.
+
+## Sources and evidence
+
+| Reference | Role in MAWARITH AI |
+| --- | --- |
+| Quran evidence, including An-Nisa 4:11, 4:12, and 4:176 | References for implemented inheritance rules and approved Quran evidence. |
+| Kuwaiti Fiqh Encyclopedia | Educational retrieval and bounded source evidence for calculation rules. |
+| Umm Al-Qura University Mawarith course | Inheritance concepts and educational explanations. |
+| Dorar Fiqh Encyclopedia, inheritance book | Educational retrieval of inheritance material. |
+| Approved educational references | Reviewed material connected through local artifacts or indexed payloads. |
+
+Original source excerpts remain separate from reviewed summaries and generated explanations. References retain available source names, attribution, locations, and links.
+
+Calculation provenance can be inspected in [Quran-based rule data](data/sources/inheritance_rules.json) and [solver evidence](backend/rules/solver_sources.json).
+
+## Example calculation
+
+**Input:** `مات وترك زوجة وابنان وبنت`
+
+For this case:
+
+| Heir | Per-person share | Allocation |
+| --- | --- | --- |
+| Wife | `1/8` | Fixed share with a descendant. |
+| Son | `7/12` | Two units of the residue. |
+| Daughter | `7/24` | One unit of the residue. |
+
+**Fraction check:** `1/8 + 7/12 + 7/24 = 1`
+
+Fixed shares are applied first. The remaining `7/8` is distributed between the son and daughter using individual weights of **2:1**. The interface connects the interpreted case, distribution, explanation, and references.
+
+## Run the project
+
+### Requirements
+
+- Python 3.13.
 - Node.js 20.9 or newer and npm.
-- Either configured cloud services, or local Ollama/Qdrant with approved source artifacts.
-- Docker only if running a local Qdrant container or the backend image.
+- Configured LLM, embedding, and retrieval services.
+- Approved source material available through local artifacts or populated Qdrant collections.
+
+The following commands use **Windows PowerShell**. On Linux/macOS, use the corresponding virtual-environment Python path and `npm` in place of `npm.cmd`.
+
+### 1. Install the backend
 
 ```powershell
 git clone https://github.com/xAGS1/mawarith-ai.git
@@ -58,15 +143,9 @@ py -3.13 -m venv .venv
 if (!(Test-Path .env)) { Copy-Item .env.example .env }
 ```
 
-A fresh checkout does **not** include the full demonstration corpus. An empty Qdrant instance is not enough for evidence-backed retrieval.
+### 2. Configure services
 
-### 2. Choose a runtime profile
-
-The backend can run locally while calling cloud services, or use local models and sources. Edit the root `.env` with one of these configurations.
-
-#### Profile A: Cloud services
-
-Use Fanar for understanding/explanation, Cloudflare for query embeddings, and an existing populated Qdrant Cloud database. This profile avoids loading BGE-M3 into backend memory.
+Edit the root `.env`. For the cloud-services profile:
 
 ```dotenv
 LLM_PROVIDER=fanar
@@ -87,26 +166,25 @@ CLOUDFLARE_API_TOKEN=YOUR_WORKERS_AI_TOKEN
 CLOUDFLARE_EMBEDDING_MODEL=@cf/baai/bge-m3
 ```
 
-Replace placeholders with credentials issued by each service. The Qdrant collections must already contain approved evidence, compatible vectors, and the payload indexes required by retrieval. See [Sources and retrieval](#sources-and-retrieval).
+Connect the approved source collections using **1024-dimensional BGE-M3 vectors with Cosine distance** and the payload indexes used by retrieval.
 
-#### Profile B: Local services
+<details>
+<summary><strong>Local model and embedding configuration</strong></summary>
 
-Install the optional embedding/source dependencies and prepare Ollama:
+Install the optional dependencies and prepare the model:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-fiqh.txt
 ollama pull qwen3:8b
 ```
 
-Ensure Ollama is running. Use `ollama serve` only if its service is not already active.
-
-If you do not already have Qdrant, start a persistent local instance:
+Ensure Ollama is running. If a new local Qdrant instance is needed:
 
 ```powershell
 docker run -d --name mawarith-qdrant -p 6333:6333 -v mawarith-qdrant-storage:/qdrant/storage qdrant/qdrant
 ```
 
-Configure `.env`:
+Use these `.env` values with approved local source artifacts and populated collections:
 
 ```dotenv
 LLM_PROVIDER=ollama
@@ -123,7 +201,9 @@ FIQH_EMBEDDING_MODEL=BAAI/bge-m3
 FIQH_EMBEDDING_BATCH_SIZE=32
 ```
 
-Approved local artifacts and indexing are separate requirements. Do not rebuild or replace a working collection just to start the app. Source tooling includes `backend.rag.rebuild_uqu`, `backend.rag.dorar_ingestion`, and modules under `backend/rag/fiqh/`; inspect their options and source metadata before ingestion.
+Source preparation tools are under `backend/rag/`. Inspect their options and source metadata before ingestion or indexing.
+
+</details>
 
 ### 3. Start the backend
 
@@ -131,20 +211,11 @@ Approved local artifacts and indexing are separate requirements. Do not rebuild 
 .\.venv\Scripts\python.exe -m uvicorn backend.app:app --host 127.0.0.1 --port 8000
 ```
 
-FastAPI loads the root `.env` at startup without overriding existing process environment variables. Restart the backend after configuration changes. Standalone scripts may have different environment-loading behavior.
-
-In another terminal, check the backend:
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/health
-Invoke-RestMethod http://127.0.0.1:8000/ready
-```
-
-`/health` confirms liveness. `/ready` checks selected dependencies and can return HTTP 503; it is not a complete end-to-end test. See [Readiness checks](#readiness-checks).
+FastAPI loads the root `.env` without overriding existing process environment variables. Restart after configuration changes.
 
 ### 4. Start the frontend
 
-In a separate terminal:
+In another terminal, from the repository root:
 
 ```powershell
 Set-Location frontend
@@ -152,7 +223,7 @@ npm.cmd ci
 if (!(Test-Path .env.local)) { Copy-Item .env.example .env.local }
 ```
 
-Set `frontend/.env.local` to:
+Set `frontend/.env.local`:
 
 ```dotenv
 BACKEND_API_URL=http://127.0.0.1:8000
@@ -164,245 +235,65 @@ Then run:
 npm.cmd run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). API documentation is at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+Open [localhost:3000](http://localhost:3000). Backend API documentation is at [127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
-On Linux/macOS, use `npm` instead of `npm.cmd` and the corresponding virtual-environment Python path.
-
-### 5. Try a request
-
-Educational example:
-
-```json
-{"mode": "learn", "question": "Ù…Ø§ Ù…Ø¹Ù†Ù‰ Ø§Ù„Ø¹ØµØ¨Ø©ØŸ"}
-```
-
-Supported calculation example:
-
-```json
-{"mode": "case", "question": "Ù…Ø§Øª ÙˆØªØ±Ùƒ Ø²ÙˆØ¬Ø© ÙˆØ§Ø¨Ù†ÙŠÙ†"}
-```
-
-Send these through the interface or `POST /ask`. Check the decision state, source references, and any displayed fractions.
-
-## Configuration reference
-
-Credentials belong on the **backend**. The frontend needs only `BACKEND_API_URL`; it is a service address, not an API secret, and does not need a `NEXT_PUBLIC_` prefix.
-
-| Variable | Default or purpose |
-| --- | --- |
-| `LLM_PROVIDER` | Code default: `ollama`; `.env.example` selects `fanar`. Set explicitly. |
-| `LLM_FALLBACK_PROVIDER` | `none`; set `ollama` only when deliberate local fallback is configured. |
-| `FANAR_API_KEY` | Fanar credential. Backend secret. |
-| `FANAR_BASE_URL` | `https://api.fanar.qa/v1` |
-| `FANAR_MODEL` | `Fanar-C-2-27B` |
-| `OLLAMA_HOST` | `http://127.0.0.1:11434` |
-| `OLLAMA_MODEL` | `qwen3:8b` |
-| `SOURCE_MODE` | `local` or `cloud`; default `local`. |
-| `EMBEDDING_PROVIDER` | `local` or `cloudflare`; default `local`. |
-| `QDRANT_HOST` | `http://localhost:6333` locally; use the cluster URL for cloud access. |
-| `QDRANT_API_KEY` | Empty for the local example; required for authenticated cloud access. Backend secret. |
-| `FIQH_COLLECTION` | `mawarith_fiqh` |
-| `FIQH_EMBEDDING_MODEL` | `BAAI/bge-m3`; identifies the indexed vector model. |
-| `FIQH_EMBEDDING_BATCH_SIZE` | `32` |
-| `CLOUDFLARE_ACCOUNT_ID` | Account used for Workers AI embeddings. |
-| `CLOUDFLARE_API_TOKEN` | Workers AI credential. Backend secret. |
-| `CLOUDFLARE_EMBEDDING_MODEL` | `@cf/baai/bge-m3` |
-| `PORT` | Backend container port; default `8000`. |
-| `BACKEND_API_URL` | Frontend server-side proxy destination; default `http://127.0.0.1:8000`. |
-
-`SOURCE_MODE` and `EMBEDDING_PROVIDER` are independent. Switching query embedding providers does not reindex documents and may change retrieval rankings.
-
-## How it works
-
-The browser calls Next.js `/api/ask`, which proxies to FastAPI `/ask`. Structured language understanding determines whether the request is educational or a calculation.
-
-```mermaid
-flowchart TD
-    A[User question] --> B[Structured understanding]
-    B --> C[Educational request]
-    B --> D[Calculation request]
-    C --> E[Retrieve and select evidence]
-    E --> F[Generate and check explanation]
-    D --> G[Normalize heirs and check coverage]
-    G --> H[Apply rules and verify exact shares]
-    H --> I[Explain result and applied rules]
-    F --> J[Answer, sources, and decision state]
-    I --> J
-```
-
-| Component | Responsibility |
-| --- | --- |
-| Next.js + TypeScript | Bilingual interface, learning pages, session state, and API proxy. |
-| FastAPI + Python | Request orchestration, structured responses, and backend services. |
-| Fanar-C-2-27B | Language understanding and explanation using MAWARITH-selected evidence. |
-| Ollama / Qwen3-8B | Optional local LLM transport. |
-| BGE-M3 | Dense embeddings for semantic retrieval, locally or through Workers AI. |
-| Qdrant | Vector retrieval with source metadata and filters. |
-| Rule engine + `fractions.Fraction` | Implemented inheritance rules, exact allocation, verification, and rule traces. |
-
-Fanar receives evidence selected by MAWARITH; Fanar-Sadiq and external Fanar retrieval are not used. Fallback is disabled by default.
-
-Post-generation safeguards depend on the actual provider. Fanar generations retain hard and claim/grounding checks but bypass the strict lexical/near-verbatim support gate; Ollama generations retain stricter sentence screening. These safeguards detect bounded classes of errors and can shorten or withhold an explanation, but do not prove semantic correctness.
-
-Backend LLM generation is limited to **two concurrent requests per process**; additional calls queue. Retrieval and deterministic arithmetic are outside this limiter.
-
-## Calculation scope
-
-Final shares use `fractions.Fraction`, not floating-point arithmetic. Percentages are presentation values. Supported fixed shares are allocated first, then the supported residuary family receives the actual remainder.
-
-### Supported examples
-
-These examples assume fully stated cases within the implemented scope. Additional relatives or circumstances require another coverage check.
-
-| Case | Per-person shares |
-| --- | --- |
-| One son | Son: `1` |
-| Two sons | Each son: `1/2` |
-| Three sons | Each son: `1/3` |
-| Son and daughter | Son: `2/3`; daughter: `1/3` |
-| Two sons and two daughters | Each son: `1/3`; each daughter: `1/6` |
-| Wife and two sons | Wife: `1/8`; each son: `7/16` |
-| Wife, son, and daughter | Wife: `1/8`; son: `7/12`; daughter: `7/24` |
-
-Direct sons share the residue equally. Sons and daughters share it with individual weights of **2:1**. Daughters without sons use the existing fixed-share rules, rather than the direct-children residuary family.
-
-### Coverage boundaries
-
-- Existing fixed-share and limited full-sibling rules apply only where coverage is complete. Full sibling, grandfather, uncle, and distant-residuary coverage is not implemented.
-- Automatic **awl/radd** allocation is not implemented. Unsupported residue and competing residuary classes lead to referral.
-- **Umariyyat** remains guarded; the engine does not silently apply the ordinary mother's one-third-of-estate rule.
-- Ambiguous sibling subtypes or unspecified child counts require clarification.
-- Presence and eligibility are distinct. Features are computed before exclusion; a blocked relative is not automatically absent from every case feature.
-- Descendants through daughters are not silently treated as descendants through sons; their calculation remains unsupported.
-
-For example, a wife-only case can identify a supported fixed share but still refer because the remainder-allocation policy is unsupported. A partial calculation is not displayed as a completed distribution.
-
-Solver `rule_trace` entries record rule/category IDs, affected heirs, exact fractions, relevant input residue, and available source IDs. See [Quran-based rule data](data/sources/inheritance_rules.json) and [local solver evidence](backend/rules/solver_sources.json).
-
-**Arithmetic consistency does not establish complete fiqh correctness.** A distribution must satisfy the implemented coverage checks as well as the fraction checks.
-
-## Sources and retrieval
-
-| Source | Use in the system |
-| --- | --- |
-| Quran evidence | Approved passages and references for supported inheritance rules, including An-Nisa 4:11, 4:12, and 4:176. |
-| Kuwaiti Fiqh Encyclopedia | Educational evidence and bounded local solver evidence for residuaries and exclusion. |
-| Umm Al-Qura University Mawarith course | Educational concepts and explanations. |
-| Dorar Fiqh Encyclopedia | Inheritance-book material for educational retrieval. |
-| Approved educational references | Reviewed material available through the installed local artifacts or indexed payloads. |
-
-Exact source excerpts remain separate from reviewed summaries and generated explanations. References preserve available attribution, locations, qualifications, and links. A retrieved example does not authorize a new executable rule.
-
-### Runtime modes
-
-| Setting | Behavior |
-| --- | --- |
-| `SOURCE_MODE=local` | Uses approved local artifacts and source adapters. Full corpora are not bundled in Git. |
-| `SOURCE_MODE=cloud` | Reads evidence from existing Qdrant payloads without requiring raw/processed local corpora at runtime. Curated backend rule/source JSON remains required. |
-| `EMBEDDING_PROVIDER=local` | Loads BGE-M3 through Sentence Transformers, using CUDA when available or CPU otherwise. Requires optional dependencies. |
-| `EMBEDDING_PROVIDER=cloudflare` | Requests BGE-M3 embeddings through Cloudflare Workers AI without loading the model into backend memory. |
-
-Retrieval expects **1024-dimensional dense vectors with Cosine distance**. Source availability depends on approved artifacts or indexed payloads; neither mode guarantees full concept coverage. Cloud Quran retrieval requires suitable indexed Quran payloads.
-
-### Collection expectations and payload indexes
-
-The current readiness code checks these exact collection counts:
-
-| Collection | Expected points |
-| --- | ---: |
-| `mawarith_fiqh` | 1,767 |
-| `mawarith_uqu` | 47 |
-
-These are implementation expectations, not a fresh measurement of a live cluster. `FIQH_COLLECTION` configures fiqh retrieval; the UQU educational path uses `mawarith_uqu`. Readiness still checks the two fixed collection names above.
-
-Qdrant strict-mode filtering can require payload indexes for the fields actually queried:
-
-| Fields | Index type |
-| --- | --- |
-| `verified_source` | Boolean |
-| `embedding_model`, `source_id`, `source_type`, `source_name`, `publisher`, `section`, `topic` | Keyword |
-| `volume`, when used in filtering | Integer |
-
-A missing index can cause HTTP 400 even when vectors and point counts are correct. `/ready` does not validate payload indexes or run full retrieval.
-
-## API and decision states
+## API
 
 | Endpoint | Purpose |
 | --- | --- |
-| `GET /health` | Cheap process liveness; returns `{"status":"ok"}` without dependency checks. |
-| `GET /ready` | Dependency readiness; returns HTTP 200 or 503. |
-| `POST /ask` | Educational/case orchestration and answer presentation. |
+| `POST /ask` | Educational and case requests. |
 | `POST /analyze-case` | Structured case analysis. |
 | `GET /learn/concepts` | Concept catalog and individual concept routes. |
 | `GET /learn/paths` | Learning-path catalog and individual path routes. |
 | `GET /learn/examples` | Example catalog and individual example routes. |
-| `GET /docs` | Interactive FastAPI documentation. |
+| `GET /health` | Lightweight process liveness. |
+| `GET /ready` | Configured dependency readiness. |
+| `GET /docs` | Interactive API documentation. |
 
-`mode` accepts `learn` or `case` and defaults to `learn`. Semantic understanding determines the actual request type; compatibility mode does not unconditionally override contradictory question text. Optional educational `concept_context` contains bounded `slug` and `title` strings and supplies context, not evidence.
+Example request to `POST /ask`:
 
-Responses include `decision_state`, `answer`, `sources`, `source_excerpts`, `limitations`, and relevant clarification/case fields. Educational responses also use `evidence_status`.
+```json
+{
+  "mode": "case",
+  "question": "Ù…Ø§Øª ÙˆØªØ±Ùƒ Ø²ÙˆØ¬Ø© ÙˆØ§Ø¨Ù†ÙŠÙ†"
+}
+```
 
-| Decision state | Meaning |
+Use `mode: "learn"` for educational requests. The understanding layer also evaluates the semantic intent of the question.
+
+Responses connect the answer with `decision_state`, `sources`, `source_excerpts`, and relevant case or clarification fields.
+
+| State | Role |
 | --- | --- |
-| `ready` | A supported educational answer or verified calculation is available. |
-| `needs_clarification` | A consequential detail is missing or ambiguous. |
-| `specialist_referral` | The calculation cannot provide a supported final distribution. |
-| `out_of_scope` | The request is outside the current supported scope. |
+| `ready` | Presents a supported educational answer or verified calculation. |
+| `needs_clarification` | Requests a consequential missing or ambiguous detail. |
+| `specialist_referral` | Directs a case requiring further review to a specialist. |
+| `out_of_scope` | Identifies requests outside the current application scope. |
 
-Clarification follows the query's language. Known referral reasons are explained deterministically. Educational evidence insufficiency is presented as â€œØªØ¹Ø°Ø± ØªÙ‚Ø¯ÙŠÙ… Ø´Ø±Ø­ Ù…ÙˆØ«Ù‚â€, rather than a calculation referral. Public responses omit private retrieval diagnostics and local source paths.
+## Deployment
 
-### Readiness checks
+The frontend and backend are deployed separately. Next.js proxies browser requests to FastAPI, keeping service credentials on the backend.
 
-`GET /ready` checks:
+**Backend:** Deploy the root Dockerfile to Railway with the cloud-services environment variables. The container runs as a non-root user, binds to `0.0.0.0`, and uses the injected `PORT`.
 
-- Fanar configuration, or Ollama reachability and model availability, depending on the selected provider.
-- Cloud source configuration when `SOURCE_MODE=cloud`.
-- Qdrant reachability, fixed collection counts, and 1024/Cosine vector configuration.
-- An actual embedding probe and vector validation.
+**Frontend:** Deploy `frontend/` to Vercel as a Next.js project and set `BACKEND_API_URL` to the backend HTTPS address.
 
-For Fanar, this verifies **configuration, not API-key validity or successful generation**. Different legitimate collection counts still fail the current fixed-count check. Each readiness request runs an embedding probe, which can incur remote usage/latency or load a local model.
-
-Use `/health` for inexpensive liveness. Test fresh `/ask` requests separately to validate the complete path.
-
-## Docker and deployment
-
-### Backend image
-
-The root [Dockerfile](Dockerfile) uses Python 3.13 slim, installs `requirements.txt`, copies `backend/` and curated `data/sources/`, and runs Uvicorn as a non-root user. It excludes local fiqh corpora, local embedding dependencies, Quran cache files, and `.env` files.
-
-Use the **cloud source and embedding profile** with the supplied image:
+Build and run the backend container locally:
 
 ```powershell
 docker build -t mawarith-backend .
 docker run --rm --env-file .env -e SOURCE_MODE=cloud -e EMBEDDING_PROVIDER=cloudflare -e PORT=8000 -p 8000:8000 mawarith-backend
 ```
 
-Supply credentials at runtime. Changing the port requires changing both `PORT` and the container port mapping. Container localhost does not refer to the host's Ollama service.
-
-### Railway backend
-
-1. Deploy from the root Dockerfile.
-2. Configure Fanar, Cloudflare, and Qdrant credentials; set `SOURCE_MODE=cloud` and `EMBEDDING_PROVIDER=cloudflare`.
-3. Keep the supplied start command, which binds `0.0.0.0` and uses the injected `PORT`.
-4. Set `/ready` as the deployment healthcheck and allow time for dependency calls; use `/health` for separate liveness monitoring.
-5. Verify payload indexes and fresh educational, calculation, clarification, and referral requests before judging.
-
-### Vercel frontend
-
-1. Import the repository with `frontend` as the project root.
-2. Use Next.js and the repository's build script.
-3. Set `BACKEND_API_URL` to the backend HTTPS base URL in each intended environment.
-4. Redeploy after environment changes and verify a fresh request through `/api/ask`.
-
-The Next.js proxy uses a **120-second backend timeout**. Hosted platform limits can impose an earlier limit. Backend secrets remain on the backend service.
-
-These instructions describe deployment configuration; they do not certify that a hosted instance is currently healthy.
+Verify dependency readiness through `/ready`, then exercise representative requests through the frontend. `/health` provides inexpensive liveness checks.
 
 ## Validation
 
-### Backend
+Backend regressions cover exact fraction allocation, rule behavior, case readiness, source integrity, provider policies, and clarification. Frontend tests cover reference presentation, session restoration, cross-page requests, and desktop/mobile flows.
 
-Run regressions from the repository root in a separate test terminal. `httpx` is needed by FastAPI `TestClient` and is not currently listed in `requirements.txt`.
+### Backend checks
+
+From the repository root, use a dedicated test terminal:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install httpx
@@ -416,11 +307,11 @@ $env:EMBEDDING_PROVIDER = "local"
 .\.venv\Scripts\python.exe -m compileall -q backend tests
 ```
 
-Close the test terminal afterward so its overrides do not affect normal startup or cloud smoke tests. Tests use fixtures and mock external calls where applicable; they do not establish live service readiness.
+Close the test terminal afterward to keep these overrides separate from normal startup.
 
-### Frontend
+### Frontend checks
 
-From `frontend/` after installing npm dependencies:
+From `frontend/`, after installing dependencies:
 
 ```powershell
 npm.cmd run typecheck
@@ -430,46 +321,37 @@ $env:PLAYWRIGHT_CHANNEL = "chromium"
 npm.cmd run test:e2e
 ```
 
-Browser tests use a fixture backend and a built frontend by default, covering desktop/mobile flows. They do not validate live Fanar or Qdrant. There is no `npm test` or frontend lint script; use the listed scripts.
+Automated tests use fixtures and mocked services where applicable. Live-provider and retrieval evaluations are available separately under `evaluation/`.
 
-The suites cover exact allocation, readiness/referral guards, source integrity, provider policies, clarification language, reference deduplication, session restoration, and cross-page requests. Manual evaluation tools are under `evaluation/`; inspect their options before making paid service requests. Historical reports and pass counts describe their own runs, not current validation.
+## Repository structure
 
-## Troubleshooting
-
-| Symptom | Check |
+| Directory | Responsibility |
 | --- | --- |
-| `/health` succeeds but `/ready` returns 503 | Read the returned check flags. Confirm provider configuration, Qdrant collection expectations, and embedding availability. |
-| Qdrant retrieval returns HTTP 400 | Check payload indexes on the collection queried, not only point counts. |
-| Fanar is configured but answers fail | Readiness does not authenticate the key. Verify provider credentials and a fresh generation request. |
-| Local startup has no source evidence | Full corpora are not in Git. Confirm approved source artifacts and populated collections. |
-| Cloud answers lack a source | Confirm the required source payloads are indexed; collection counts do not guarantee coverage. |
-| Frontend cannot reach the backend | Check `BACKEND_API_URL`, backend reachability, and the server-side proxy request. Restart/redeploy after changes. |
-| Local embeddings fail to load | Install `requirements-fiqh.txt`; the first model load may require a download. |
-| Backend tests fail importing `httpx` | Install the documented test prerequisite in the virtual environment. |
-| Docker cannot reach host-local Ollama | Container localhost is separate from the host. Configure an accessible service address. |
-
-## Repository map
-
-| Path | Responsibility |
-| --- | --- |
-| `backend/app.py`, `backend/readiness.py` | API and dependency checks. |
-| `backend/llm/` | Provider transports, understanding, explanation, and generation capacity. |
-| `backend/pipeline/` | Orchestration and answer safeguards. |
-| `backend/parsing/` | Relationship extraction and normalization. |
-| `backend/rules/` | Case readiness, exclusions, fixed shares, and supported residuaries. |
-| `backend/verifier/` | Fraction verification. |
-| `backend/rag/` | Evidence retrieval, source modes, and source preparation. |
-| `backend/learning/`, `backend/sources/` | Learning catalogs, reviewed evidence, and exact-source adapters. |
-| `backend/schemas/` | Structured API and result models. |
-| `data/sources/` | Curated metadata and rule/source JSON. |
-| `data/fiqh/` | Local source artifacts; raw/processed corpora are git-ignored. |
-| `frontend/src/`, `frontend/tests/` | Interface and browser regressions. |
-| `tests/`, `evaluation/` | Backend regressions and manual evaluation tools. |
+| `backend/llm/` | Understanding, explanation, model transports, and generation capacity. |
+| `backend/parsing/`, `backend/schemas/` | Relationship normalization and structured contracts. |
+| `backend/pipeline/` | Request orchestration and explanation safeguards. |
+| `backend/rules/`, `backend/verifier/` | Rule execution, allocation, and exact verification. |
+| `backend/rag/`, `backend/sources/` | Evidence retrieval, source preparation, and exact-source adapters. |
+| `backend/learning/` | Educational catalogs and reviewed learning material. |
+| `data/sources/` | Curated rule data and source metadata. |
+| `frontend/src/` | Interface, learning experience, session state, and API proxy. |
+| `tests/`, `frontend/tests/` | Backend and browser regression suites. |
+| `evaluation/` | Evaluation tools and run-specific artifacts. |
 
 ## Scope and future expansion
 
-MAWARITH AI currently relies on a selected set of approved Islamic inheritance sources.
+MAWARITH AI is developed incrementally around reviewed sources, explicit rule families, and reproducible checks. Clarification, exact verification, and traceable rule execution are built into the user experience.
 
-The main path for expanding the platform is to incorporate a broader range of trusted fiqh references and structured source material. This will allow MAWARITH AI to cover more inheritance cases, explanations, and educational scenarios while preserving the same source-grounded approach.
+The next development priorities are:
 
-The system architecture is already designed to support this growth, so future development will focus primarily on expanding and enriching the verified source base.
+- Broader trusted inheritance references and richer educational evidence.
+- Deeper bilingual lessons and guided case explanations.
+- Photos of the front-end will be added, Later.
+
+The modular architecture allows the knowledge base, learning experience, and calculation engine to grow independently while preserving traceable results.
+
+## Configuration and source attribution
+
+Keep Fanar, Qdrant, and Cloudflare credentials on the backend. Use placeholders in `.env.example`, keep `.env` out of Git, and supply deployment credentials through runtime environment variables.
+
+Source excerpts retain attribution and available reference metadata. Full source corpora are managed separately; original access and licensing terms govern their use and redistribution.
