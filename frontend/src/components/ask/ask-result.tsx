@@ -19,6 +19,8 @@ import {
   limitationText,
   groupExcerpts,
   sourceIdentity,
+  summaryReference,
+  uniqueSummaryReferences,
 } from "@/lib/ask/presentation";
 
 function text(value: unknown) {
@@ -192,9 +194,14 @@ export function AskResult({
         ).slice(0, result.mode === "learn" ? 2 : undefined);
   const excerptGroups = groupExcerpts(excerpts);
   const displayedSources = new Set(excerpts.map(sourceIdentity));
-  const sources = uniqueSources(records(result.sources)).filter(
-    (source) => !displayedSources.has(sourceIdentity(source)),
-  );
+  const hasRule = (source: SourceRecord) =>
+    typeof source.rule === "string" || typeof source.rule_id === "string";
+  const sources = [
+    ...records(result.sources).filter(hasRule),
+    ...uniqueSources(
+      records(result.sources).filter((source) => !hasRule(source)),
+    ).filter((source) => !displayedSources.has(sourceIdentity(source))),
+  ];
   const concepts = distinctConcepts(
     records(result.key_concepts).filter(
       (concept) =>
@@ -206,7 +213,7 @@ export function AskResult({
   const limitations = Array.isArray(result.limitations)
     ? result.limitations.filter((item) => typeof item === "string")
     : [];
-  const allSources = uniqueSources([...excerpts, ...sources]);
+  const allSources = uniqueSummaryReferences([...excerpts, ...sources]);
   // Only known, purely operational notes may be collapsed. Unrecognized or
   // religious/safety limitations remain visible rather than being guessed safe.
   const routineNotes = new Set([
@@ -322,14 +329,14 @@ export function AskResult({
         <div className="tutor-source-chips">
           <h4>
             {t({
-              ar: `المصادر المستخدمة · ${allSources.length}`,
-              en: `Sources used · ${allSources.length}`,
+              ar: `المراجع المستخدمة · ${allSources.length}`,
+              en: `References used · ${allSources.length}`,
             })}
           </h4>
           {allSources.map((source, i) => (
             <button
               type="button"
-              key={i}
+              key={summaryReference(source).key}
               onClick={() => {
                 const button =
                   container.current?.querySelector<HTMLButtonElement>(
@@ -338,13 +345,28 @@ export function AskResult({
                 if (button?.getAttribute("aria-expanded") === "false")
                   button.click();
                 requestAnimationFrame(() =>
-                  container.current
-                    ?.querySelectorAll<HTMLElement>(".ask-source")
-                    [i]?.focus({ preventScroll: true }),
+                  Array.from(
+                    container.current?.querySelectorAll<HTMLElement>(
+                      ".ask-source",
+                    ) || [],
+                  )
+                    .find(
+                      (el) =>
+                        el.dataset.referenceKey ===
+                        summaryReference(source).key,
+                    )
+                    ?.focus({ preventScroll: true }),
                 );
               }}
             >
-              {text(metadata(source).source_name)}
+              {summaryReference(source).name}
+              {summaryReference(source).reference
+                ? ` · ${summaryReference(source).reference}`
+                : summaryReference(source).volume != null
+                  ? ` · ${t({ ar: "الجزء", en: "Vol." })} ${summaryReference(source).volume}`
+                  : summaryReference(source).page != null
+                    ? ` · ${t({ ar: "الصفحة", en: "Page" })} ${summaryReference(source).page}`
+                    : ""}
             </button>
           ))}
         </div>
@@ -357,20 +379,25 @@ export function AskResult({
               : "answer-source-disclosure"
           }
           title={t({
-            ar: `${educationalInsufficiency ? "عرض المصادر المتاحة" : "عرض المصادر"} (${allSources.length})`,
-            en: `${educationalInsufficiency ? "View available sources" : "View sources"} (${allSources.length})`,
+            ar: "عرض التفاصيل",
+            en: "View details",
           })}
         >
           {excerpts.length > 0 && (
             <div className="ask-excerpts">
               <h4>
                 {t({
-                  ar: "مقتطفات المصادر — النص كما ورد",
-                  en: "Source excerpts — exact returned text",
+                  ar: "مقتطفات المصادر",
+                  en: "Source excerpts",
                 })}
               </h4>
               {excerptGroups.map((group, i) => (
-                <div className="ask-source" tabIndex={-1} key={i}>
+                <div
+                  className="ask-source"
+                  data-reference-key={summaryReference(group.source).key}
+                  tabIndex={-1}
+                  key={i}
+                >
                   <SourceMetadata source={group.source} />
                   <ResultDisclosure
                     title={t({
@@ -405,10 +432,18 @@ export function AskResult({
           {sources.length > 0 && (
             <div>
               <h4>
-                {t({ ar: "المصادر والمراجع", en: "Sources and references" })}
+                {t({
+                  ar: "القواعد المطبقة ومراجعها",
+                  en: "Applied rules and references",
+                })}
               </h4>
               {sources.map((source, i) => (
-                <div className="ask-source" tabIndex={-1} key={i}>
+                <div
+                  className="ask-source"
+                  data-reference-key={summaryReference(source).key}
+                  tabIndex={-1}
+                  key={i}
+                >
                   <SourceMetadata source={source} />
                   {typeof source.rule === "string" && (
                     <ResultDisclosure

@@ -15,6 +15,44 @@ from backend.pipeline.educational_claims import filter_claims, without_internal_
 import json
 import requests
 import re
+from fractions import Fraction
+
+
+def _referral_explanation(case: dict, language: str) -> str:
+    reason = case.get("case_readiness", {}).get("reason")
+    rules = case.get("sources", [])
+    remainder_reason = reason == "unsupported_remainder_no_automatic_radd"
+    # This older code also covers excess fixed shares. Only describe a
+    # remainder when the selected, fully covered fixed rules establish it.
+    if reason == "complete_distribution_not_covered" and case.get("source_coverage", {}).get("is_sufficient"):
+        try:
+            remainder_reason = bool(rules) and all("fraction" in r["result"] for r in rules) and (
+                sum((Fraction(r["result"]["fraction"]) for r in rules), Fraction()) < 1)
+        except (KeyError, TypeError, ValueError, ZeroDivisionError):
+            remainder_reason = False
+    if remainder_reason:
+        if language == "en":
+            return ("The supported fixed shares were identified, but part of the estate remains. "
+                    "The policy needed to allocate that remainder is not supported in this version, "
+                    "so no final distribution is shown.")
+        identified = "تم تحديد الفروض المدعومة"
+        if len(rules) == 1 and len(rules[0].get("applies_to", [])) == 1:
+            heir = rules[0]["applies_to"][0]
+            identified = f"تم تحديد فرض {heir if heir.startswith('ال') else 'ال' + heir}"
+        return (identified + "، لكن بقي جزء من التركة يحتاج إلى قاعدة لمعالجة الباقي غير مدعومة "
+                "في النسخة الحالية، لذلك لم يُعرض توزيع نهائي.")
+    messages = {
+        "unsupported_umariyyat": (
+            "تحتاج هذه المسألة إلى قاعدة العمرية غير المدعومة في النسخة الحالية، لذلك لم يُعرض توزيع نهائي.",
+            "This case requires an Umariyyat rule that is not supported in this version, so no final distribution is shown."),
+        "father_residue_not_covered": (
+            "لا تدعم النسخة الحالية معالجة استحقاق الأب من الباقي في هذه المسألة، لذلك لم يُعرض توزيع نهائي.",
+            "This version does not support handling the father's entitlement to the remainder in this case, so no final distribution is shown."),
+    }
+    if reason in messages:
+        return messages[reason][0 if language == "ar" else 1]
+    return ("لا تدعم القواعد المتاحة حل هذه المسألة كاملة. يرجى مراجعة مختص بالمواريث." if language == "ar" else
+            "The available rules do not support a complete solution. Consult an inheritance specialist.")
 
 
 def run_pipeline(question, **kwargs):
@@ -182,6 +220,8 @@ def _run_request(question: str, mode: str = "learn", *, case_result=None) -> dic
         response.answer = "يلزم توضيح معلومات الأسرة قبل تطبيق قواعد المواريث." if language == "ar" else "The family information needs clarification before inheritance rules can be applied."
     elif response.decision_state == "out_of_scope":
         response.answer = "وضع المسائل مخصص لمسائل المواريث؛ يرجى ذكر حالة ميراث." if language == "ar" else "Case mode is for inheritance cases; please describe an inheritance case."
+    elif response.decision_state == "specialist_referral":
+        response.answer = _referral_explanation(case, language)
     if not ready:
         response.case_details = {**public_case, "result": None}
     displayed_sources = set()

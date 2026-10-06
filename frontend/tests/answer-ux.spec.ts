@@ -63,9 +63,11 @@ test("long answer previews, nested source disclosure, warnings, navigation and f
   await expect(result.locator("blockquote")).toBeHidden();
   await expect(page.locator(".answer-follow-up")).toHaveCount(0);
   await expect(
-    result.getByRole("button", { name: "عرض المصادر (2)" }),
+    result.getByRole("button", { name: "عرض التفاصيل", exact: true }),
   ).toHaveAttribute("aria-expanded", "false");
-  await result.getByRole("button", { name: "عرض المصادر (2)" }).click();
+  await result
+    .getByRole("button", { name: "عرض التفاصيل", exact: true })
+    .click();
   await expect(result.locator(".ask-source-meta").first()).toContainText(
     "الصفحة 12",
   );

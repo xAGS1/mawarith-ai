@@ -48,6 +48,38 @@ export function sourceIdentity(source: SourceRecord): string {
     m.input_file,
   ]);
 }
+/** Summary only: group by source name and reference, independently of URL,
+ * publisher, excerpt text or applied rule. Book references summarize volume;
+ * exact page locations remain in the detailed metadata. */
+export function summaryReference(source: SourceRecord) {
+  const m = metadata(source);
+  const ref = isRecord(m.reference) ? m.reference : {};
+  const volume = ref.volume ?? m.volume;
+  const page = ref.page ?? m.page;
+  const reference = typeof m.reference === "string" ? m.reference.trim() : "";
+  const location =
+    reference ||
+    (volume != null ? `volume:${volume}` : page != null ? `page:${page}` : "");
+  const name = typeof m.source_name === "string" ? m.source_name.trim() : "";
+  return {
+    key: JSON.stringify([name, location]),
+    name,
+    reference,
+    volume,
+    page,
+  };
+}
+export function uniqueSummaryReferences(
+  sources: SourceRecord[],
+): SourceRecord[] {
+  const seen = new Set<string>();
+  return sources.filter((source) => {
+    const key = summaryReference(source).key;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 export function groupExcerpts(
   excerpts: SourceRecord[],
 ): { source: SourceRecord; excerpts: SourceRecord[] }[] {
