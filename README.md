@@ -1,321 +1,277 @@
-# mawarith-ai
-MAWARITH AI is an Arabic-first intelligent Islamic inheritance reasoning system with structured heir parsing, source-grounded fiqh retrieval, deterministic verification, and explainable inheritance calculations.
+# MAWARITH AI
 
-## Current pipeline
+Arabic-first Islamic inheritance education, grounded in source evidence, with deterministic calculation for supported cases.
 
-```text
-Question -> Qwen relation parser -> Shared factual case features
-         -> Shared condition-aware local rule retriever -> Shared source coverage gate
-         -> Shared QuranEnc source enrichment (exact text, cached locally)
-         -> Shared Fiqh RAG evidence retrieval (support only)
-         -> Qwen reasoner only when coverage is sufficient
-         -> Shared Python fraction verifier -> Final JSON with sources
-```
+MAWARITH separates language understanding and explanation from inheritance rule selection and arithmetic. The AI explains supplied evidence and verified results; it does not determine final shares. Ambiguous cases ask for clarification, and unsupported cases stop with a specialist referral.
 
-With Ollama running and `qwen3:8b` installed, run from the project root:
+## Current experience
 
-```powershell
-.\.venv\Scripts\python.exe -X utf8 -m backend.pipeline.qwen_pipeline
-```
+- Arabic/English interface with RTL/LTR support.
+- Educational questions, definitions, comparisons and contextual tutors.
+- Seven concept lessons, four learning paths and four calculation learning paths.
+- Natural-language case extraction followed by deterministic readiness checks and calculation.
+- Requests owned independently by the homepage, concept and path surfaces. Pending requests survive client-side navigation; completed answers, drafts and meaningful errors are restored from session storage.
+- Local duplicate-submit protection, cancellation and retry. Backend generation capacity is limited to two concurrent requests per process; waiting generation calls queue.
+- Compact answers, exact source excerpts behind disclosures, and separate applied-rule details.
+- Source-summary chips deduplicated by source name and reference. Book chips summarize volume; detailed metadata retains page locations and links.
+- Clarification-only language validation and Arabic/English fallbacks. Empty or duplicate educational explanations are hidden in clarification cards.
+- Deterministic referral explanations where the reason is known, with a generic fallback for unknown reasons.
 
-Output includes `question`, `parsed_relations`, `case_features`, `sources`,
-`source_coverage`, `decision_state` and `result`. When any mentioned relation has
-no retrieved rule with matching `applies_to` and satisfied conditions, Python returns `insufficient_sources` with
-`result: null` and skips both reasoning and verification. Otherwise the state is
-`ready` and reasoning runs followed by verification. An empty parsed case is blocked.
-
-The CLI currently demonstrates the wife/full-brother case, which should be blocked
-because the source library has no rule for the brother. Coverage measures distinct
-relation names, not head counts, and checks availability rather than legal completeness.
-The model-independent modules under `backend/rules/`, `backend/rag/`,
-`backend/verifier/` and `backend/schemas/` do not import Qwen.
-
-The shared `backend/sources/` layer fetches Arabic Quran text independently from
-QuranEnc and preserves it exactly in `sources[].source.arabic_text`, alongside
-`provider`, `reference`, `immutable_text` and `retrieval_status`. Qwen receives
-the original structured rules and references without the fetched verse text.
-The final response attaches trusted text separately from the generated result.
-Missing text is never reconstructed by the model: failed retrieval leaves the
-rule and reference intact with `retrieval_status: "unavailable"`.
-
-Verses are cached as `data/sources/quran_cache/4_12.json` with retrieval timestamps
-and checksums. Runtime cache files are ignored by Git; only the folder README is
-tracked. No new rule selection or reasoning depends on remote text retrieval.
-
-`shares[].fraction` is the group share of the whole estate. The authoritative
-input is `post_tasil.distribution[].per_head_shares`, the share for one person.
-Python replaces model-generated group shares, normalizes fractions, calculates
-percentages, and checks that the count-weighted total equals one.
-
-The local source set contains 14 structured records citing Quran 4:11, 4:12 and
-4:176: spouses, daughters, joint sons/daughters, parents' specified fractions,
-and full sisters or joint full siblings in the configured kalalah context.
-Records are validated at load time. Threshold conditions use generic `_gte`
-and `_lte` suffixes, alongside equality and integer comparison objects.
-
-Kalalah context is conservatively defined for this batch as no descendant and
-no father. This is a configured applicability feature, not a complete legal
-determination. Parent fractions are partial rules: no father's residue is
-encoded, and the mother's third record retains the verse's parental context
-in its text. These records are not a complete rule system for compound cases.
-No brother-alone, blocking, awl, radd, or extended-relative rules are added.
-Coverage and arithmetic consistency do not establish legal completeness.
-
-Normal model execution uses `think=False` and `temperature=0`. Optional reasoner
-debug streaming remains available. The reasoner module returns model JSON;
-verification runs separately in the pipeline. Its CLI still writes verified
-output to `qwen_output.json`.
-
-## First Fiqh RAG layer
-
-The approved source is the Kuwaiti Fiqh Encyclopedia, published by Kuwait's
-Ministry of Awqaf and Islamic Affairs. Approved source files must be supplied locally. Place approved local files in
-`data/fiqh/kuwaiti_encyclopedia/raw/`; supported formats are UTF-8 TXT, Markdown, JSON and DOCX. See [the corpus guide](data/fiqh/kuwaiti_encyclopedia/README.md) for
-required provenance and sidecar formats. Religious text is never fabricated,
-paraphrased or automatically downloaded by ingestion.
-
-Install the optional embedding runtime when a real corpus is ready:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-fiqh.txt
-```
-
-The local embedding model defaults to `BAAI/bge-m3` with 1024 dense dimensions.
-Its first load may download the model weights from Hugging Face; prepare the
-weights in advance for offline operation. The embedding model is independent
-of Qwen. Qdrant is accessed through its REST API using the existing `requests`
-dependency; no in-memory production store is substituted.
-
-Run a Qdrant server separately. Set these shell environment variables as needed
-(the project does not automatically read `.env`):
+## Architecture
 
 ```text
+User question
+    → structured language/intent understanding
+    ├─ education → multi-source retrieval → selected evidence
+    │              → AI explanation → provider-specific sentence checks
+    │              → grounding/claim checks → answer and sources
+    └─ calculation → normalized relatives and presence features
+                     → readiness and eligibility checks
+                     → fixed shares → supported residuary family
+                     → exact verification → explanation and rule trace
+```
+
+The primary provider configured in [.env.example](.env.example) is **Fanar-C-2-27B**. An optional **Ollama/Qwen3-8B** transport remains available. Without `LLM_PROVIDER`, the transport defaults to Ollama; use an explicit setting when starting the application.
+
+Fanar receives MAWARITH-selected evidence. Fanar-Sadiq or external Fanar retrieval is not used. Provider fallback is disabled by default and must be explicitly enabled.
+
+Educational safety is provider-specific:
+
+- Actual Fanar generations bypass the strict lexical/near-verbatim support gate, while retaining the existing hard checks and claim/grounding safeguards.
+- Ollama/Qwen generations retain stricter sentence support checks. Explicit Fanar-to-Ollama fallback uses the actual generation provider's policy.
+- These checks detect bounded classes of errors; they are not a general semantic entailment proof. An answer can be shortened or withheld when support is insufficient.
+
+Retrieval never grants a new executable inheritance rule. Arithmetic consistency does not establish complete fiqh correctness.
+
+## Deterministic calculation scope
+
+Legal shares use `fractions.Fraction`. Percentages are display values, not inputs to legal arithmetic.
+
+The direct-children residuary family supports arbitrary positive counts within validated inputs:
+
+- Sons only: divide the actual residue equally.
+- Sons and daughters: divide the actual residue with weights 2:1.
+- Daughters without sons: retain existing fixed-share rules; they are not routed through the children residuary family.
+- Supported spouse/parent fixed shares are assigned before distributing the residue. The family does not assume the entire estate remains.
+
+Examples covered by deterministic regressions:
+
+| Case | Per-person shares |
+| --- | --- |
+| One son | Son: 1 |
+| Two sons | Each son: 1/2 |
+| Three sons | Each son: 1/3 |
+| Son and daughter | Son: 2/3; daughter: 1/3 |
+| Two sons and two daughters | Each son: 1/3; each daughter: 1/6 |
+| Wife and two sons | Wife: 1/8; each son: 7/16 |
+| Wife, son and daughter | Wife: 1/8; son: 7/12; daughter: 7/24 |
+
+These examples describe the supported, fully stated test cases. Additional relatives or circumstances require another readiness and coverage check.
+
+Presence is computed before exclusion. A person receiving no share is not automatically treated as absent from all case features. The implemented son-to-agnatic-grandson exclusion preserves presence and records a zero share. Other undefined exclusion policies remain referrals.
+
+Descendants through sons are distinguished from descendants through daughters. Daughter-line descendants do not incorrectly activate the inheriting-descendant feature; their calculation remains unsupported.
+
+Named guards include `unsupported_umariyyat`, `unsupported_matrilineal_descendant`, `unsupported_sibling_exclusion_policy` and `unsupported_external_impediment_policy`. The Umariyyat guard prevents silently applying the ordinary mother-third rule; a full Umariyyat implementation is not provided.
+
+Existing fixed-share and limited full-sibling rules remain available where coverage is complete. This is not a complete sibling, grandfather or distant-residuary system. Automatic awl/radd allocation is not implemented. Unsupported residue, competing families, ambiguous relationships and advanced circumstances continue to stop safely.
+
+Solver results include `rule_trace` entries with rule/category IDs, affected heirs, exact fractions, input residue where relevant, and source IDs. Existing Quran rules remain in [inheritance_rules.json](data/sources/inheritance_rules.json); bounded local fiqh evidence for the new solver family is in [solver_sources.json](backend/rules/solver_sources.json).
+
+For example, a wife-only case identifies her supported fixed share but refers because the remainder-allocation policy is unsupported. The backend explains this limitation without displaying a final distribution or asking an LLM to infer the reason.
+
+## Sources and retrieval
+
+The educational retrieval code combines local evidence from:
+
+- Kuwaiti Fiqh Encyclopedia.
+- Umm Al-Qura University Mawarith course.
+- Dorar Fiqh Encyclopedia, inheritance book only.
+- Approved locally cached Quran passages resolved through the exact-text adapter.
+
+BGE-M3 supplies embeddings and Qdrant supplies vector retrieval. Local source candidates also participate in educational retrieval; the source pool depends on installed, approved local material. Do not assume a fresh checkout has the full demonstration corpus.
+
+Exact source text remains separate from reviewed summaries and generated explanation. A retrieved example does not authorize a universal rule. Source excerpts, qualifications, metadata and citations must remain traceable to their evidence.
+
+Raw source files, downloaded HTML snapshots and processed full corpora under `data/fiqh/` are git-ignored. Obtain and approve source material locally before ingestion. Inclusion in the application does not establish redistribution rights. Do not publish the full corpus or infer license approval from source availability.
+
+## API
+
+The browser calls Next.js `/api/ask`, which proxies to FastAPI using `BACKEND_API_URL`.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /health` | Process health response |
+| `POST /ask` | Educational/case orchestration and presentation |
+| `POST /analyze-case` | Structured deterministic case result |
+| `GET /learn/concepts`, `/learn/paths`, `/learn/examples` | Read-only learning catalogs; each also has an identifier route |
+| `GET /docs` | FastAPI interactive API documentation |
+
+Example `/ask` payloads:
+
+```json
+{"mode":"learn","question":"ما معنى العصبة؟"}
+```
+
+```json
+{"mode":"case","question":"مات وترك زوجة وابنين"}
+```
+
+`mode` preserves the legacy request interface. In the current semantic path, understanding determines the actual educational/calculation intent; the mode acts as a compatibility hint for fallback behavior. It is not a guarantee that contradictory question text will be forced into that mode.
+
+Contextual tutors may supply optional `concept_context` with bounded `slug` and `title` strings. Context is a retrieval/understanding hint, not evidence or an answer. Calculation does not use educational page context to change shares.
+
+Responses retain `mode`, `language`, `decision_state`, `answer`, `clarification_question`, `sources`, `source_excerpts`, `limitations` and optional `case_details`. Educational responses also use `evidence_status`.
+
+| Decision state | Meaning |
+| --- | --- |
+| `ready` | Supported educational answer or supported, verified calculation |
+| `needs_clarification` | Missing or ambiguous information requires a user response |
+| `specialist_referral` | Calculation cannot safely produce a final distribution |
+| `out_of_scope` | Request is outside the current scope |
+
+Educational evidence insufficiency is presented as “تعذر تقديم شرح موثق”, rather than case-referral wording. Public responses omit private retrieval diagnostics and local source paths. Structured solver rule traces are distinct from hidden model reasoning.
+
+## Local setup
+
+Run backend commands from the repository root. You need Python, Node.js/npm, a Fanar API key or local Ollama, and Qdrant plus approved local evidence for vector-backed retrieval.
+
+### Python and retrieval dependencies
+
+Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-fiqh.txt
+Copy-Item .env.example .env
+```
+
+`requirements-fiqh.txt` contains the optional BGE-M3 embedding and DOCX dependencies. Qdrant is accessed through its REST API. The first embedding-model load may require downloading model files; subsequent use can use the local cache.
+
+### Provider configuration
+
+Set values in the root `.env`:
+
+```dotenv
+LLM_PROVIDER=fanar
+FANAR_API_KEY=your_key_here
+FANAR_BASE_URL=https://api.fanar.qa/v1
+FANAR_MODEL=Fanar-C-2-27B
+LLM_FALLBACK_PROVIDER=none
 QDRANT_HOST=http://localhost:6333
 FIQH_COLLECTION=mawarith_fiqh
 FIQH_EMBEDDING_MODEL=BAAI/bge-m3
+FIQH_EMBEDDING_BATCH_SIZE=32
 ```
 
-Ingest, index, retrieve, and optionally check Qdrant connectivity:
+FastAPI loads the root `.env` at startup without overriding existing process environment values. Restart the backend after configuration changes. Standalone scripts do not necessarily perform the same startup loading; check their entry point before assuming they use `.env`.
+
+For a local primary provider, set `LLM_PROVIDER=ollama`, `OLLAMA_HOST=http://127.0.0.1:11434` and `OLLAMA_MODEL=qwen3:8b`, then prepare Ollama:
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.loader
-.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.vector_store
-.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.retriever
-.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.vector_store --check-connection
+ollama pull qwen3:8b
+ollama serve
 ```
 
-Retrieval prompts once with `السؤال:`. Python callers can use
-`retrieve_fiqh(query, top_k=5, filters={"topic": "..."})`, with filters for
-topic, source_name, section and volume. Results preserve exact text and metadata.
-Results also return `previous_chunk` and `next_chunk` as exact source excerpts
-from the same document, or null at document boundaries. Tiny fragments are
-merged before indexing; actual DOCX article-title styles supply section metadata.
-No missing legal headings or page numbers are guessed.
+Start `ollama serve` only if the local service is not already running. To enable local fallback from Fanar, keep Fanar as primary and explicitly set `LLM_FALLBACK_PROVIDER=ollama`.
 
-Run all three real quality queries with
-`python -X utf8 -m backend.rag.fiqh.quality_check`; exact main text, neighboring
-context and metadata are printed and saved in the ignored processed directory.
-The main response separates `fiqh_evidence` from generated `result` and reports
-`fiqh_retrieval.status` as `available`, `empty`, or `unavailable`.
+### Qdrant and local corpus
 
-Empty corpus retrieval is safe and returns no evidence without Qdrant or model
-initialization. A nonempty corpus requires a working Qdrant collection and
-embedding runtime; failures are explicit. RAG evidence **does not independently
-determine inheritance rulings** and never increases structured source coverage.
-
-## Checks
+Use an existing Qdrant instance at `QDRANT_HOST`. An optional local Docker instance can be started with persistent named-volume storage:
 
 ```powershell
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m compileall -q backend tests
+docker run -d --name mawarith-qdrant -p 6333:6333 -v mawarith-qdrant-data:/qdrant/storage qdrant/qdrant
 ```
 
-## DOCX ingestion
-
-Install `python-docx` from `requirements-fiqh.txt`. Place the Word document in
-`data/fiqh/kuwaiti_encyclopedia/raw/` with a sidecar named exactly
-`<filename>.docx.metadata.json`. Both the source URL and approved publisher
-metadata must pass validation; no missing provenance is guessed.
+Check connectivity without indexing:
 
 ```powershell
-.\.venv\Scripts\python.exe -X utf8 -m backend.rag.fiqh.loader
+python -m backend.rag.fiqh.vector_store --check-connection
 ```
 
-This ingests supported files from the raw folder, including
-`kuwaiti_fiqh_encyclopedia_vol_03.docx`. Body paragraphs are extracted in order
-using python-docx. Only empty-string paragraphs are skipped. Whitespace,
-Arabic diacritics, tabs and extracted line breaks are retained, and paragraphs
-are joined with two newlines for conservative chunking. No source text is
-rewritten. Table-cell paragraphs, including nested tables and merged cells, are extracted
-once in document order. Headers and footnotes remain outside body extraction. Legacy `.doc` and PDF are not supported.
+Source preparation is explicit, not an application-startup step. Source-specific tools include `backend.rag.rebuild_uqu`, `backend.rag.dorar_ingestion` and the fiqh ingestion/indexing modules. Inspect their `--help` and local metadata before running them. Do not rebuild or replace an existing collection merely to start the app.
 
-
-## Educational backend
-
-`POST /ask` accepts `{"mode":"learn","question":"What is a fixed-share heir?"}`.
-The explicit modes are `learn` (default) and `case`. The existing `/analyze-case`
-solver remains compatible. Run the educational CLI with:
+### Start FastAPI
 
 ```powershell
-python -X utf8 -m backend.pipeline.learn_pipeline
+python -m uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 ```
 
-The CLI prompts once with `السؤال:` and accepts Arabic or English. It uses the
-existing local Qwen/Ollama, BGE-M3 and Qdrant configuration; no new model or index
-is required. `source_excerpts` contains exact approved source records and their
-neighbors, independently of the generated `answer` and `key_concepts`. Quran
-text comes exclusively from the source adapter after reasoning; only references
-actually present in evidence and the existing rule library are enriched.
+API documentation: <http://127.0.0.1:8000/docs>. `/health` confirms the server is running; it does not certify provider credentials or corpus readiness.
 
-No matching evidence, retrieval failure, invalid evidence IDs, or an unsupported
-explanation returns `specialist_referral`. Empty questions request clarification.
-Case mode preserves structured-rule coverage and fraction verification; unsupported
-cases return no distribution. `case_details` preserves the solver diagnostics.
-The source library is limited, volume 3 contains multiple topics, and page numbers
-are unavailable. A retrieved match and valid evidence IDs do not prove semantic
-support for every generated claim. Explanations are educational, not complete
-legal determinations. No new rules or source content were added.
+### Start Next.js
 
-Learn-mode evidence uses backend-assigned `E1`, `E2`, etc. Generated explanations
-cite these IDs inline; unknown IDs or answers without support are withheld.
-Source metadata is never generated by Qwen. Retrieval uses three main hits and
-at most one adjacent excerpt, with overlapping text removed through immutable
-document offsets and a 5,000-character source budget. Short concept queries get
-inheritance context; when approved metadata identifies one inheritance article,
-the existing section filter restricts retrieval to it. Comparisons split the
-three-hit budget between their two concepts. Source text remains exact.
+In a separate terminal:
 
-Qwen uses `think=False`, temperature 0, an 8,192-token context and a maximum of
-450 output tokens. The connection/read timeouts are 10/240 seconds. On timeout,
-the pipeline uses a minimal deterministic answer only when source-bound concept
-metadata matches the retrieved passages and covers the requested concepts;
-otherwise it abstains. The small terminology catalogue covers fixed shares and
-residuary inheritance using the existing approved passages, not new distribution
-rules or source documents. English answers can cite Arabic evidence;
-the returned Arabic excerpts remain unchanged.
+```powershell
+cd frontend
+npm.cmd ci
+Copy-Item .env.example .env.local
+npm.cmd run dev
+```
 
-## Concept cards, beginner path and examples
+The frontend `.env.local` should contain `BACKEND_API_URL=http://127.0.0.1:8000`. Open <http://localhost:3000>. Fanar credentials remain on the backend and must not be placed in frontend environment variables. On non-Windows systems use `npm` instead of `npm.cmd`.
 
-Read-only educational catalogs are available at:
+## Validation
 
-- `GET /learn/concepts` and `GET /learn/concepts/{concept_id}`
-- `GET /learn/paths` and `GET /learn/paths/{path_id}`
-- `GET /learn/examples` and `GET /learn/examples/{example_id}`
+Backend unit/regression tests use mocked transports. Explicitly selecting Ollama for the test process avoids local Fanar settings interfering with older transport mocks; this does not change production configuration.
 
-The seven concept cards include Arabic/English titles, bilingual `short_definition`
-and `learn_question`, difficulty, related concepts and availability. Definitions
-reuse existing source-bound metadata only when its anchors match validated local
-evidence. Otherwise `availability` is `limited`, `short_definition` is null, and
-no definition is guessed. Blocking, awl, radd and fixed-share heirs currently lack
-their own source-bound catalog definition and remain limited. A limited card can
-still supply a question to `/ask`; the existing evidence and citation checks apply.
+```powershell
+$env:LLM_PROVIDER = 'ollama'
+python -X utf8 -m pytest tests -q -p no:cacheprovider --tb=short
+python -X utf8 -m compileall -q backend tests
+Remove-Item Env:LLM_PROVIDER
+```
 
-The `inheritance_beginner` path has seven static steps and no progress tracking.
-Each step provides a bilingual question and `mode` for the existing `/ask` route.
-Three curated examples combine sons and daughters with a wife and/or mother;
-`case_supported` is checked against current structured-rule coverage. It indicates
-coverage of the curated relatives, not a precomputed or guaranteed model result.
-Examples contain no calculated shares.
+If you already had an explicit provider in that shell, restore it instead of removing it. Do not start a production backend from the test shell while its test-only provider override is active.
 
-To explore an example, fetch it, then submit its `scenario_ar` or `scenario_en` to
-`POST /ask` with `mode="case"`. For a detailed educational explanation or follow-up,
-submit a question to the same endpoint with `mode="learn"`. The existing pipelines
-perform parsing, retrieval, generation and verification; catalogs invoke no model.
+Frontend:
 
-## Case clarification and v1 limitations
+```powershell
+cd frontend
+npm.cmd run typecheck
+npm.cmd run build
+npm.cmd run test:e2e
+```
 
-Case mode uses only `ready`, `needs_clarification`, `specialist_referral` and
-`out_of_scope`. Learn mode is unchanged. Missing sibling subtype (full, paternal
-or maternal), uncertain family facts, unspecified children or explicitly unlisted
-relatives produce a localized `clarification_question` and no calculation.
-For example, `ترك بنتًا وأخًا` asks whether the brother is full, paternal or maternal.
-Clarifying a relation does not guarantee that its rules are covered by v1.
+There is no `npm test` script. Playwright uses the production build by default, starts a fixture backend on port 3101 and Next.js on port 3100, and runs desktop/mobile projects. On Windows its default browser channel is Microsoft Edge; another installed channel can be selected through `PLAYWRIGHT_CHANNEL`. Tests use fixtures rather than spending live Fanar requests.
 
-Advanced circumstances such as pregnancy, missing persons, successive deaths,
-bequests or divorce return a specialist referral. So do cases outside structured
-coverage, father/daughter cases needing an additional residue rule, and cases
-whose retrieved fixed fractions require awl/radd or an uncovered residue rule.
-The deterministic check stops the reasoner and verifier for these cases; it
-does not supply any new inheritance rule or distribution. Trusted sources and
-short explanations of retrieved rules remain available when found.
+The suites cover exact children-family allocation and supported-domain properties, readiness/referral guards, source integrity, provider/fallback policies, clarification language, source-summary deduplication, session restoration and cross-page requests. Live-provider evaluations and retrieval benchmarks are separate checks, not substitutes for deterministic regression tests.
 
-`/analyze-case` and the Qwen CLI also use these four states; the former
-`insufficient_sources` state is now `specialist_referral`. Supported cases still
-use the existing reasoner and Python fraction verifier. The clarification checks
-recognize common explicit ambiguities; they are not a complete family intake.
+## Repository map
 
-## Advisory AI understanding and explanations
+```text
+backend/
+  app.py              FastAPI entry point
+  llm/                Provider transports and generation capacity
+  parsing/            Structured relation extraction
+  pipeline/           Educational/case orchestration and explanation checks
+  rules/              Features, readiness, eligibility and exact allocation
+  rag/                Educational evidence retrieval and source preparation
+  learning/           Curated evidence and learning catalogs
+  schemas/            API/result models
+  sources/            Exact-source adapters
+  verifier/           Fraction verification
+frontend/
+  src/app/            Homepage, lesson routes and API proxy
+  src/components/     Tutors, answer presentation and learning UI
+  src/lib/ask/        Requests, session state and presentation helpers
+  tests/              Playwright regressions and fixture backend
+data/                 Rule data, local source files and caches
+tests/                Backend regressions
+evaluation/           Benchmarks and historical validation artifacts
+```
 
-`POST /ask` retains its explicit `learn` / `case` mode. A strict Qwen classifier
-now enriches the request with intent, language, explanation depth, question kind,
-explicit deceased gender, an attached educational question, and proposed ambiguities.
-Connection failures, timeouts or invalid classifier JSON use deterministic fallback.
-Classification never overrides the supplied mode or deterministic case readiness.
+Evaluation reports describe their own run and may predate the current implementation. Use current source code and rerun commands above to assess present behavior; historical pass counts or successful model examples do not establish complete coverage.
 
-Learn explanations receive backend-owned passage/claim associations and requested
-depth; the existing citation and concept-scope checks remain in force. Verified
-curated definitions and comparisons still bypass generated redefinition.
-For a ready mixed case, Qwen selects/orders relevant confirmed rule claims. Python
-renders their factual wording unchanged, so this layer cannot edit distributions
-or introduce rulings. English mixed-case explanations currently retain the original
-Arabic rule wording with an English label, rather than invent a rule translation.
-Unsupported attached questions receive a limitation, without changing case readiness.
+## Limits and source policy
 
-For internal demos, call `run_request(question, mode, debug_trace=trace)` with an
-empty dict. It receives intent, entities from the existing relation parser,
-ambiguity proposals, deterministic readiness confirmation, selected rule/source
-IDs and evidence plans. No chain-of-thought is requested or stored. This argument
-is not exposed by the HTTP schema and traces do not enter normal API responses.
-Trace dictionaries include case/source data; store them only if needed for debugging.
+MAWARITH is an educational/research system with deliberately bounded calculation coverage. Pregnancy, missing persons, successive deaths, bequests, divorce-related circumstances, unsupported grandfather/sibling combinations, distant kindred and undefined juristic policies can require clarification or referral. A short question is not necessarily a supported calculation.
 
-The existing calculation path is unchanged: Qwen proposes a rule-backed
-distribution, and Python verifies its fraction arithmetic. This change does not
-introduce a deterministic allocation engine or claim that arithmetic consistency
-alone proves a distribution's religious correctness.
+The project does not silently adopt disputed rules to complete a distribution. Missing coverage must be resolved through reviewed, source-traceable rule families. Retrieval relevance, model confidence and arithmetic equality alone cannot establish that coverage.
 
-## Source-traceable curated learning content
+Keep API keys in environment variables and `.env` files out of Git. Session persistence is browser-session state, not a durable account history; avoid entering unnecessary personal information. Full corpora and private source-bearing audit artifacts must not be published automatically.
 
-The curated learning schema separates `definition` (`text`, `status`, `source_id`,
-`reviewer`, `reviewed_at`), `properties` (the same metadata with `value`), and
-`source_records` (approved provenance and unchanged `exact_text`). Content statuses
-are `source_verbatim`, `reviewed_summary`, or `draft`. Verbatim values must be exact
-substrings of their approved passage; reviewed summaries require a reviewer and
-review date. Draft values cannot enter verified definition or comparison output.
-
-Only `fixed_share` and `residuary_heirs` are migrated. Their existing bilingual
-summary drafts are preserved internally in `educational_summaries`; no reviewer
-identity/date was available and none was invented. Verified definitions/properties
-currently use the approved Arabic passage. English output labels those passages
-in English while retaining their exact Arabic wording, pending reviewed translations.
-
-Populated properties are `share_type`, `has_fixed_fraction`, `examples_of_fraction`
-for fixed shares, and `share_type`, `may_receive_whole_estate`,
-`may_receive_remainder`, `may_receive_nothing` for residuary heirs. Verbatim
-properties hold exact passage text (or exact fraction terms), not inferred Boolean
-flags. Residuary outcome properties retain the complete conditional passage.
-No eligibility rules, additional recipient categories or opposite outcomes were
-inferred. Other curated concepts remain unverified and empty.
-
-The generic comparison renderer intersects verified property keys and preserves
-each property's source mapping. It renders source text and reviewed summaries
-with distinct labels, never uses a draft, and falls back to the existing grounded
-flow when either concept or shared properties lack support. Source excerpts always
-contain source wording, never reviewed summaries or generated AI explanation.
-
-## Minimal explanation claim guard
-
-`backend/pipeline/claim_guard.py` filters generated educational prose after the
-existing citation and concept-scope checks. It checks complete sensitive statements
-against the cited evidence, existing source-bound concept definitions, or confirmed
-case rules. A narrow Arabic entitlement sentence can also pass when the heir and
-fraction match a confirmed rule; those rules must already be confirmed for the case,
-not merely present somewhere in the source library. Matching an heir, fraction or
-citation alone never grants support. Unsupported claims receive a concise localized
-insufficiency statement. Supported statements and harmless presentation text remain.
-Unsupported related-concept explanations are omitted; entirely unsupported learn
-explanations use the existing abstention state. Mixed-case explanations also apply
-the guard to their selected structured rule statements.
-
-This is a conservative lexical guard, not a general semantic proof. Unrecognized
-sensitive paraphrases may be withheld. Source text, structured rules, distributions,
-arithmetic, models, readiness and referral decisions are not edited by this layer.
+For real inheritance decisions, consult a qualified specialist who can review the complete facts and applicable religious/legal context.
