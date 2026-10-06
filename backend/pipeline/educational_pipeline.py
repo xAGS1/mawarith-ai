@@ -35,8 +35,28 @@ def _public_response(value):
 def run_request(question: str, mode: str | None = None, *, debug_trace: dict | None = None, concept_context: dict | None = None) -> dict:
     # Optional page context affects educational understanding only, never case inputs.
     if concept_context is not None and mode == "learn":
-        return _public_response(_answer_request(question, mode, debug_trace=debug_trace, concept_context=concept_context))
-    return _public_response(_answer_request(question, mode, debug_trace=debug_trace))
+        response = _answer_request(question, mode, debug_trace=debug_trace, concept_context=concept_context)
+    else:
+        response = _answer_request(question, mode, debug_trace=debug_trace)
+    if response.get("decision_state") == "needs_clarification":
+        language = detect_language(question)
+        original = response.get("clarification_question")
+        candidate = (original or "").strip()
+        arabic_letters = len(re.findall(r"[\u0621-\u064a\u066e-\u06d3]", candidate))
+        english_letters = len(re.findall(r"[A-Za-z]", candidate))
+        # Quoting the user's Arabic term in an otherwise English sentence
+        # does not make that clarification Arabic (and vice versa).
+        usable = (arabic_letters > 0 and arabic_letters >= english_letters) if language == "ar" else (
+            english_letters > 0 and english_letters > arabic_letters)
+        clarification = candidate if usable else (
+            "لم أفهم المقصود من سؤالك. هل يمكنك توضيحه أكثر؟" if language == "ar" else
+            "I couldn't determine the intended meaning. Could you clarify your question?")
+        response.update(language=language, clarification_question=clarification)
+        # Preserve compatibility with clients reading answer, without keeping
+        # a wrong-language duplicate of the original clarification.
+        if not original or response.get("answer", "").strip() == original.strip():
+            response["answer"] = clarification
+    return _public_response(response)
 
 
 def _answer_request(question: str, mode: str | None = None, *, debug_trace: dict | None = None, concept_context: dict | None = None) -> dict:

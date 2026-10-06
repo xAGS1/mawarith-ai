@@ -16,7 +16,7 @@ export function DecisionResultCard({
       {result.clarification_question && (
         <div className="ask-clarification">
           <h4>{t({ ar: "سؤال التوضيح", en: "Clarification question" })}</h4>
-          <p>{publicText(result.clarification_question)}</p>
+          <p dir="auto">{publicText(result.clarification_question)}</p>
           <small>
             {t({
               ar: "عدّل سؤالك أعلاه وأرسله مجددًا.",

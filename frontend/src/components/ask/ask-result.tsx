@@ -27,6 +27,28 @@ function text(value: unknown) {
 function records(value: unknown): SourceRecord[] {
   return Array.isArray(value) ? value.filter(isRecord) : [];
 }
+function duplicatesClarification(answer: string, clarification: string) {
+  const normalize = (value: string) =>
+    publicText(value)
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/[\u064b-\u065f\u0670]/g, "")
+      .replace(/[^\p{L}\p{N}\s]/gu, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  const a = normalize(answer);
+  const c = normalize(clarification);
+  if (!a) return true;
+  if (!c) return false;
+  if (a === c) return true;
+  const words = a.split(" ");
+  const clarificationWords = new Set(c.split(" "));
+  return (
+    words.filter((word) => clarificationWords.has(word)).length /
+      words.length >=
+    0.8
+  );
+}
 function SourceMetadata({ source }: { source: SourceRecord }) {
   const { t } = useLocale();
   const m = metadata(source);
@@ -197,7 +219,10 @@ export function AskResult({
   const notes = limitations.filter(
     (item) => result.decision_state === "ready" && routineNotes.has(item),
   );
-  const explanation = (
+  const hideExplanation =
+    result.decision_state === "needs_clarification" &&
+    duplicatesClarification(result.answer, result.clarification_question || "");
+  const explanation = hideExplanation ? null : (
     <div
       className="ask-answer"
       lang={result.language}
@@ -223,9 +248,23 @@ export function AskResult({
     <section
       ref={container}
       className="ask-result"
+      dir={
+        result.decision_state === "needs_clarification"
+          ? result.language === "ar"
+            ? "rtl"
+            : "ltr"
+          : undefined
+      }
       aria-label={t({ ar: "نتيجة السؤال", en: "Question result" })}
     >
-      <p className="ask-result-question">{question}</p>
+      <p
+        className="ask-result-question"
+        dir={
+          result.decision_state === "needs_clarification" ? "auto" : undefined
+        }
+      >
+        {question}
+      </p>
       <h3 tabIndex={-1}>
         {t(
           educationalInsufficiency
