@@ -6,12 +6,6 @@ MAWARITH AI is an Arabic-first platform for learning Islamic inheritance and sol
 
 The system separates language understanding from inheritance rule selection and arithmetic. The LLM interprets questions and explains selected evidence or verified results. A deterministic rule engine determines final shares using exact fractions. Missing information triggers clarification; unsupported calculations stop with a specialist referral.
 
-**Team:** MIR Â· **Developer:** Hicham Sidaoui  
-**Challenge track:** Ø§Ù„Ø­ÙˆØ§Ø± Ø§Ù„Ù…Ø¹Ø±ÙÙŠ ÙˆØ§Ù„Ø¥Ø¬Ø§Ø¨Ø§Øª Ø§Ù„Ù…ÙˆØ«ÙˆÙ‚Ø©  
-**Project stage:** Research-based prototype with bounded calculation coverage.
-
-A temporary live demo is provided separately in the challenge submission.
-
 ## Contents
 
 - [What the platform does](#what-the-platform-does)
@@ -472,12 +466,10 @@ The suites cover exact allocation, readiness/referral guards, source integrity, 
 | `frontend/src/`, `frontend/tests/` | Interface and browser regressions. |
 | `tests/`, `evaluation/` | Backend regressions and manual evaluation tools. |
 
-## Limitations and source policy
+## Scope and future expansion
 
-MAWARITH AI is an educational and research system with deliberately bounded calculation coverage. Pregnancy, missing persons, successive deaths, bequests, divorce-related circumstances, unsupported grandfather/sibling combinations, distant kindred, and undefined juristic policies can require clarification or referral.
+MAWARITH AI currently relies on a selected set of approved Islamic inheritance sources.
 
-Retrieval can return incomplete passages, and generated explanations can contain errors despite safeguards. The project does not silently adopt disputed rules to complete a distribution. For real inheritance decisions, consult a qualified specialist who can review the complete facts and applicable context.
+The main path for expanding the platform is to incorporate a broader range of trusted fiqh references and structured source material. This will allow MAWARITH AI to cover more inheritance cases, explanations, and educational scenarios while preserving the same source-grounded approach.
 
-Preserve original source wording, attribution, qualifications, and disagreement. Raw PDFs, HTML snapshots, and complete processed corpora are not distributed with the repository. Source approval within the application does not establish redistribution rights; review original access and licensing terms before copying, indexing, or publishing material.
-
-Keep `.env` and credentials out of Git, logs, screenshots, issue reports, and client bundles. `.env.example` contains placeholders, and `.dockerignore` excludes environment files. Rotate any exposed key with its issuer. Browser-session persistence is not durable account history; avoid unnecessary personal data.
+The system architecture is already designed to support this growth, so future development will focus primarily on expanding and enriching the verified source base.
