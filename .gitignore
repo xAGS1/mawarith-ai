@@ -40,8 +40,9 @@ build/
 .DS_Store
 Thumbs.db
 
-# Local evaluation traces / generated live outputs
+# Local evaluation traces / generated outputs
 evaluation/*_trace_*.json
 evaluation/*_smoke_*.json
 evaluation/*_live.json
 evaluation/*_report.md
+evaluation/**/results/*.json
