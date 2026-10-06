@@ -32,6 +32,14 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/ready")
+def ready():
+    from fastapi.responses import JSONResponse
+    from backend.readiness import check_readiness
+    is_ready, payload = check_readiness()
+    return JSONResponse(status_code=200 if is_ready else 503, content=payload)
+
+
 @app.post("/analyze-case", response_model=PipelineOutput)
 def analyze_case_endpoint(payload: CaseRequest):
     try:

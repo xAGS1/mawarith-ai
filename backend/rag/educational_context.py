@@ -3,12 +3,14 @@ from functools import lru_cache
 import hashlib
 import json
 import re
+import os
 from pathlib import Path
 from backend.learning import definition_retrieval as uqu
 from backend.rag.fiqh.embeddings import embed_texts, embedding_model_name
 from backend.rag.fiqh.retriever import retrieve_fiqh
 from backend.sources.quran.quranenc import get_quran_verse
 from backend.rag.dorar_retrieval import dorar_candidates, ranking_score
+from backend.rag.source_mode import cloud_sources, cloud_candidates
 
 
 def uqu_records():
@@ -94,6 +96,13 @@ def retrieve_context(question, request, trace=None):
         ("dorar", lambda: dorar_candidates(question, query, 3)),
         ("quran", lambda: semantic_candidates(query, quran_records(), 1)),
     ]
+    if cloud_sources():
+        providers = [
+            ("uqu", lambda: cloud_candidates(query, "mawarith_uqu", 2, source_id="uqu_mawarith_1")),
+            ("fiqh", fiqh_candidates),
+            ("dorar", lambda: dorar_candidates(question, query, 3)),
+            ("quran", lambda: cloud_candidates(query, os.getenv("FIQH_COLLECTION", "mawarith_fiqh"), 1, source_type="quran")),
+        ]
     for name, retrieve in providers:
         try:
             candidates.extend(retrieve())

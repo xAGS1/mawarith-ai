@@ -6,6 +6,7 @@ from backend.rag.fiqh.embeddings import embed_texts, embedding_model_name
 from backend.rag.fiqh.schemas import FiqhChunk
 from backend.rag.fiqh.query_expansion import expand_embedding_query, concept_query_filters
 from backend.rag.fiqh.vector_store import FiqhStoreError, QdrantFiqhStore, build_filter, load_chunks
+from backend.rag.source_mode import cloud_sources
 
 
 def retrieve_fiqh(query: str, top_k: int = 5, filters: dict | None = None, *, semantic_only: bool = False) -> list[dict]:
@@ -14,8 +15,9 @@ def retrieve_fiqh(query: str, top_k: int = 5, filters: dict | None = None, *, se
     if type(top_k) is not int or not 1 <= top_k <= 100:
         raise ValueError("top_k must be between 1 and 100")
     build_filter(filters)  # Validate even when the corpus is empty.
-    chunks = load_chunks()
-    if not chunks:
+    cloud = cloud_sources()
+    chunks = [] if cloud else load_chunks()
+    if not chunks and not cloud:
         return []
     approved = {chunk["chunk_id"]: chunk for chunk in chunks}
     documents = {}
@@ -40,11 +42,11 @@ def retrieve_fiqh(query: str, top_k: int = 5, filters: dict | None = None, *, se
             chunk = FiqhChunk.model_validate(payload).model_dump(mode="json")
         except ValueError as exc:
             raise FiqhStoreError("Retrieved payload has invalid approved-source provenance") from exc
-        if model_name != embedding_model_name() or approved.get(chunk["chunk_id"]) != chunk:
+        if model_name != embedding_model_name() or (not cloud and approved.get(chunk["chunk_id"]) != chunk):
             raise FiqhStoreError("Retrieved payload does not match the locally approved source corpus/model")
         def excerpt(part):
             return {"text": part["text"], "source": {k: v for k, v in part.items() if k != "text"}} if part else None
-        previous, following = neighbors[chunk["chunk_id"]]
+        previous, following = neighbors.get(chunk["chunk_id"], (None, None))
         evidence.append({"score": float(hit["score"]), **excerpt(chunk),
                          "previous_chunk": excerpt(previous), "next_chunk": excerpt(following)})
     return evidence

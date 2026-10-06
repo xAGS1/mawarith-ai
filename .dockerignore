@@ -1,0 +1,18 @@
+# Allow only backend code, its packaged metadata and executable source rules.
+**
+!Dockerfile
+!.dockerignore
+!requirements.txt
+!backend/
+!backend/**
+!data/
+!data/sources/
+!data/sources/**
+
+# Never include credentials, cached source corpora or Python build artifacts.
+**/.env
+**/.env.*
+**/__pycache__/
+**/*.pyc
+**/*.log
+data/sources/quran_cache/**

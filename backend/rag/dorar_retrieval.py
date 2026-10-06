@@ -7,6 +7,7 @@ from uuid import uuid5, NAMESPACE_URL
 from backend.rag.dorar_ingestion import DATA_DIR, SOURCE_ID, matching
 from backend.rag.fiqh.embeddings import embed_texts, embedding_model_name, DIMENSION
 from backend.rag.fiqh.vector_store import QdrantFiqhStore
+from backend.rag.source_mode import cloud_sources, payload_record
 
 
 def load_dorar_chunks():
@@ -88,8 +89,9 @@ def ranking_score(question, record):
 
 
 def dorar_candidates(question, query, top_k=3):
-    approved = {c['source']['chunk_id']: c for c in load_dorar_chunks()}
-    if not approved:
+    cloud = cloud_sources()
+    approved = {} if cloud else {c['source']['chunk_id']: c for c in load_dorar_chunks()}
+    if not approved and not cloud:
         return []
     store = QdrantFiqhStore()
     vector = embed_texts([query])[0]
@@ -101,6 +103,14 @@ def dorar_candidates(question, query, top_k=3):
     results = []
     for point in response['points']:
         payload = point['payload']
+        if cloud:
+            if payload.get('embedding_model') != embedding_model_name():
+                raise ValueError('Cloud source embedding model mismatch')
+            record = payload_record(payload, SOURCE_ID)
+            if record['source'].get('book') != '\u0643\u062a\u0627\u0628 \u0627\u0644\u0645\u0648\u0627\u0631\u064a\u062b':
+                raise ValueError('Dorar payload is not inheritance-only')
+            results.append({**record, 'exact_text': record['text'], 'score': point['score']})
+            continue
         local = approved.get(payload.get('chunk_id'))
         if local is not None and payload.get('text') == local['exact_text']:
             results.append({**local, 'score':point['score']})
