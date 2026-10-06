@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+from backend.llm.generation_capacity import generation_post
 
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
@@ -121,7 +122,7 @@ def parse_relations(question: str) -> dict:
 {question}
 """
 
-    response = requests.post(
+    response = generation_post(
         f"{OLLAMA_HOST}/api/generate",
         json={
             "model": OLLAMA_MODEL,

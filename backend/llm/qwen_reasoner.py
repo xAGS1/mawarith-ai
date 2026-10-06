@@ -1,6 +1,7 @@
 import json
 import os
 import requests
+from backend.llm.generation_capacity import generation_post
 
 
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
@@ -189,7 +190,7 @@ fiqh_evidence (supporting excerpts only; never authoritative rules):
 """
 
     if DEBUG_THINKING:
-        with requests.post(
+        with generation_post(
             f"{OLLAMA_HOST}/api/generate",
             json={
                 "model": OLLAMA_MODEL,
@@ -233,7 +234,7 @@ fiqh_evidence (supporting excerpts only; never authoritative rules):
 
             return final_text
 
-    response = requests.post(
+    response = generation_post(
         f"{OLLAMA_HOST}/api/generate",
         json={
             "model": OLLAMA_MODEL,

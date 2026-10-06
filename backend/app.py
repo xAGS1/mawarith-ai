@@ -1,10 +1,22 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
+from contextlib import asynccontextmanager
+from pathlib import Path
+from dotenv import load_dotenv
+
+
+@asynccontextmanager
+async def lifespan(app):
+    # Uvicorn does not load .env unless --env-file is supplied. Preserve explicit
+    # deployment environment values while loading local configuration at startup.
+    load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=False)
+    yield
 
 from backend.pipeline.qwen_pipeline import run_pipeline
 from backend.schemas.case import PipelineOutput
 
 app = FastAPI(
+    lifespan=lifespan,
     title="MAWARITH AI",
     version="0.1.0",
     description="Local Qwen parsing and reasoning with source retrieval and fraction verification."

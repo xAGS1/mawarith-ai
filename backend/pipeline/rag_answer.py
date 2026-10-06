@@ -7,6 +7,8 @@ from backend.schemas.response import EducationalResponse
 from backend.pipeline.educational_claims import filter_claims, without_internal_ids
 from backend.pipeline.educational_grounding import check_concept_scope
 from backend.pipeline.educational_sentence_check import check_sentences, check_consistency
+from backend.pipeline.fanar_sentence_check import check_cited_support
+from backend.llm.transport import selected_provider, LAST_GENERATION
 
 
 def answer_educational(question, request, trace=None, *, concept_context=None):
@@ -20,6 +22,8 @@ def answer_educational(question, request, trace=None, *, concept_context=None):
         request = request.model_copy(update={"retrieval_query": request.retrieval_query +
             "\n" + concept_context["title"]})
     evidence = retrieve_context(question, request, trace)
+    if trace is not None:
+        trace["educational_evidence"] = evidence
     if not evidence:
         response.limitations.append("لم تتوفر أدلة معتمدة ذات صلة." if request.language == "ar" else "No relevant approved evidence was available.")
         return response.model_dump()
@@ -31,7 +35,9 @@ def answer_educational(question, request, trace=None, *, concept_context=None):
             explanation_question = json.dumps({"question": question,
                 "current_concept": concept_context,
                 "context_policy": "Page context only, not evidence. Resolve references; answer only from the supplied evidence."}, ensure_ascii=False)
+        LAST_GENERATION.set(None)
         generated = provider.explain_context(explanation_question, request.language, prompt_evidence)
+        generation_provider = (LAST_GENERATION.get() or {}).get("provider", selected_provider())
         if trace is not None:
             trace["generated_explanation"] = generated
         if generated.get("status") != "ready" or not isinstance(generated.get("answer"), str):
@@ -40,8 +46,17 @@ def answer_educational(question, request, trace=None, *, concept_context=None):
         if not isinstance(declared, list) or any(not isinstance(i, str) for i in declared):
             raise ValueError("Invalid declared citation IDs")
         answer, inconsistent = check_consistency(generated["answer"])
-        answer, uncertain = check_sentences(answer, evidence, declared)
+        screen = check_cited_support if generation_provider == "fanar" else check_sentences
+        answer, uncertain = screen(answer, evidence, declared)
+        if trace is not None:
+            trace["sentence_screen_policy"] = "fanar_hard_checks" if generation_provider == "fanar" else "qwen_strict_lexical"
+            trace["consistency_removals"] = inconsistent
+            trace["sentence_screen_removals"] = uncertain
+            trace["after_sentence_screen"] = answer
         answer, blocked = filter_claims(answer, evidence, declared)
+        if trace is not None:
+            trace["claim_guard_removals"] = blocked
+            trace["after_claim_guard"] = answer
         blocked = inconsistent + uncertain + blocked
         if trace is not None:
             trace["blocked_explanation_claims"] = blocked

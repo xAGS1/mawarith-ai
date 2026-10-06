@@ -1,6 +1,7 @@
 """Input understanding only: never rulings, shares, or source generation."""
 import json
 import requests
+from backend.llm.generation_capacity import generation_post
 from backend.llm.qwen_reasoner import OLLAMA_HOST, OLLAMA_MODEL
 
 
@@ -41,7 +42,7 @@ def understand_input(question: str, schema: dict, mode_hint=None, *, concept_con
         "hint_policy": "A compatibility hint only; classify the actual question semantically."}
     if concept_context is not None:
         input_data["current_concept"] = concept_context
-    response = requests.post(OLLAMA_HOST + "/api/generate", json={
+    response = generation_post(OLLAMA_HOST + "/api/generate", json={
         "model": OLLAMA_MODEL, "stream": False, "think": False, "format": schema,
         "system": instructions,
         "prompt": json.dumps(input_data, ensure_ascii=False) if semantic else question,
@@ -54,7 +55,7 @@ def select_claims(question: str, language: str, depth: str, claims: list[dict]) 
     schema = {"type": "object", "additionalProperties": False,
               "properties": {"claim_ids": {"type": "array", "items": {"type": "string"}}},
               "required": ["claim_ids"]}
-    response = requests.post(OLLAMA_HOST + "/api/generate", json={
+    response = generation_post(OLLAMA_HOST + "/api/generate", json={
         "model": OLLAMA_MODEL, "stream": False, "think": False, "format": schema,
         "system": "Select and order supplied claim IDs relevant to the user's educational question. "
                   "Return only IDs from the plan. No prose, new facts, rulings, fractions or source text. "

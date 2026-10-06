@@ -2,6 +2,7 @@
 
 import json
 import requests
+from backend.llm.generation_capacity import generation_post
 
 from backend.llm.qwen_reasoner import OLLAMA_HOST, OLLAMA_MODEL
 from backend.rules.educational_concepts import supported_concepts
@@ -59,7 +60,7 @@ and sentences=[]. Do not include any other fields.
                     "properties":{"text":{"type":"string","maxLength":280},
                         "evidence_ids":{"type":"array","minItems":1,"items":{"type":"string","enum":[e['evidence_id'] for e in evidence]}}},
                     "required":["text","evidence_ids"]}}}, "required":["status","sentences"]}
-    response = requests.post(OLLAMA_HOST + "/api/generate", json={
+    response = generation_post(OLLAMA_HOST + "/api/generate", json={
         "model": OLLAMA_MODEL, "system": system,
         "prompt": json.dumps({"question": question, "language": language,
             "evidence": evidence, "verified_result": verified_result}, ensure_ascii=False),
@@ -315,7 +316,7 @@ If evidence for either side is insufficient, return insufficient_evidence.
         ),
     }
 
-    response = requests.post(
+    response = generation_post(
         OLLAMA_HOST + "/api/generate",
         json={
             "model": OLLAMA_MODEL,
