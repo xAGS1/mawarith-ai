@@ -16,23 +16,20 @@ COUNT_RELATIONS = {
 
 
 def build_case_features(parsed_relations: dict) -> dict:
-    relations = {}
-    for item in parsed_relations.get("mentioned_relatives", []):
-        relation = item["relation"].strip()
-        count = item["count"]
-        if not relation or type(count) is not int or count < 0:
-            raise ValueError("Relatives require a nonempty relation and a nonnegative integer count")
-        if count:
-            relations[relation] = relations.get(relation, 0) + count
+    from backend.rules.population import normalized_counts, descendant_direction
+    relations = normalized_counts(parsed_relations)
 
-    # A chain containing only child relations is a factual descendant.
-    # This includes بنت ابن but excludes ابن أخ and ابن عم.
+    # The spouse rules mean an inheriting descendant through sons, not every
+    # biological descendant. Presence itself is retained independently.
     descendants = {
         relation for relation in relations
-        if set(relation.split()) <= {"ابن", "بنت"}
+        if descendant_direction(relation) == "inheriting"
     }
     return {
         "relations": relations,
+        "present_in_case": dict(relations),
+        "has_heir_descendant": bool(descendants),
+        "has_biological_descendant": any(descendant_direction(r) for r in relations),
         "has_descendant": bool(descendants),
         "has_male_descendant": any(r.split()[0] == "ابن" for r in descendants),
         "has_female_descendant": any(r.split()[0] == "بنت" for r in descendants),

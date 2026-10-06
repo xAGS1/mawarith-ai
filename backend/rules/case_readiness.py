@@ -62,6 +62,10 @@ def assess_case(question: str, parsed: dict, rules: list[dict]) -> dict:
                 "Which relatives did the deceased leave, and how many of each?")
         return decision("out_of_scope", "not_an_inheritance_case")
     features = build_case_features(parsed)
+    from backend.rules.safety import unsupported_case_reason
+    unsupported = unsupported_case_reason(parsed)
+    if unsupported:
+        return decision("specialist_referral", unsupported)
     if features["has_father"] and features["has_daughter"] and not features["has_son"]:
         return decision("specialist_referral", "father_residue_not_covered")
     if rules:

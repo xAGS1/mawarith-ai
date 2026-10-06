@@ -49,16 +49,22 @@ def test_natural_educational_variations_use_semantics(question, monkeypatch):
 def test_calculation_semantic_facts_sent_to_solver(question, monkeypatch):
     facts = {"ابن": 2}
     monkeypatch.setattr(qwen_understanding, "understand_input", Mock(return_value=understanding("calculation", facts)))
-    # No executable son-only rule exists yet; real readiness/coverage must refer.
+    # The source-backed generic sons family now covers these mocked parsed facts.
     monkeypatch.setattr(cases, "parse_relations", Mock(side_effect=AssertionError("Second extraction call")))
     monkeypatch.setattr(cases, "retrieve_fiqh", lambda _: [])
     monkeypatch.setattr(cases, "enrich_sources", lambda x: x)
     reasoner = Mock(side_effect=AssertionError("LLM must never calculate"))
     monkeypatch.setattr(cases, "analyze_case", reasoner)
+    monkeypatch.setattr(main.provider, "explain_context", Mock(return_value={"status": "insufficient", "answer": ""}))
     result = main.run_request(question, "learn")
     assert result["mode"] == "case"
-    assert result["decision_state"] in {"specialist_referral", "needs_clarification"}
-    assert result["case_details"]["result"] is None
+    if question == CALCULATE[-1]:
+        assert result["decision_state"] == "needs_clarification"
+        assert result["case_details"]["result"] is None
+    else:
+        assert result["decision_state"] == "ready"
+        distribution = result["case_details"]["result"]["post_tasil"]["distribution"]
+        assert [(r["heir"], r["count"], r["per_head_shares"]) for r in distribution] == [("ابن", 2, "1/2")]
     reasoner.assert_not_called()
 
 

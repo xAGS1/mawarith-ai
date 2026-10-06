@@ -31,6 +31,7 @@ class FractionVerification(BaseModel):
 
 
 class InheritanceOutput(BaseModel):
+    rule_trace: List[dict] = Field(default_factory=list)
     heirs: List[HeirItem] = []
     blocked: List[HeirItem] = []
     shares: List[ShareItem] = []
