@@ -8,7 +8,7 @@ from time import perf_counter
 
 import requests
 
-from backend.rag.fiqh.embeddings import embed_texts
+from backend.rag.fiqh.embeddings import _load_model, embed_texts, embedding_model_name
 from backend.rag.qdrant_auth import qdrant_auth_kwargs
 
 
@@ -32,23 +32,40 @@ def main() -> int:
 
     started = perf_counter()
     try:
-        vector = embed_texts([args.question])[0]
+        # Warm the existing cached loader without including an encode operation.
+        _load_model(embedding_model_name())
     except Exception as exc:
-        print(f"Embedding failed ({type(exc).__name__}); no Qdrant requests sent.")
+        print(f"Model initialization failed ({type(exc).__name__}); no Qdrant requests sent.")
         return 1
-    print(f"Local embedding latency: {perf_counter() - started:.3f}s")
+    print(f"Model/load initialization time: {perf_counter() - started:.3f}s")
+    failures = 0
+    for run in range(1, 4):
+        started = perf_counter()
+        try:
+            vector = embed_texts([args.question])[0]
+        except Exception as exc:
+            failures += 1
+            print(f"Run {run}: embedding failed ({type(exc).__name__}); latency {perf_counter() - started:.3f}s")
+            continue
+        print(f"Run {run}: embedding latency {perf_counter() - started:.3f}s")
+        failures += query_collections(host, vector, args.top_k, run)
+    return int(failures > 0)
+
+
+def query_collections(host: str, vector: list[float], top_k: int, run: int) -> int:
     failures = 0
     for collection in ("mawarith_fiqh", "mawarith_uqu"):
         started = perf_counter()
         try:
             response = requests.post(
                 f"{host.rstrip('/')}/collections/{collection}/points/query",
-                json={"query": vector, "limit": args.top_k,
+                json={"query": vector, "limit": top_k,
                       "with_payload": True, "with_vector": False},
                 timeout=30, **qdrant_auth_kwargs(),
             )
             response.raise_for_status()
             data = response.json()
+            query_latency = perf_counter() - started
             if data.get("status") != "ok":
                 raise ValueError("Query did not succeed")
             points = data["result"]["points"]
@@ -61,13 +78,13 @@ def main() -> int:
                     "source_name": payload.get("source_name") or source.get("source_name"),
                     "source_id": payload.get("source_id") or source.get("source_id"),
                 })
-            print(json.dumps({"collection": collection, "query_latency_seconds": round(perf_counter() - started, 3),
+            print(json.dumps({"run": run, "collection": collection, "query_latency_seconds": round(query_latency, 3),
                               "results": results}, ensure_ascii=False, indent=2))
         except Exception as exc:
             # Never print exception bodies, headers, host or credentials.
             failures += 1
-            print(f"{collection}: query failed ({type(exc).__name__}); latency {perf_counter() - started:.3f}s")
-    return int(failures > 0)
+            print(f"Run {run}, {collection}: query failed ({type(exc).__name__}); latency {perf_counter() - started:.3f}s")
+    return failures
 
 
 if __name__ == "__main__":

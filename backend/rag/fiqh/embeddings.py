@@ -3,6 +3,7 @@
 from functools import lru_cache
 import math
 import os
+from urllib.parse import quote
 
 
 DIMENSION = 1024
@@ -67,11 +68,44 @@ def _load_model(name: str):
     return model
 
 
+def _cloudflare_embeddings(texts: list[str], batch_size: int | None) -> list[list[float]]:
+    import requests
+
+    account = os.getenv("CLOUDFLARE_ACCOUNT_ID")
+    token = os.getenv("CLOUDFLARE_API_TOKEN")
+    model = os.getenv("CLOUDFLARE_EMBEDDING_MODEL", "@cf/baai/bge-m3")
+    if not account or not token or not model:
+        raise FiqhEmbeddingError("Cloudflare embedding configuration is incomplete")
+    batch_size = embedding_batch_size(batch_size)
+    vectors = []
+    for start in range(0, len(texts), batch_size):
+        batch = texts[start:start + batch_size]
+        try:
+            response = requests.post(
+                f"https://api.cloudflare.com/client/v4/accounts/{quote(account, safe='')}/ai/run/{quote(model, safe='@/')}",
+                headers={"Authorization": f"Bearer {token}"}, json={"text": batch}, timeout=60,
+            )
+            response.raise_for_status()
+            body = response.json()
+            if body.get("success") is not True:
+                raise ValueError("Cloudflare reported failure")
+            vectors.extend(validate_vectors(body["result"]["data"], len(batch)))
+        except (requests.RequestException, FiqhEmbeddingError, ValueError, KeyError, TypeError, AttributeError, OverflowError) as exc:
+            # Provider bodies and exception messages can contain credentials.
+            raise FiqhEmbeddingError(f"Cloudflare embedding request failed ({type(exc).__name__}); no local fallback attempted") from None
+    return vectors
+
+
 def embed_texts(texts: list[str], batch_size: int | None = None) -> list[list[float]]:
     if not texts:
         return []
     if any(not isinstance(text, str) or not text.strip() for text in texts):
         raise FiqhEmbeddingError("Embedding input must be nonempty exact source text")
+    provider = os.getenv("EMBEDDING_PROVIDER", "local").strip().lower()
+    if provider == "cloudflare":
+        return _cloudflare_embeddings(texts, batch_size)
+    if provider != "local":
+        raise FiqhEmbeddingError("EMBEDDING_PROVIDER must be local or cloudflare")
     model = _load_model(embedding_model_name())
     batch_size = embedding_batch_size(batch_size)
     try:
