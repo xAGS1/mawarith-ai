@@ -6,6 +6,22 @@
 
 The platform is built around a clear engineering principle: **language understanding, source evidence, and inheritance arithmetic have separate responsibilities**. An LLM interprets the request and explains the evidence or verified result. A deterministic rule engine selects implemented inheritance rules, calculates exact shares, and records how the result was produced.
 
+## Product preview
+
+<p align="center">
+  <img src="docs/images/Screenshot_101.png" alt="MAWARITH AI interface preview 1" width="48%" />
+  <img src="docs/images/Screenshot_102.png" alt="MAWARITH AI interface preview 2" width="48%" />
+</p>
+
+<p align="center">
+  <img src="docs/images/Screenshot_103.png" alt="MAWARITH AI interface preview 3" width="48%" />
+  <img src="docs/images/Screenshot_104.png" alt="MAWARITH AI interface preview 4" width="48%" />
+</p>
+
+<p align="center">
+  <img src="docs/images/Screenshot_105.png" alt="MAWARITH AI interface preview 5" width="70%" />
+</p>
+
 ## Why MAWARITH AI
 
 Inheritance questions connect family relationships, conditional rules, and precise arithmetic. A useful answer should help the user understand the case, follow the calculation, and inspect the supporting references.
@@ -89,7 +105,7 @@ The result includes an applied-rule trace with identifiers, affected heirs, exac
 | Deployment | Docker, Railway, Vercel | Backend container and separate frontend/backend hosting. |
 | Validation | pytest, TypeScript checks, Playwright | Backend regressions and desktop/mobile interface tests. |
 
-Fanar receives evidence selected by MAWARITH, keeping the retrieval and explanation layers under the applicationâ€™s orchestration.
+Fanar receives evidence selected by MAWARITH, keeping the retrieval and explanation layers under the application's orchestration.
 
 ## Sources and evidence
 
@@ -107,19 +123,19 @@ Calculation provenance can be inspected in [Quran-based rule data](data/sources/
 
 ## Example calculation
 
-**Input:** `مات وترك زوجة وابنان وبنت`
+**Input:** `مات وترك زوجة وابنين وبنت`
 
 For this case:
 
 | Heir | Per-person share | Allocation |
 | --- | --- | --- |
-| Wife | `1/8` | Fixed share with a descendant. |
-| Son | `7/12` | Two units of the residue. |
-| Daughter | `7/24` | One unit of the residue. |
+| Wife | `1/8` | Fixed share with descendants. |
+| Each son | `7/20` | Two units of the residue. |
+| Daughter | `7/40` | One unit of the residue. |
 
-**Fraction check:** `1/8 + 7/12 + 7/24 = 1`
+**Fraction check:** `1/8 + 7/20 + 7/20 + 7/40 = 1`
 
-Fixed shares are applied first. The remaining `7/8` is distributed between the son and daughter using individual weights of **2:1**. The interface connects the interpreted case, distribution, explanation, and references.
+Fixed shares are applied first. The remaining `7/8` is distributed between the two sons and one daughter using individual weights of **2:2:1**. The interface connects the interpreted case, distribution, explanation, and references.
 
 ## Run the project
 
@@ -255,7 +271,7 @@ Example request to `POST /ask`:
 ```json
 {
   "mode": "case",
-  "question": "Ù…Ø§Øª ÙˆØªØ±Ùƒ Ø²ÙˆØ¬Ø© ÙˆØ§Ø¨Ù†ÙŠÙ†"
+  "question": "مات وترك زوجة وابنين"
 }
 ```
 
@@ -288,6 +304,12 @@ docker run --rm --env-file .env -e SOURCE_MODE=cloud -e EMBEDDING_PROVIDER=cloud
 Verify dependency readiness through `/ready`, then exercise representative requests through the frontend. `/health` provides inexpensive liveness checks.
 
 ## Validation
+
+MAWARITH AI is validated across backend logic, source/rule behavior, and the frontend experience.
+
+- **470 backend tests passed**
+- **78 focused source/rule tests passed**
+- **Desktop & mobile E2E tested**
 
 Backend regressions cover exact fraction allocation, rule behavior, case readiness, source integrity, provider policies, and clarification. Frontend tests cover reference presentation, session restoration, cross-page requests, and desktop/mobile flows.
 
@@ -346,7 +368,6 @@ The next development priorities are:
 
 - Broader trusted inheritance references and richer educational evidence.
 - Deeper bilingual lessons and guided case explanations.
-- Photos of the front-end will be added, Later.
 
 The modular architecture allows the knowledge base, learning experience, and calculation engine to grow independently while preserving traceable results.
 
