@@ -22,14 +22,14 @@ test("Arabic default, in-place English switch, persistence and Arabic return", a
   );
   await expect(page.locator(".mode-selector")).toHaveCount(0);
   await expect(page.locator(".hero h2")).toContainText(
-    "Your journey to understanding Islamic inheritance",
+    "Clear guidance and explanations for Islamic inheritance.",
   );
   await expect(page.getByRole("textbox")).toHaveValue("My own question");
   await expect(page.locator(".concept-card").first()).toContainText(
     "Fixed-share heirs",
   );
   await expect(page.locator(".example-card").first()).toContainText(
-    "Wife, mother, sons and daughter",
+    "Fixed shares",
   );
   await expect(page.locator(".source-card").first()).toContainText("The Quran");
   expect(

@@ -145,6 +145,7 @@ export function PathShell({ path }: { path: LearningCurriculum }) {
           </section>
           <div id="path-tutor">
             <ConceptTutor
+              surface="path"
               key={path.slug}
               concept={path}
               heading={{

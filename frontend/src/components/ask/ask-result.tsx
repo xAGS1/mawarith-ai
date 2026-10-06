@@ -1,5 +1,7 @@
 "use client";
 import { useRef } from "react";
+import { ReadyResult, CaseUnderstanding } from "./ready-result";
+import { DecisionResultCard } from "./decision-result-card";
 import {
   ResultDisclosure,
   AnswerPreview,
@@ -195,6 +197,28 @@ export function AskResult({
   const notes = limitations.filter(
     (item) => result.decision_state === "ready" && routineNotes.has(item),
   );
+  const explanation = (
+    <div
+      className="ask-answer"
+      lang={result.language}
+      dir={result.language === "ar" ? "rtl" : "ltr"}
+    >
+      <h4>
+        {t(
+          result.mode === "learn"
+            ? { ar: "الشرح التعليمي", en: "Educational explanation" }
+            : { ar: "شرح النتيجة", en: "Result explanation" },
+        )}
+      </h4>
+      <AnswerPreview
+        key={question + result.answer}
+        answer={publicText(result.answer)}
+        collapsible={
+          result.decision_state === "ready" && !educationalInsufficiency
+        }
+      />
+    </div>
+  );
   return (
     <section
       ref={container}
@@ -202,7 +226,7 @@ export function AskResult({
       aria-label={t({ ar: "نتيجة السؤال", en: "Question result" })}
     >
       <p className="ask-result-question">{question}</p>
-      <h3>
+      <h3 tabIndex={-1}>
         {t(
           educationalInsufficiency
             ? {
@@ -212,39 +236,23 @@ export function AskResult({
             : stateLabels[result.decision_state],
         )}
       </h3>
-      <div
-        className="ask-answer"
-        lang={result.language}
-        dir={result.language === "ar" ? "rtl" : "ltr"}
-      >
-        <h4>
-          {t(
-            result.mode === "learn"
-              ? { ar: "الشرح التعليمي", en: "Educational explanation" }
-              : { ar: "شرح النتيجة", en: "Result explanation" },
-          )}
-        </h4>
-        <AnswerPreview
-          key={question + result.answer}
-          answer={publicText(result.answer)}
-          collapsible={
-            result.decision_state === "ready" && !educationalInsufficiency
-          }
-        />
-      </div>
-      {typeof result.clarification_question === "string" &&
-        result.clarification_question && (
-          <div className="ask-clarification">
-            <h4>{t({ ar: "سؤال التوضيح", en: "Clarification question" })}</h4>
-            <p>{publicText(result.clarification_question)}</p>
-            <small>
-              {t({
-                ar: "عدّل سؤالك أعلاه وأرسله مجددًا.",
-                en: "Edit your question above and submit it again.",
-              })}
-            </small>
-          </div>
-        )}
+      {result.decision_state === "ready" && !educationalInsufficiency ? (
+        <ReadyResult
+          rows={rows}
+          verification={verification}
+          relatives={result.mode === "case" ? relatives : []}
+          verified={verified}
+        >
+          {explanation}
+        </ReadyResult>
+      ) : (
+        <DecisionResultCard result={result}>
+          {result.mode === "case" && (
+            <CaseUnderstanding relatives={relatives} />
+          )}{" "}
+          {explanation}
+        </DecisionResultCard>
+      )}
       {(concepts.length > 0 || notes.length > 0) && (
         <ResultDisclosure
           title={t({ ar: "تفاصيل الإجابة", en: "Answer details" })}
@@ -271,57 +279,34 @@ export function AskResult({
           )}
         </ResultDisclosure>
       )}
-      {relatives.length > 0 && (
-        <div>
-          <h4>
-            {t({
-              ar: "الأقارب المذكورون في الحالة",
-              en: "Relatives mentioned in the case",
-            })}
-          </h4>
-          <ul>
-            {relatives.map((relative, i) => (
-              <li key={i}>
-                {text(relative.relation)}: {Number(relative.count)}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {verified && (
-        <div className="ask-distribution">
-          <h4>
-            {t({
-              ar: "التوزيع المتحقق حسابيًا",
-              en: "Arithmetically verified distribution",
-            })}
-          </h4>
-          <div className="ask-table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>{t({ ar: "الوارث", en: "Heir" })}</th>
-                  <th>{t({ ar: "العدد", en: "Count" })}</th>
-                  <th>{t({ ar: "نصيب الفرد", en: "Share per individual" })}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, i) => (
-                  <tr key={i}>
-                    <td>{text(row.heir)}</td>
-                    <td>{Number(row.count)}</td>
-                    <td dir="ltr">{text(row.per_head_shares)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
       {allSources.length > 0 && (
         <div className="tutor-source-chips">
+          <h4>
+            {t({
+              ar: `المصادر المستخدمة · ${allSources.length}`,
+              en: `Sources used · ${allSources.length}`,
+            })}
+          </h4>
           {allSources.map((source, i) => (
-            <span key={i}>{text(metadata(source).source_name)}</span>
+            <button
+              type="button"
+              key={i}
+              onClick={() => {
+                const button =
+                  container.current?.querySelector<HTMLButtonElement>(
+                    ".answer-source-disclosure > button, .tutor-source-disclosure > button",
+                  );
+                if (button?.getAttribute("aria-expanded") === "false")
+                  button.click();
+                requestAnimationFrame(() =>
+                  container.current
+                    ?.querySelectorAll<HTMLElement>(".ask-source")
+                    [i]?.focus({ preventScroll: true }),
+                );
+              }}
+            >
+              {text(metadata(source).source_name)}
+            </button>
           ))}
         </div>
       )}
@@ -346,7 +331,7 @@ export function AskResult({
                 })}
               </h4>
               {excerptGroups.map((group, i) => (
-                <div className="ask-source" key={i}>
+                <div className="ask-source" tabIndex={-1} key={i}>
                   <SourceMetadata source={group.source} />
                   <ResultDisclosure
                     title={t({
@@ -384,7 +369,7 @@ export function AskResult({
                 {t({ ar: "المصادر والمراجع", en: "Sources and references" })}
               </h4>
               {sources.map((source, i) => (
-                <div className="ask-source" key={i}>
+                <div className="ask-source" tabIndex={-1} key={i}>
                   <SourceMetadata source={source} />
                   {typeof source.rule === "string" && (
                     <ResultDisclosure

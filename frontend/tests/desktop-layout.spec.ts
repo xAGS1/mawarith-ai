@@ -23,6 +23,8 @@ test("bounded desktop layout and reduced-zoom effective viewports", async ({
         width,
         height: Math.round(screenHeight / zoom),
       });
+      // Measure settled responsive layout, rather than an in-flight morph.
+      await page.waitForTimeout(500);
       const metrics = await page.evaluate(() => {
         const box = (selector: string) =>
           document.querySelector(selector)!.getBoundingClientRect();
@@ -34,7 +36,8 @@ test("bounded desktop layout and reduced-zoom effective viewports", async ({
           }),
           panel: box(".ask-panel").width,
           section: box(".concepts-section .container").width,
-          hero: box(".hero").height,
+          hero: box(".hero-experience").height,
+          available: innerHeight - box(".navbar").height,
           inputSize: parseFloat(
             getComputedStyle(document.querySelector("#question")!).fontSize,
           ),
@@ -45,18 +48,15 @@ test("bounded desktop layout and reduced-zoom effective viewports", async ({
         expect(Math.abs(center - width / 2)).toBeLessThan(0.1);
       expect(metrics.panel).toBeLessThanOrEqual(width < 2200 ? 1064 : 2432);
       expect(metrics.section).toBeLessThanOrEqual(width < 2200 ? 1640 : 3600);
-      expect(metrics.hero).toBeLessThan(width < 2200 ? 850 : 1900);
+      expect(metrics.hero).toBeGreaterThanOrEqual(metrics.available - 2);
+      expect(metrics.hero).toBeLessThanOrEqual(
+        Math.round(screenHeight / zoom) + 140,
+      );
       expect(metrics.inputSize).toBeGreaterThanOrEqual(16);
       if (width >= 3840) {
         expect(metrics.panel).toBeGreaterThan(2000);
         expect(metrics.section).toBeGreaterThan(2800);
         expect(metrics.inputSize).toBeGreaterThan(40);
-      }
-      if (zoom === 1 || screenWidth === 1440) {
-        await page.screenshot({
-          path: `test-results/layout-${screenWidth}-${Math.round(zoom * 100)}.png`,
-          fullPage: true,
-        });
       }
     }
   }

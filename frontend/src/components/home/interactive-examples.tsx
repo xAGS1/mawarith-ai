@@ -1,87 +1,48 @@
 "use client";
+import Link from "next/link";
+import { ArrowLeft, Scale } from "lucide-react";
 import { useLocale } from "@/i18n/locale-context";
-import { useState } from "react";
-import { ArrowLeft, Lightbulb, Scale } from "lucide-react";
-import { examples } from "@/data/home";
-import { ConceptIcon } from "@/components/ui/icons";
+import { calculationPaths } from "@/data/calculation-paths";
 import { SectionHeading } from "@/components/ui/section-heading";
-import { PreviewDialog } from "@/components/ui/preview-dialog";
 export function InteractiveExamples() {
-  const [selected, setSelected] = useState<(typeof examples)[number] | null>(
-    null,
-  );
   const { t } = useLocale();
   return (
-    <section className="section examples-section" id="examples">
+    <section
+      className="section examples-section calculation-paths-section"
+      id="examples"
+    >
       <div className="container">
         <SectionHeading
-          title={t("من المفهوم .. إلى المثال")}
-          description={t("أمثلة بسيطة تساعدك على طرح الأسئلة وربط الأفكار.")}
-          icon={<Lightbulb size={27} />}
+          title={t({
+            ar: "كيف تُبنى مسألة الميراث؟",
+            en: "How is an inheritance calculation built?",
+          })}
+          description={t({
+            ar: "تعرّف على المسارات الأساسية التي تمر بها المسألة، ثم شاهد مثالًا وجرّبه بنفسك.",
+            en: "Explore the core calculation paths, see an example, and try it yourself.",
+          })}
+          icon={<Scale size={27} aria-hidden="true" />}
         />
-        <div className="example-grid">
-          {examples.map((example, i) => (
-            <button
-              className="example-card"
-              key={example.id}
-              onClick={() => setSelected(example)}
+        <div className="calculation-path-grid">
+          {calculationPaths.map((path) => (
+            <Link
+              className="example-card calculation-path-card"
+              key={path.slug}
+              href={`/learn/calculation/${path.slug}`}
             >
-              <div className="example-top">
-                <span className="example-number">
-                  {t("مثال")} <span dir="ltr">0{i + 1}</span>
-                </span>
-                <span className="example-level">{t("مبتدئ")}</span>
-              </div>
-              <div className="example-body">
-                <span className="example-icon">
-                  <ConceptIcon name={example.icon} />
-                </span>
-                <div>
-                  <h3>{t(example.title)}</h3>
-                  <p>{t(example.objective)}</p>
-                </div>
-              </div>
-              <div className="example-bottom">
-                <span className="example-tags">
-                  {example.concepts.map((concept) => (
-                    <span key={concept.ar}>{t(concept)}</span>
-                  ))}
-                </span>
-                <span className="round-arrow">
-                  <ArrowLeft size={16} aria-hidden="true" />
-                </span>
-              </div>
-            </button>
+              <span className="calculation-path-number" dir="ltr">
+                0{path.order}
+              </span>
+              <h3>{t(path.title)}</h3>
+              <p>{t(path.description)}</p>
+              <span className="calculation-path-cta">
+                {t(path.cta)}
+                <ArrowLeft size={15} aria-hidden="true" />
+              </span>
+            </Link>
           ))}
         </div>
       </div>
-      {selected && (
-        <PreviewDialog
-          title={t(selected.title)}
-          onClose={() => setSelected(null)}
-        >
-          <div className="scenario">
-            <Scale size={25} aria-hidden="true" />
-            <p>{t(selected.scenario)}</p>
-          </div>
-          <p>{t(selected.objective)}</p>
-          <div className="dialog-question">
-            <span>{t("المفاهيم التي تستكشفها")}</span>
-            <p>{selected.concepts.join(" · ")}</p>
-          </div>
-          <p className="dialog-note">
-            {t("هذا مثال تعليمي للتأمل، ولا يعرض حسابًا أو توزيعًا للتركة.")}
-          </p>
-          <a
-            className="primary-button"
-            href="#concepts"
-            onClick={() => setSelected(null)}
-          >
-            {t("استكشف المفاهيم المرتبطة")}
-            <ArrowLeft size={16} />
-          </a>
-        </PreviewDialog>
-      )}
     </section>
   );
 }

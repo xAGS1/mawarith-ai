@@ -1,3 +1,4 @@
+import { learningPathCurriculum } from "./learning-paths";
 export type BilingualText = { ar: string; en: string };
 export type Concept = {
   id: string;
@@ -95,63 +96,6 @@ export const concepts: Concept[] = [
   },
 ];
 
-export const examples = [
-  {
-    id: "wife-mother-children",
-    title: {
-      ar: "زوجة وأم وأبناء وبنت",
-      en: "Wife, mother, sons and daughter",
-    },
-    scenario: {
-      ar: "مات وترك زوجة وأمًا وابنين وبنتًا.",
-      en: "A man died leaving a wife, mother, two sons and a daughter.",
-    },
-    objective: {
-      ar: "استكشف كيف تجتمع الفروض مع توزيع الباقي.",
-      en: "Explore how fixed shares interact with distribution of the residue.",
-    },
-    icon: "users" as const,
-    concepts: [
-      { ar: "الفرض", en: "Fixed share" },
-      { ar: "التعصيب", en: "Residuary inheritance" },
-    ],
-  },
-  {
-    id: "wife-son-daughter",
-    title: { ar: "زوجة وابن وبنت", en: "Wife, son and daughter" },
-    scenario: {
-      ar: "مات وترك زوجة وابنًا وبنتًا.",
-      en: "A man died leaving a wife, son and daughter.",
-    },
-    objective: {
-      ar: "تعرّف على أثر وجود الأبناء في المسألة.",
-      en: "Explore how children affect a case.",
-    },
-    icon: "tree" as const,
-    concepts: [
-      { ar: "أصحاب الفروض", en: "Fixed-share heirs" },
-      { ar: "العصبة", en: "Residuary heirs" },
-    ],
-  },
-  {
-    id: "mother-son-daughters",
-    title: { ar: "أم وابن وبنتان", en: "Mother, son and two daughters" },
-    scenario: {
-      ar: "مات وترك أمًا وابنًا وبنتين.",
-      en: "A man died leaving a mother, son and two daughters.",
-    },
-    objective: {
-      ar: "ميّز بين نصيب المجموعة ونصيب الفرد.",
-      en: "Distinguish between a group's share and an individual's share.",
-    },
-    icon: "chart" as const,
-    concepts: [
-      { ar: "الفرض", en: "Fixed share" },
-      { ar: "التعصيب", en: "Residuary inheritance" },
-    ],
-  },
-];
-
 export const pathSteps = [
   { ar: "ما هو نظام المواريث؟", en: "What is Islamic inheritance?" },
   { ar: "الفرض وأصحاب الفروض", en: "Fixed shares and fixed-share heirs" },
@@ -163,6 +107,11 @@ export const exampleQuestions = [
   concepts[0].question,
   concepts[2].question,
   concepts[3].question,
+  concepts[5].question,
+  {
+    ar: "توفي رجل وترك زوجة وأم وابنين وبنت",
+    en: "A man died leaving a wife, mother, two sons and a daughter",
+  },
 ];
 
 export type LearningPathDefinition = {
@@ -178,49 +127,12 @@ export type LearningPathDefinition = {
     | "special-advanced";
 };
 
-export const learningPaths: LearningPathDefinition[] = [
-  {
-    id: "inheritance-foundations-path",
-    title: { ar: "أساسيات المواريث", en: "Inheritance Foundations" },
-    subtitle: {
-      ar: "المفاهيم الأساسية: الورثة، الفروض، العصبات، الحجب، وأهم المصطلحات.",
-      en: "Core concepts including heirs, fixed shares, residuary heirs, blocking, and essential terminology.",
-    },
-    image: "/assets/learning-path/beginner.webp",
-    hoverText: { ar: "ابدأ من الأساس", en: "Start with the basics" },
-    slug: "inheritance-foundations",
-  },
-  {
-    id: "shares-rules-path",
-    title: { ar: "الأنصبة والقواعد", en: "Shares & Rules" },
-    subtitle: {
-      ar: "كيف تُحدد الأنصبة، متى تتغير، وكيف تتفاعل القواعد مع وجود ورثة مختلفين.",
-      en: "How shares are determined, when they change, and how inheritance rules interact.",
-    },
-    image: "/assets/learning-path/intermediate.webp",
-    hoverText: { ar: "طبّق ما تعلمت", en: "Apply what you learned" },
-    slug: "shares-rules",
-  },
-  {
-    id: "cases-applications-path",
-    title: { ar: "المسائل والتطبيقات", en: "Cases & Applications" },
-    subtitle: {
-      ar: "حالات عملية خطوة بخطوة، من فهم الحالة إلى تحديد الورثة والتوزيع وشرح السبب.",
-      en: "Step-by-step practical cases from understanding the situation to heirs, distribution, and explanation.",
-    },
-    image: "/assets/learning-path/advanced.webp",
-    hoverText: { ar: "تعمّق أكثر", en: "Go deeper" },
-    slug: "cases-applications",
-  },
-  {
-    id: "special-advanced-path",
-    title: { ar: "الحالات الخاصة والمتقدمة", en: "Special & Advanced Cases" },
-    subtitle: {
-      ar: "العَول، الرد، الحجب المركب، والحالات التي تحتاج معالجة أعمق أو إحالة لمختص.",
-      en: "Awl, radd, complex blocking, and cases requiring deeper analysis or specialist referral.",
-    },
-    image: "/assets/learning-path/teachers-students.webp",
-    hoverText: { ar: "استكشف الموارد", en: "Explore resources" },
-    slug: "special-advanced",
-  },
-];
+export const learningPaths: LearningPathDefinition[] =
+  learningPathCurriculum.map((path) => ({
+    id: path.slug + "-path",
+    title: path.title,
+    subtitle: path.subtitle,
+    image: path.image,
+    hoverText: path.hoverText,
+    slug: path.slug,
+  }));

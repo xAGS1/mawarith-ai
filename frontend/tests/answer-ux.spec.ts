@@ -61,14 +61,7 @@ test("long answer previews, nested source disclosure, warnings, navigation and f
     "الاتساق الحسابي",
   );
   await expect(result.locator("blockquote")).toBeHidden();
-  expect(
-    await result
-      .locator(".answer-follow-up")
-      .evaluate((node) => getComputedStyle(node).position),
-  ).toBe(info.project.name === "mobile" ? "static" : "sticky");
-  await result.screenshot({
-    path: `test-results/answer-preview-${info.project.name}.png`,
-  });
+  await expect(page.locator(".answer-follow-up")).toHaveCount(0);
   await expect(
     result.getByRole("button", { name: "عرض المصادر (2)" }),
   ).toHaveAttribute("aria-expanded", "false");
@@ -85,8 +78,8 @@ test("long answer previews, nested source disclosure, warnings, navigation and f
   expect(
     await result
       .locator(".source-excerpt-scroll")
-      .evaluate((node) => node.scrollHeight > node.clientHeight),
-  ).toBe(true);
+      .evaluate((node) => getComputedStyle(node).overflowY),
+  ).toBe("visible");
   await result.getByRole("button", { name: "إخفاء النص" }).click();
   await expect(result.locator("blockquote")).toBeHidden();
   await result.getByRole("button", { name: "عرض المزيد" }).click();
@@ -100,8 +93,8 @@ test("long answer previews, nested source disclosure, warnings, navigation and f
   ).toBe(true);
   await result.getByRole("button", { name: "تفاصيل الإجابة" }).click();
   await expect(result).toContainText("Page numbers may be unavailable.");
-  await result.locator(".answer-follow-up input").fill("Neutral follow-up");
-  await result.locator(".answer-follow-up button").click();
+  await page.locator("#question").fill("Neutral follow-up");
+  await page.locator("#question").press("Enter");
   await expect(page.locator(".ask-answer")).toContainText(
     "Short follow-up answer.",
   );
@@ -110,10 +103,6 @@ test("long answer previews, nested source disclosure, warnings, navigation and f
     page.locator(".ask-result").getByRole("button", { name: "عرض المزيد" }),
   ).toHaveCount(0);
   await expect(page.locator(".answer-navigation")).toHaveCount(0);
-  await page.screenshot({
-    path: `test-results/answer-compact-${info.project.name}.png`,
-    fullPage: true,
-  });
 });
 
 test("insufficiency is compact and clarification text is never truncated", async ({

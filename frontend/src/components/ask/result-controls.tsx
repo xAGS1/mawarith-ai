@@ -206,8 +206,8 @@ export function AskLoading() {
     <span className="ask-loading">
       <span className="ask-loading-dot" aria-hidden="true" />
       {t({
-        ar: "MAWARITH يبحث في المصادر الموثوقة…",
-        en: "MAWARITH is searching trusted sources…",
+        ar: "جاري إعداد الإجابة...",
+        en: "Preparing your answer...",
       })}
     </span>
   );

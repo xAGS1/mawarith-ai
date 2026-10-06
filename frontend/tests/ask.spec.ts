@@ -63,9 +63,7 @@ test("learn request, loading, ready sources, no direct backend call and empty in
   await page.getByRole("textbox").fill("  What is a residuary heir?  ");
   await submit.click();
   await expect(submit).toBeDisabled();
-  await expect(page.getByRole("status")).toContainText(
-    "searching trusted sources",
-  );
+  await expect(page.getByRole("status")).toContainText("Preparing your answer");
   release();
   await expect(page.locator(".ask-answer")).toContainText(
     "A grounded explanation.",

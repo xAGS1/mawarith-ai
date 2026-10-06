@@ -1,8 +1,8 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/i18n/locale-context";
 import { ask, AskError } from "@/lib/ask/client";
-import type { AskResponse } from "@/lib/ask/types";
+import { useSessionAskState } from "@/lib/ask/use-session-ask-state";
 import { AskResult } from "@/components/ask/ask-result";
 import { AskLoading } from "@/components/ask/result-controls";
 import type { BilingualText } from "@/data/home";
@@ -11,42 +11,68 @@ export function ConceptTutor({
   concept,
   heading,
   intro,
+  surface = "concept",
 }: {
   concept: { slug: string; title: BilingualText; prompts: BilingualText[] };
   heading?: BilingualText;
   intro?: BilingualText;
+  surface?: "concept" | "path";
 }) {
   const { t } = useLocale();
-  const [question, setQuestion] = useState("");
-  const [submitted, setSubmitted] = useState("");
+  const {
+    question,
+    setQuestion,
+    submitted,
+    setSubmitted,
+    result,
+    setResult,
+    error,
+    setError,
+    initialized,
+    clear,
+  } = useSessionAskState(`mawarith:ask:${surface}:${concept.slug}`);
   const [pending, setPending] = useState(false);
-  const [result, setResult] = useState<AskResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const inFlight = useRef(false);
+  const activeRequest = useRef<AbortController | null>(null);
+  useEffect(
+    () => () => {
+      activeRequest.current?.abort();
+    },
+    [],
+  );
   async function submit(value = question) {
-    if (inFlight.current) return;
+    if (!initialized || inFlight.current) return;
     const trimmed = value.trim();
     if (!trimmed) {
       setError("empty");
       return;
     }
     inFlight.current = true;
+    const controller = new AbortController();
+    activeRequest.current = controller;
     setPending(true);
     setError(null);
-    setResult(null);
     setSubmitted(trimmed);
     try {
-      setResult(
-        await ask(trimmed, { slug: concept.slug, title: concept.title.ar }),
+      const response = await ask(
+        trimmed,
+        { slug: concept.slug, title: concept.title.ar },
+        controller.signal,
       );
+      if (!controller.signal.aborted) setResult(response);
     } catch (err) {
-      setError(err instanceof AskError ? err.code : "request_error");
+      if (!controller.signal.aborted)
+        setError(err instanceof AskError ? err.code : "request_error");
     } finally {
       inFlight.current = false;
-      setPending(false);
+      if (!controller.signal.aborted) setPending(false);
     }
   }
   const messages: Record<string, { ar: string; en: string }> = {
+    busy: {
+      ar: "MAWARITH يعالج عدة أسئلة الآن. حاول مرة أخرى بعد لحظات.",
+      en: "MAWARITH is handling several questions. Please retry in a moment.",
+    },
     empty: { ar: "اكتب سؤالًا أولًا.", en: "Please enter a question." },
     timeout: {
       ar: "استغرق الطلب وقتًا أطول من المتوقع. حاول مجددًا.",
@@ -78,12 +104,20 @@ export function ConceptTutor({
         )}
       </h2>
       {intro && <p>{t(intro)}</p>}
+      <button
+        type="button"
+        className="ask-clear"
+        disabled={!initialized || pending}
+        onClick={clear}
+      >
+        {t({ ar: "مسح", en: "Clear" })}
+      </button>
       <div className="tutor-prompts">
         {concept.prompts.map((prompt, i) => (
           <button
             key={i}
             type="button"
-            disabled={pending}
+            disabled={!initialized || pending}
             onClick={() => setQuestion(t(prompt))}
           >
             {t(prompt)}
@@ -105,11 +139,15 @@ export function ConceptTutor({
             id="concept-question"
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
-            disabled={pending}
+            disabled={!initialized || pending}
             maxLength={2000}
             placeholder={t(concept.prompts[0])}
           />
-          <button className="primary-button" disabled={pending} type="submit">
+          <button
+            className="primary-button"
+            disabled={!initialized || pending}
+            type="submit"
+          >
             {t(
               pending
                 ? { ar: "جارٍ البحث والشرح…", en: "Searching and explaining…" }
