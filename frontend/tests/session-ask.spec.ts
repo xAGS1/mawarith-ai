@@ -128,7 +128,7 @@ test("concept and path slugs stay isolated, explicit case prefill wins", async (
   );
 });
 
-test("departed requests never restore loading or stale responses", async ({
+test("departed requests finish and restore their own result", async ({
   page,
 }) => {
   let release!: () => void;
@@ -155,10 +155,20 @@ test("departed requests never restore loading or stale responses", async ({
   await page.locator(".curriculum-back").click();
   await expect(page.locator(".concept-tutor")).toHaveCount(0);
   release();
-  await page.goto("/concepts/tasib");
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          JSON.parse(
+            sessionStorage.getItem("mawarith:ask:concept:tasib") || "{}",
+          ).result?.answer,
+      ),
+    )
+    .toBe("stale answer");
+  await page.locator('.concept-card[href="/concepts/tasib"]').click();
   await expect(page.locator("#concept-question")).toHaveValue("question");
   await expect(page.locator(".concept-tutor > form button")).toBeEnabled();
-  await expect(page.locator(".ask-result")).toHaveCount(0);
+  await expect(page.locator(".ask-result")).toContainText("stale answer");
 });
 
 test("invalid version and malformed result are ignored", async ({ page }) => {

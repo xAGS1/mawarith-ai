@@ -1,9 +1,8 @@
 "use client";
 import { useLocale } from "@/i18n/locale-context";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Send, FileText, Lightbulb } from "lucide-react";
-import { ask, AskError } from "@/lib/ask/client";
 import { AskResult } from "@/components/ask/ask-result";
 import { AskLoading } from "@/components/ask/result-controls";
 import { exampleQuestions } from "@/data/home";
@@ -13,29 +12,45 @@ export function AskPanel({
   onActiveChange,
 }: {
   workspace: HTMLElement | null;
-  onActiveChange: (active: boolean) => void;
+  onActiveChange: (active: boolean, restored?: boolean) => void;
 }) {
   const {
     question,
     setQuestion,
     submitted: submittedQuestion,
-    setSubmitted: setSubmittedQuestion,
     result,
-    setResult,
     error,
     setError,
     initialized,
     clear,
+    pending,
+    cancelled,
+    startAsk,
+    cancel,
   } = useSessionAskState("mawarith:ask:home");
-  const [pending, setPending] = useState(false);
-  const inFlight = useRef(false);
-  const activeRequest = useRef<AbortController | null>(null);
   const { t } = useLocale();
-  const [cancelled, setCancelled] = useState(false);
+  const activated = useRef(false);
+  const previousResult = useRef(result);
   const textarea = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
-    onActiveChange(Boolean(pending || submittedQuestion || result || error));
-  }, [pending, submittedQuestion, result, error, onActiveChange]);
+    if (!initialized) return;
+    const active = Boolean(pending || submittedQuestion || result || error);
+    onActiveChange(active, !activated.current && active);
+    activated.current = true;
+  }, [initialized, pending, submittedQuestion, result, error, onActiveChange]);
+  useEffect(() => {
+    if (result && result !== previousResult.current && !pending) {
+      const frame = requestAnimationFrame(() => {
+        if (!document.activeElement?.matches("textarea:not(#question), input"))
+          workspace
+            ?.querySelector<HTMLElement>(".ask-result > h3")
+            ?.focus({ preventScroll: true });
+      });
+      previousResult.current = result;
+      return () => cancelAnimationFrame(frame);
+    }
+    previousResult.current = result;
+  }, [result, pending, workspace]);
   useEffect(() => {
     const node = textarea.current;
     if (!node) return;
@@ -46,7 +61,7 @@ export function AskPanel({
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const preset = params.get("case");
-    if (preset && preset.length <= 600 && !inFlight.current) {
+    if (preset && preset.length <= 600 && !pending) {
       setQuestion(preset);
       setError(null);
       params.delete("case");
@@ -63,48 +78,9 @@ export function AskPanel({
       });
     }
   }, []);
-  useEffect(
-    () => () => {
-      activeRequest.current?.abort();
-    },
-    [],
-  );
-  async function submit(value = question) {
-    if (!initialized || inFlight.current) return;
-    const trimmed = value.trim();
-    if (!trimmed) {
-      setError("empty");
-      return;
-    }
-    inFlight.current = true;
-    const controller = new AbortController();
-    activeRequest.current = controller;
-    setPending(true);
-    setCancelled(false);
-    setError(null);
-    setSubmittedQuestion(trimmed);
-    try {
-      const response = await ask(trimmed, undefined, controller.signal);
-      if (!controller.signal.aborted) {
-        setResult(response);
-        requestAnimationFrame(() => {
-          if (
-            !document.activeElement?.matches("textarea:not(#question), input")
-          )
-            workspace
-              ?.querySelector<HTMLElement>(".ask-result > h3")
-              ?.focus({ preventScroll: true });
-        });
-      }
-    } catch (error) {
-      if (!controller.signal.aborted)
-        setError(error instanceof AskError ? error.code : "request_error");
-    } finally {
-      if (activeRequest.current === controller) {
-        inFlight.current = false;
-        if (!controller.signal.aborted) setPending(false);
-      }
-    }
+  function submit(value = question) {
+    if (!initialized || pending) return;
+    startAsk(value);
   }
   const errorMessages = {
     busy: {
@@ -195,23 +171,12 @@ export function AskPanel({
               disabled={!initialized || pending}
               onClick={() => {
                 clear();
-                setCancelled(false);
               }}
             >
               {t({ ar: "مسح", en: "Clear" })}
             </button>
             {pending && (
-              <button
-                type="button"
-                className="ask-cancel"
-                onClick={() => {
-                  activeRequest.current?.abort();
-                  activeRequest.current = null;
-                  inFlight.current = false;
-                  setPending(false);
-                  setCancelled(true);
-                }}
-              >
+              <button type="button" className="ask-cancel" onClick={cancel}>
                 {t({ ar: "إلغاء الطلب", en: "Cancel request" })}
               </button>
             )}

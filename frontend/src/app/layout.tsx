@@ -4,6 +4,7 @@ import "@fontsource/amiri/400.css";
 import "@fontsource/amiri/700.css";
 import "./globals.css";
 import { LocaleProvider, SkipLink } from "@/i18n/locale-context";
+import { AskRequestProvider } from "@/lib/ask/ask-request-provider";
 
 export const metadata: Metadata = {
   title: "MAWARITH AI | رحلة لفهم علم المواريث",
@@ -19,7 +20,7 @@ export default function RootLayout({
       <body>
         <LocaleProvider>
           <SkipLink />
-          {children}
+          <AskRequestProvider>{children}</AskRequestProvider>
         </LocaleProvider>
       </body>
     </html>

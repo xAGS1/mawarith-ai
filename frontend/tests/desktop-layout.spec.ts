@@ -23,8 +23,15 @@ test("bounded desktop layout and reduced-zoom effective viewports", async ({
         width,
         height: Math.round(screenHeight / zoom),
       });
-      // Measure settled responsive layout, rather than an in-flight morph.
-      await page.waitForTimeout(500);
+      // Wait for the actual transition, including slower large-viewport paints.
+      await page.locator(".hero-experience").evaluate(async (node) => {
+        node.getBoundingClientRect();
+        await Promise.all(
+          node
+            .getAnimations()
+            .map((animation) => animation.finished.catch(() => {})),
+        );
+      });
       const metrics = await page.evaluate(() => {
         const box = (selector: string) =>
           document.querySelector(selector)!.getBoundingClientRect();

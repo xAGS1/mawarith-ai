@@ -1,14 +1,23 @@
 "use client";
 import { useLocale } from "@/i18n/locale-context";
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AskPanel } from "./ask-panel";
 export function Hero() {
   const { t } = useLocale();
   const [active, setActive] = useState(false);
+  const [restoring, setRestoring] = useState(true);
   const [workspace, setWorkspace] = useState<HTMLElement | null>(null);
+  const onActiveChange = useCallback((next: boolean, restored = false) => {
+    setActive(next);
+    setRestoring(restored);
+  }, []);
   return (
-    <div className="hero-experience" data-mode={active ? "active" : "idle"}>
+    <div
+      className="hero-experience"
+      data-mode={active ? "active" : "idle"}
+      data-restoring={restoring}
+    >
       <section
         className="hero"
         data-mode={active ? "active" : "idle"}
@@ -62,7 +71,7 @@ export function Hero() {
             <div className="hero-active-brand" aria-hidden={!active}>
               MAWARITH AI
             </div>
-            <AskPanel workspace={workspace} onActiveChange={setActive} />
+            <AskPanel workspace={workspace} onActiveChange={onActiveChange} />
             <p className="hero-assurances">
               {t(
                 "شرح موثوق بالمصادر • تعلّم يناسب مختلف المستويات • بالعربية والإنجليزية",

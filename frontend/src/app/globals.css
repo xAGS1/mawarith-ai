@@ -3548,6 +3548,7 @@ body:has(.hero) .navbar { background: #071e23f5; border-bottom-color: #b8985c26;
 
 html[lang="en"] .hero h2 { font-size: clamp(20px, calc(24 * var(--desktop-unit, 1px)), 60px); }
 /* Continuous landing-to-answer transition; one document scrolling surface. */
+.hero-experience[data-restoring="true"], .hero-experience[data-restoring="true"] *, .hero-experience[data-restoring="true"] *::after { transition: none !important; animation: none !important; }
 .hero-experience { --navbar-height: 92px; --hero-ease: cubic-bezier(.22, 1, .36, 1); position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100dvh - var(--navbar-height)); padding-block: 36px 44px; background: #071e23; transition: min-height 420ms var(--hero-ease), padding 420ms var(--hero-ease); }
 .hero-experience .hero, .hero-experience .hero[data-mode] .hero-inner, .hero-experience .hero-copy { display: contents; }
 .hero-experience .hero-background { object-fit: cover; pointer-events: none; }

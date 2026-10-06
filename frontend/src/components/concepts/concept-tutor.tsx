@@ -1,7 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
 import { useLocale } from "@/i18n/locale-context";
-import { ask, AskError } from "@/lib/ask/client";
 import { useSessionAskState } from "@/lib/ask/use-session-ask-state";
 import { AskResult } from "@/components/ask/ask-result";
 import { AskLoading } from "@/components/ask/result-controls";
@@ -23,50 +21,18 @@ export function ConceptTutor({
     question,
     setQuestion,
     submitted,
-    setSubmitted,
     result,
-    setResult,
     error,
-    setError,
     initialized,
     clear,
+    pending,
+    cancelled,
+    startAsk,
+    cancel,
   } = useSessionAskState(`mawarith:ask:${surface}:${concept.slug}`);
-  const [pending, setPending] = useState(false);
-  const inFlight = useRef(false);
-  const activeRequest = useRef<AbortController | null>(null);
-  useEffect(
-    () => () => {
-      activeRequest.current?.abort();
-    },
-    [],
-  );
-  async function submit(value = question) {
-    if (!initialized || inFlight.current) return;
-    const trimmed = value.trim();
-    if (!trimmed) {
-      setError("empty");
-      return;
-    }
-    inFlight.current = true;
-    const controller = new AbortController();
-    activeRequest.current = controller;
-    setPending(true);
-    setError(null);
-    setSubmitted(trimmed);
-    try {
-      const response = await ask(
-        trimmed,
-        { slug: concept.slug, title: concept.title.ar },
-        controller.signal,
-      );
-      if (!controller.signal.aborted) setResult(response);
-    } catch (err) {
-      if (!controller.signal.aborted)
-        setError(err instanceof AskError ? err.code : "request_error");
-    } finally {
-      inFlight.current = false;
-      if (!controller.signal.aborted) setPending(false);
-    }
+  function submit(value = question) {
+    if (!initialized || pending) return;
+    startAsk(value, { slug: concept.slug, title: concept.title.ar });
   }
   const messages: Record<string, { ar: string; en: string }> = {
     busy: {
@@ -158,7 +124,20 @@ export function ConceptTutor({
       </form>
       <div role="status" aria-live="polite">
         {pending && <AskLoading />}
+        {cancelled && (
+          <p>
+            {t({
+              ar: "تم إلغاء الطلب. يمكنك تعديل سؤالك وإرساله مجددًا.",
+              en: "Request cancelled. You can edit your question and send it again.",
+            })}
+          </p>
+        )}
       </div>
+      {pending && (
+        <button type="button" className="ask-cancel" onClick={cancel}>
+          {t({ ar: "إلغاء الطلب", en: "Cancel request" })}
+        </button>
+      )}
       {error && (
         <div className="ask-error" role="alert">
           <p>{t(messages[error])}</p>
