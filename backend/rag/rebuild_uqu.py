@@ -9,6 +9,7 @@ from pathlib import Path
 import uuid
 
 import requests
+from backend.rag.qdrant_auth import qdrant_auth_kwargs
 from backend.learning.definition_retrieval import UQU_DIR, UQU_METADATA
 from backend.rag.educational_context import source_windows
 from backend.rag.fiqh.embeddings import DIMENSION, embed_texts, embedding_model_name
@@ -34,7 +35,8 @@ def index_uqu(records, host=None):
     base = (host or os.getenv('QDRANT_HOST', 'http://localhost:6333')).rstrip('/')
 
     def call(method, suffix, body=None):
-        response = requests.request(method, base + suffix, json=body, timeout=60)
+        response = requests.request(method, base + suffix, json=body, timeout=60,
+                                    **qdrant_auth_kwargs())
         response.raise_for_status()
         data = response.json()
         if data.get('status') != 'ok':

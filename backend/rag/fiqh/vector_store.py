@@ -8,6 +8,8 @@ from uuid import NAMESPACE_URL, uuid5
 
 import requests
 
+from backend.rag.qdrant_auth import qdrant_auth_kwargs
+
 from backend.rag.fiqh.embeddings import DIMENSION, embed_texts, embedding_model_name, validate_vectors, embedding_batch_size
 from backend.rag.fiqh.loader import DATA_DIR
 from backend.rag.fiqh.schemas import FiqhChunk, PUBLISHER, SOURCE_NAME
@@ -65,7 +67,8 @@ class QdrantFiqhStore:
 
     def _request(self, method: str, path: str, body: dict | None = None):
         try:
-            response = requests.request(method, self.host + path, json=body, timeout=10)
+            response = requests.request(method, self.host + path, json=body, timeout=10,
+                                        **qdrant_auth_kwargs())
             response.raise_for_status()
             data = response.json()
             if data.get("status") != "ok":
