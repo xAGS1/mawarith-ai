@@ -1,0 +1,56 @@
+[
+  {
+    "rule_id": "wife_with_descendant",
+    "applies_to": ["زوجة"],
+    "conditions": {
+      "has_descendant": true
+    },
+    "result": {
+      "fraction": "1/8"
+    },
+    "topic": "نصيب الزوجة مع وجود ولد",
+    "rule": "للزوجة أو الزوجات معا الثمن عند وجود ولد للمتوفى.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:12"
+    }
+  },
+  {
+    "rule_id": "mother_with_child",
+    "applies_to": ["أم"],
+    "conditions": {
+      "has_child": true
+    },
+    "result": {
+      "fraction": "1/6"
+    },
+    "topic": "نصيب الأم مع ولد",
+    "rule": "للأم السدس عند وجود ولد.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:11"
+    }
+  },
+  {
+    "rule_id": "sons_and_daughters",
+    "applies_to": ["ابن", "بنت"],
+    "conditions": {
+      "has_son": true,
+      "has_daughter": true
+    },
+    "result": {
+      "allocation": "residue",
+      "male_weight": 2,
+      "female_weight": 1
+    },
+    "topic": "تقاسم الأبناء والبنات",
+    "rule": "يتقاسم الأبناء والبنات الباقي بعد الفروض، للذكر مثل حظ الأنثيين.",
+    "source": {
+      "source_type": "quran",
+      "source_name": "القرآن الكريم",
+      "reference": "4:11"
+    }
+  }
+]
