@@ -1,6 +1,8 @@
 .env
 __pycache__/
 *.pyc
+.pytest_cache/
+pytest-cache-files-*/
 .venv/
 venv/
 
@@ -30,6 +32,8 @@ qdrant_storage/
 # Common local/generated files.
 node_modules/
 .next/
+frontend/test-results/
+frontend/playwright-report/
 dist/
 build/
 *.log
@@ -40,3 +44,4 @@ Thumbs.db
 evaluation/*_trace_*.json
 evaluation/*_smoke_*.json
 evaluation/*_live.json
+evaluation/*_report.md
